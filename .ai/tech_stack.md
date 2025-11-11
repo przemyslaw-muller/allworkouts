@@ -1,157 +1,145 @@
 # Technical Stack - AllWorkouts
 
 ## Overview
-AllWorkouts is built using a modern web stack with clear separation between frontend and backend services.
+AllWorkouts MVP uses a straightforward web stack that balances development speed with maintainability.
 
 ## Backend Stack
 
 ### Core Framework
 - FastAPI
-  - Modern, fast Python web framework
-  - Built-in OpenAPI documentation
-  - Type hints and data validation
-  - Async support for high performance
 
 ### Database
 - PostgreSQL
-  - Robust relational database
-  - Strong data integrity
-  - JSON support for flexible workout templates
-  - Full-text search capabilities for exercise matching
 
 ### Python Dependencies
 - poetry - dependency management
-- SQLAlchemy - ORM for database operations
-- Alembic - Database migrations
+- SQLAlchemy - Database ORM
+- Alembic - Migrations
 - Pydantic - Data validation
-- python-jose - JWT token handling
+- python-jose - JWT handling
 - passlib - Password hashing
 - psycopg2-binary - PostgreSQL adapter
+- ruff - linter
 
 ## Frontend Stack
 
 ### Core Framework
 - Vue 3
-  - Composition API for better code organization
-  - TypeScript support
-  - Built-in state management with Pinia
+  - Composition API
+  - Built-in state management
+  - Excellent documentation
 
 ### Styling
 - Tailwind CSS
-  - Utility-first CSS framework
-  - Easy responsive design
-  - Custom design system support
 
-### Development Tools
-- Vite - Modern build tool
-- Vue Router - Route management
+### Key Dependencies
+- Vite - build tool
+- Vue Router - Navigation
 - Pinia - State management
 - axios - API client
-- ESLint + Prettier - Code formatting
+- TypeScript
+- zod - schema validation
 
 ## Development Environment
 
 ### Docker Setup
-- docker-compose for local development
-- Separate containers for:
-  - Backend (FastAPI)
-  - Frontend (Vue3)
-  - Database (PostgreSQL)
-  - PgAdmin (Database management)
+-- docker-compose for local development
+-- Separate containers for:
+-  - Backend (FastAPI)
+-  - Frontend (Vue3)
+-  - Database (PostgreSQL)
+
+Frontend runs locally for faster development.
 
 ### Local Development URLs
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 - API Docs: http://localhost:8000/docs
-- PgAdmin: http://localhost:5050
 
 ## Project Structure
-
 ```
 allworkouts/
 ├── backend/
 │   ├── app/
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── db/
-│   │   ├── models/
-│   │   └── schemas/
+│   │   ├── api.py      # All routes
+│   │   ├── models.py   # Database models
+│   │   ├── schemas.py  # Pydantic schemas
+│   │   └── auth.py     # Authentication
 │   ├── alembic/
-│   ├── tests/
-│   └── pyproject.toml
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── assets/
 │   │   ├── components/
-│   │   ├── composables/
-│   │   ├── router/
-│   │   ├── stores/
-│   │   └── views/
-│   ├── package.json
-│   └── vite.config.ts
-├── docker/
-│   ├── backend.Dockerfile
-│   ├── frontend.Dockerfile
-│   └── postgres.Dockerfile
+│   │   ├── views/
+│   │   └── store.js
+│   └── package.json
 └── docker-compose.yml
+```
+
+## Local Setup
+
+### Docker Configuration
+```yaml
+# docker-compose.yml
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db/allworkouts
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=allworkouts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
+
+### Getting Started
+```bash
+# Start backend services
+docker-compose up -d
+
+# Setup frontend
+npm create vue@latest
+cd frontend
+npm install
+npm run dev
 ```
 
 ## Development Workflow
 
-### First-time Setup
-```bash
-# Clone repository
-git clone [repository-url]
+### Backend Development
+- Python 3.9+
+- Basic type hints
+- Simple pytest setup
+- Black for formatting
+- 4 space indentation, no tabs, use single quotes
 
-# Start services
-docker-compose up -d
-
-# Apply database migrations
-docker-compose exec backend alembic upgrade head
-
-# Install frontend dependencies
-docker-compose exec frontend npm install
-```
-
-### Daily Development
-```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Testing
-```bash
-# Backend tests
-docker-compose exec backend pytest
-
-# Frontend tests
-docker-compose exec frontend npm run test
-```
-
-## Coding Standards
-
-### Backend (Python)
-- Python 3.11+
-- Type hints required
-- ruff for linting
-- pytest for testing
-
-### Frontend (Vue/TypeScript)
-- TypeScript for all components
+### Frontend Development
 - Vue 3 Composition API
-- ESLint + Prettier configuration
-- Jest for unit testing
-- Playwright for E2E testing
+- TypeScript
+- Basic Jest testing
+- ESLint + Prettier
+- 2 space indentation, no tabs, use single quotes
 
-## CI/CD Considerations
-- GitHub Actions for CI/CD
-- Automated testing on PR
-- Code quality checks
-- Docker image builds
-- Automated deployments
+## Security
+- JWT-based authentication
+- Password hashing
+- PostgreSQL security best practices
+- CORS configuration
+
+## Future Considerations
+- CI/CD setup
+- Advanced testing
+- Mobile responsiveness
+- Performance optimization
