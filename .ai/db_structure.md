@@ -2,6 +2,7 @@
 
 ## Overview
 This document defines the complete PostgreSQL database schema for AllWorkouts MVP. The schema supports user authentication, workout plan management, exercise logging, and performance tracking with row-level security (RLS) policies for data isolation.
+This expands on @.ai/db_plan.md
 
 ---
 
@@ -696,7 +697,7 @@ All foreign key constraints are defined without `ON DELETE CASCADE`. Deletion lo
 
 ### Database-Level Constraints
 - **NOT NULL**: Applied to all required fields
-- **UNIQUE**: 
+- **UNIQUE**:
   - `user.email`: Email uniqueness
   - `exercise.name`: Exercise name uniqueness
   - `workout_exercise.(workout_plan_id, sequence)`: Exercise sequence uniqueness
