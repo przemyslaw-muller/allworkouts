@@ -1,1 +1,135 @@
-*scratch*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# Poetry
+poetry.lock
+
+# PyTest
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn/
+.pnp.*
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+
+# Frontend tooling
+.vite/
+.cache/
+.parcel-cache/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+
+# Docker
+docker-compose.override.yml
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+
+# IDE - JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+*_archive
+*_flymake.*
+*.rel
+.cask/
+dist/
+flycheck_*.el
+.projectile
+.dir-locals.el
+*.bak
+TAGS
+
+# Linux
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Test coverage
+coverage/
+.nyc_output/

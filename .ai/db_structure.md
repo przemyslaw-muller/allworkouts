@@ -133,7 +133,7 @@ CREATE TABLE exercise (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL UNIQUE,
   primary_muscle_groups muscle_group_enum[] NOT NULL,
-  secondary_muscle_groups muscle_group_enum[] DEFAULT '{}',
+  secondary_muscle_groups muscle_group_enum[] DEFAULT '[]',
   default_weight NUMERIC(10, 2),
   default_reps INTEGER,
   default_rest_time_seconds INTEGER,
