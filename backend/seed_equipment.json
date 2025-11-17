@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Bodyweight",
+    "description": "No equipment required, exercises using your own body weight"
+  },
+  {
+    "name": "Barbell",
+    "description": "Standard Olympic barbell (typically 20kg/45lbs)"
+  },
+  {
+    "name": "Dumbbell",
+    "description": "Dumbbells (single or pair)"
+  },
+  {
+    "name": "Pull-up Bar",
+    "description": "Pull-up, chin-up, or hanging bar"
+  },
+  {
+    "name": "Bench",
+    "description": "Weight bench (flat, incline, or adjustable)"
+  },
+  {
+    "name": "Cable Machine",
+    "description": "Cable crossover, lat pulldown, or cable station"
+  },
+  {
+    "name": "Machine",
+    "description": "Generic gym machines (leg press, hack squat, chest press, etc.)"
+  },
+  {
+    "name": "Resistance Bands",
+    "description": "Elastic resistance bands or loops"
+  },
+  {
+    "name": "Kettlebell",
+    "description": "Kettlebell for dynamic movements"
+  },
+  {
+    "name": "Medicine Ball",
+    "description": "Weighted medicine ball for throws and core work"
+  },
+  {
+    "name": "Dip Station",
+    "description": "Parallel bars or dip station"
+  },
+  {
+    "name": "EZ Bar",
+    "description": "EZ curl bar with angled grips"
+  }
+]

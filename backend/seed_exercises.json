@@ -1,0 +1,632 @@
+[
+  {
+    "name": "Barbell Bench Press",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": ["triceps", "shoulders"],
+    "default_weight": 60.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 180,
+    "description": "Classic flat bench press with barbell",
+    "equipment": ["Barbell", "Bench"]
+  },
+  {
+    "name": "Incline Barbell Bench Press",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": ["shoulders", "triceps"],
+    "default_weight": 50.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 180,
+    "description": "Bench press on an incline to target upper chest",
+    "equipment": ["Barbell", "Bench"]
+  },
+  {
+    "name": "Dumbbell Bench Press",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": ["triceps", "shoulders"],
+    "default_weight": 25.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "Bench press with dumbbells for greater range of motion",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "Incline Dumbbell Press",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": ["shoulders", "triceps"],
+    "default_weight": 22.5,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "Incline dumbbell press targeting upper chest",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "Dumbbell Flyes",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": [],
+    "default_weight": 15.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Isolation exercise for chest with dumbbells",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "Cable Flyes",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": [],
+    "default_weight": 10.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Cable crossover or flyes for chest isolation",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Push-ups",
+    "primary_muscle_groups": ["chest"],
+    "secondary_muscle_groups": ["triceps", "shoulders", "core"],
+    "default_weight": 0.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Classic bodyweight push-up exercise",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Dips",
+    "primary_muscle_groups": ["chest", "triceps"],
+    "secondary_muscle_groups": ["shoulders"],
+    "default_weight": 0.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Bodyweight dips for chest and triceps",
+    "equipment": ["Dip Station"]
+  },
+  {
+    "name": "Barbell Back Squat",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["glutes", "core"],
+    "default_weight": 80.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 240,
+    "description": "Classic back squat with barbell",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Front Squat",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["core", "glutes"],
+    "default_weight": 60.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 240,
+    "description": "Front-loaded squat emphasizing quads and core",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Leg Press",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["glutes"],
+    "default_weight": 100.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 120,
+    "description": "Machine leg press for quad development",
+    "equipment": ["Machine"]
+  },
+  {
+    "name": "Romanian Deadlift",
+    "primary_muscle_groups": ["legs", "glutes"],
+    "secondary_muscle_groups": ["back"],
+    "default_weight": 70.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 180,
+    "description": "Hip-hinge movement targeting hamstrings and glutes",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Leg Curl",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": [],
+    "default_weight": 30.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Machine hamstring curl",
+    "equipment": ["Machine"]
+  },
+  {
+    "name": "Leg Extension",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": [],
+    "default_weight": 40.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Machine quad extension",
+    "equipment": ["Machine"]
+  },
+  {
+    "name": "Bulgarian Split Squat",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["glutes"],
+    "default_weight": 20.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Single-leg squat variation with rear foot elevated",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "Walking Lunges",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["glutes"],
+    "default_weight": 15.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Dynamic lunge movement",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Calf Raises",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": [],
+    "default_weight": 40.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Standing or seated calf raises",
+    "equipment": ["Machine"]
+  },
+  {
+    "name": "Conventional Deadlift",
+    "primary_muscle_groups": ["back"],
+    "secondary_muscle_groups": ["legs", "glutes", "traps"],
+    "default_weight": 100.0,
+    "default_reps": 5,
+    "default_rest_time_seconds": 300,
+    "description": "Classic deadlift from the floor",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Sumo Deadlift",
+    "primary_muscle_groups": ["back"],
+    "secondary_muscle_groups": ["legs", "glutes"],
+    "default_weight": 100.0,
+    "default_reps": 5,
+    "default_rest_time_seconds": 300,
+    "description": "Wide-stance deadlift variation",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Barbell Row",
+    "primary_muscle_groups": ["back"],
+    "secondary_muscle_groups": ["biceps", "traps"],
+    "default_weight": 60.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 120,
+    "description": "Bent-over barbell row",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Dumbbell Row",
+    "primary_muscle_groups": ["back"],
+    "secondary_muscle_groups": ["biceps"],
+    "default_weight": 30.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Single-arm dumbbell row",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "T-Bar Row",
+    "primary_muscle_groups": ["back"],
+    "secondary_muscle_groups": ["biceps", "traps"],
+    "default_weight": 50.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "T-bar or landmine row",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Cable Row",
+    "primary_muscle_groups": ["back"],
+    "secondary_muscle_groups": ["biceps"],
+    "default_weight": 50.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Seated cable row",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Pull-ups",
+    "primary_muscle_groups": ["lats", "back"],
+    "secondary_muscle_groups": ["biceps"],
+    "default_weight": 0.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 120,
+    "description": "Overhand grip pull-ups",
+    "equipment": ["Pull-up Bar"]
+  },
+  {
+    "name": "Chin-ups",
+    "primary_muscle_groups": ["lats", "back"],
+    "secondary_muscle_groups": ["biceps"],
+    "default_weight": 0.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 120,
+    "description": "Underhand grip chin-ups",
+    "equipment": ["Pull-up Bar"]
+  },
+  {
+    "name": "Lat Pulldown",
+    "primary_muscle_groups": ["lats"],
+    "secondary_muscle_groups": ["biceps", "back"],
+    "default_weight": 50.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Cable lat pulldown",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Face Pulls",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": ["traps", "back"],
+    "default_weight": 20.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Cable face pulls for rear delts",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Overhead Press",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": ["triceps", "core"],
+    "default_weight": 45.0,
+    "default_reps": 8,
+    "default_rest_time_seconds": 180,
+    "description": "Standing barbell overhead press",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Seated Dumbbell Press",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": ["triceps"],
+    "default_weight": 20.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "Seated shoulder press with dumbbells",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "Lateral Raises",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": [],
+    "default_weight": 10.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Side lateral raises for medial deltoids",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Front Raises",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": [],
+    "default_weight": 10.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Front dumbbell raises",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Rear Delt Flyes",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": ["back"],
+    "default_weight": 8.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Bent-over rear deltoid flyes",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Arnold Press",
+    "primary_muscle_groups": ["shoulders"],
+    "secondary_muscle_groups": ["triceps"],
+    "default_weight": 18.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Rotating dumbbell shoulder press",
+    "equipment": ["Dumbbell", "Bench"]
+  },
+  {
+    "name": "Barbell Shrugs",
+    "primary_muscle_groups": ["traps"],
+    "secondary_muscle_groups": [],
+    "default_weight": 70.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Barbell shrugs for trap development",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "Dumbbell Shrugs",
+    "primary_muscle_groups": ["traps"],
+    "secondary_muscle_groups": [],
+    "default_weight": 35.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Dumbbell shrugs for trap development",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Barbell Curl",
+    "primary_muscle_groups": ["biceps"],
+    "secondary_muscle_groups": ["forearms"],
+    "default_weight": 30.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Standing barbell bicep curl",
+    "equipment": ["Barbell"]
+  },
+  {
+    "name": "EZ Bar Curl",
+    "primary_muscle_groups": ["biceps"],
+    "secondary_muscle_groups": ["forearms"],
+    "default_weight": 25.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Bicep curl with EZ bar",
+    "equipment": ["EZ Bar"]
+  },
+  {
+    "name": "Dumbbell Curl",
+    "primary_muscle_groups": ["biceps"],
+    "secondary_muscle_groups": ["forearms"],
+    "default_weight": 15.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Standing or seated dumbbell curls",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Hammer Curl",
+    "primary_muscle_groups": ["biceps"],
+    "secondary_muscle_groups": ["forearms"],
+    "default_weight": 15.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Neutral grip dumbbell curls",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Preacher Curl",
+    "primary_muscle_groups": ["biceps"],
+    "secondary_muscle_groups": [],
+    "default_weight": 20.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Isolated bicep curl on preacher bench",
+    "equipment": ["EZ Bar", "Bench"]
+  },
+  {
+    "name": "Cable Curl",
+    "primary_muscle_groups": ["biceps"],
+    "secondary_muscle_groups": ["forearms"],
+    "default_weight": 25.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Cable bicep curls with bar or rope",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Close-Grip Bench Press",
+    "primary_muscle_groups": ["triceps"],
+    "secondary_muscle_groups": ["chest"],
+    "default_weight": 50.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "Narrow grip bench press for triceps",
+    "equipment": ["Barbell", "Bench"]
+  },
+  {
+    "name": "Tricep Dips",
+    "primary_muscle_groups": ["triceps"],
+    "secondary_muscle_groups": ["chest", "shoulders"],
+    "default_weight": 0.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Bodyweight tricep dips",
+    "equipment": ["Dip Station"]
+  },
+  {
+    "name": "Overhead Tricep Extension",
+    "primary_muscle_groups": ["triceps"],
+    "secondary_muscle_groups": [],
+    "default_weight": 20.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Overhead dumbbell or cable tricep extension",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Tricep Pushdown",
+    "primary_muscle_groups": ["triceps"],
+    "secondary_muscle_groups": [],
+    "default_weight": 30.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Cable tricep pushdowns with bar or rope",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Skull Crushers",
+    "primary_muscle_groups": ["triceps"],
+    "secondary_muscle_groups": [],
+    "default_weight": 25.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Lying tricep extensions with EZ bar",
+    "equipment": ["EZ Bar", "Bench"]
+  },
+  {
+    "name": "Diamond Push-ups",
+    "primary_muscle_groups": ["triceps"],
+    "secondary_muscle_groups": ["chest"],
+    "default_weight": 0.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Close-grip push-ups for triceps",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Wrist Curls",
+    "primary_muscle_groups": ["forearms"],
+    "secondary_muscle_groups": [],
+    "default_weight": 10.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Seated wrist curls for forearm flexors",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Reverse Wrist Curls",
+    "primary_muscle_groups": ["forearms"],
+    "secondary_muscle_groups": [],
+    "default_weight": 8.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Seated reverse wrist curls for forearm extensors",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Farmer's Walk",
+    "primary_muscle_groups": ["forearms"],
+    "secondary_muscle_groups": ["traps", "core"],
+    "default_weight": 40.0,
+    "default_reps": 1,
+    "default_rest_time_seconds": 90,
+    "description": "Loaded carry exercise for grip strength",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Plank",
+    "primary_muscle_groups": ["core"],
+    "secondary_muscle_groups": [],
+    "default_weight": 0.0,
+    "default_reps": 1,
+    "default_rest_time_seconds": 60,
+    "description": "Static core hold in plank position",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Cable Crunch",
+    "primary_muscle_groups": ["core"],
+    "secondary_muscle_groups": [],
+    "default_weight": 40.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Kneeling cable crunches for abs",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Russian Twists",
+    "primary_muscle_groups": ["core"],
+    "secondary_muscle_groups": [],
+    "default_weight": 10.0,
+    "default_reps": 20,
+    "default_rest_time_seconds": 60,
+    "description": "Rotational core exercise with medicine ball or plate",
+    "equipment": ["Medicine Ball"]
+  },
+  {
+    "name": "Hanging Leg Raises",
+    "primary_muscle_groups": ["core"],
+    "secondary_muscle_groups": [],
+    "default_weight": 0.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Hanging leg raises for lower abs",
+    "equipment": ["Pull-up Bar"]
+  },
+  {
+    "name": "Ab Wheel Rollout",
+    "primary_muscle_groups": ["core"],
+    "secondary_muscle_groups": [],
+    "default_weight": 0.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 90,
+    "description": "Ab wheel rollouts for core strength",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Mountain Climbers",
+    "primary_muscle_groups": ["core"],
+    "secondary_muscle_groups": ["shoulders"],
+    "default_weight": 0.0,
+    "default_reps": 20,
+    "default_rest_time_seconds": 60,
+    "description": "Dynamic core and cardio exercise",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Hip Thrusts",
+    "primary_muscle_groups": ["glutes"],
+    "secondary_muscle_groups": ["legs"],
+    "default_weight": 60.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 120,
+    "description": "Barbell hip thrust for glute development",
+    "equipment": ["Barbell", "Bench"]
+  },
+  {
+    "name": "Glute Bridge",
+    "primary_muscle_groups": ["glutes"],
+    "secondary_muscle_groups": ["legs"],
+    "default_weight": 0.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Bodyweight glute bridge",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Cable Kickbacks",
+    "primary_muscle_groups": ["glutes"],
+    "secondary_muscle_groups": [],
+    "default_weight": 15.0,
+    "default_reps": 15,
+    "default_rest_time_seconds": 60,
+    "description": "Cable glute kickbacks",
+    "equipment": ["Cable Machine"]
+  },
+  {
+    "name": "Hack Squat",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["glutes"],
+    "default_weight": 80.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "Machine hack squat for quads",
+    "equipment": ["Machine"]
+  },
+  {
+    "name": "Goblet Squat",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["core"],
+    "default_weight": 20.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 90,
+    "description": "Front-loaded squat with dumbbell or kettlebell",
+    "equipment": ["Dumbbell"]
+  },
+  {
+    "name": "Box Jumps",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": ["glutes"],
+    "default_weight": 0.0,
+    "default_reps": 10,
+    "default_rest_time_seconds": 120,
+    "description": "Explosive box jump exercise",
+    "equipment": ["Bodyweight"]
+  },
+  {
+    "name": "Sissy Squats",
+    "primary_muscle_groups": ["legs"],
+    "secondary_muscle_groups": [],
+    "default_weight": 0.0,
+    "default_reps": 12,
+    "default_rest_time_seconds": 60,
+    "description": "Bodyweight quad isolation exercise",
+    "equipment": ["Bodyweight"]
+  }
+]
