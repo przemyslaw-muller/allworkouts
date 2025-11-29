@@ -1,0 +1,63 @@
+from datetime import datetime
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, field_validator
+
+
+class RegisterRequest(BaseModel):
+    '''Schema for user registration request'''
+
+    email: EmailStr
+    password: str
+
+    @field_validator('password')
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters')
+        return v
+
+
+class LoginRequest(BaseModel):
+    '''Schema for user login request'''
+
+    email: EmailStr
+    password: str
+
+
+class RefreshTokenRequest(BaseModel):
+    '''Schema for token refresh request'''
+
+    refresh_token: str
+
+
+class AuthUserResponse(BaseModel):
+    '''User data returned in auth responses'''
+
+    id: UUID
+    email: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AuthTokens(BaseModel):
+    '''Token pair for authentication'''
+
+    access_token: str
+    refresh_token: str
+
+
+class AuthResponse(BaseModel):
+    '''Response for login/register endpoints'''
+
+    user: AuthUserResponse
+    access_token: str
+    refresh_token: str
+
+
+class RefreshResponse(BaseModel):
+    '''Response for token refresh endpoint'''
+
+    access_token: str

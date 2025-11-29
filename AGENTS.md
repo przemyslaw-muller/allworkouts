@@ -5,6 +5,8 @@ For technical stack details, dependencies, project structure, and environment se
 ## Build & Test Commands
 
 ### Backend
+Do NOT run backend app directly, always use Docker.
+
 ```bash
 # Start backend services
 docker-compose up -d
