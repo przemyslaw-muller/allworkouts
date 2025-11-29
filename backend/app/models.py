@@ -36,7 +36,7 @@ class User(Base):
     email = Column(String(255), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
     unit_system = Column(
-        Enum(UnitSystemEnum, native_enum=True, create_constraint=True),
+        Enum(UnitSystemEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]),
         nullable=False,
         default=UnitSystemEnum.METRIC,
     )
@@ -80,10 +80,10 @@ class Exercise(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, unique=True)
     primary_muscle_groups = Column(
-        ARRAY(Enum(MuscleGroupEnum, native_enum=True, create_constraint=True)), nullable=False
+        ARRAY(Enum(MuscleGroupEnum, name='muscle_group_enum', native_enum=True, create_constraint=False, values_callable=lambda e: [x.value for x in e])), nullable=False
     )
     secondary_muscle_groups = Column(
-        ARRAY(Enum(MuscleGroupEnum, native_enum=True, create_constraint=True)),
+        ARRAY(Enum(MuscleGroupEnum, name='muscle_group_enum', native_enum=True, create_constraint=False, values_callable=lambda e: [x.value for x in e])),
         nullable=False,
         default=list,
     )
@@ -213,7 +213,7 @@ class WorkoutExercise(Base):
     reps_max = Column(Integer, nullable=False)
     rest_time_seconds = Column(Integer, nullable=True)
     confidence_level = Column(
-        Enum(ConfidenceLevelEnum, native_enum=True, create_constraint=True),
+        Enum(ConfidenceLevelEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]),
         nullable=False,
         default=ConfidenceLevelEnum.MEDIUM,
     )
@@ -243,7 +243,7 @@ class WorkoutSession(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
     workout_plan_id = Column(UUID(as_uuid=True), ForeignKey('workout_plan.id'), nullable=False)
     status = Column(
-        Enum(SessionStatusEnum, native_enum=True, create_constraint=True),
+        Enum(SessionStatusEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]),
         nullable=False,
         default=SessionStatusEnum.IN_PROGRESS,
     )
@@ -321,7 +321,7 @@ class PersonalRecord(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
     exercise_id = Column(UUID(as_uuid=True), ForeignKey('exercise.id'), nullable=False)
     record_type = Column(
-        Enum(RecordTypeEnum, native_enum=True, create_constraint=True), nullable=False
+        Enum(RecordTypeEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]), nullable=False
     )
     value = Column(Numeric(10, 2), nullable=False)
     unit = Column(String(10), nullable=True)

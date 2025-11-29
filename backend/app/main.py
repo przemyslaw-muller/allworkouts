@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api import router as api_router
 from app.config import settings
 from app.schemas import HealthResponse
 
@@ -40,3 +41,7 @@ async def root():
         'docs': '/docs',
         'health': '/health',
     }
+
+
+# Include API routes
+app.include_router(api_router)

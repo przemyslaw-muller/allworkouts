@@ -9,6 +9,10 @@
 
 For complete stack details, see [../tech_stack.md](../tech_stack.md).
 
+## Running
+
+Application should always be run in a Docker container. Do not run the app directly.
+
 ## Code Organization
 
 ### Project Structure
@@ -65,7 +69,7 @@ backend/
   def get_user(user_id: int) -> User:
       """Retrieve user by ID."""
       pass
-  
+
   def process_data(items: list[str], count: int = 5) -> dict[str, any]:
       """Process data items."""
       pass
@@ -80,7 +84,7 @@ backend/
   # ✓ Use this (Python 3.9+)
   items: list[str] = []
   config: dict[str, int] = {}
-  
+
   # ✗ Not this (older style)
   items: List[str] = []
   config: Dict[str, int] = {}
@@ -91,15 +95,13 @@ backend/
   ```python
   def create_user(email: str, password: str) -> User:
       """
-      Create a new user in the system.
-      
       Args:
           email: User email address
           password: User password (will be hashed)
-      
+
       Returns:
           User: Created user object
-      
+
       Raises:
           ValueError: If email already exists
       """
@@ -110,11 +112,12 @@ backend/
   # ✓ Good
   # Use exponential backoff for retries
   wait_time = base_delay * (2 ** attempt)
-  
+
   # ✗ Bad
   # increment count
   count += 1
   ```
+- Avoid comments and docstrings which state the same as variable/class/function names and don't provide additional information.
 
 ## Database Guidelines
 
@@ -127,7 +130,7 @@ backend/
   from sqlalchemy import Column, String
   from sqlalchemy.dialects.postgresql import UUID
   import uuid
-  
+
   class User(Base):
       __tablename__ = "user"
       id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -135,7 +138,7 @@ backend/
 - **Timestamps**: Always include created_at and updated_at
   ```python
   from datetime import datetime
-  
+
   created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
   updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
   ```
@@ -143,7 +146,7 @@ backend/
   ```python
   class User(Base):
       workouts = relationship("Workout", back_populates="user", cascade="all, delete-orphan")
-  
+
   class Workout(Base):
       user = relationship("User", back_populates="workouts")
   ```
@@ -162,7 +165,7 @@ backend/
   class UserCreate(BaseModel):
       email: str
       password: str
-      
+
       class Config:
           from_attributes = True
   ```
@@ -172,18 +175,18 @@ backend/
       id: str
       email: str
       created_at: datetime
-      
+
       class Config:
           from_attributes = True
   ```
 - **Validation rules**: Use Pydantic validators
   ```python
   from pydantic import field_validator, EmailStr
-  
+
   class UserCreate(BaseModel):
       email: EmailStr
       password: str
-      
+
       @field_validator('password')
       @classmethod
       def password_strong(cls, v: str) -> str:
@@ -326,9 +329,9 @@ except IntegrityError as e:
 - **Always hash passwords**: Use passlib
   ```python
   from passlib.context import CryptContext
-  
+
   pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-  
+
   hashed = pwd_context.hash(password)
   verified = pwd_context.verify(password, hashed)
   ```
@@ -340,13 +343,13 @@ except IntegrityError as e:
   ```python
   from jose import jwt
   from datetime import datetime, timedelta
-  
+
   def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None):
       if expires_delta:
           expire = datetime.utcnow() + expires_delta
       else:
           expire = datetime.utcnow() + timedelta(hours=24)
-      
+
       to_encode = {"sub": str(user_id), "exp": expire}
       return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
   ```
@@ -414,7 +417,7 @@ pytest tests/unit/test_auth.py::test_hash_password
 - **Use indexes**: Define indexes on frequently queried columns
   ```python
   from sqlalchemy import Index
-  
+
   __table_args__ = (
       Index('ix_user_email', 'email', unique=True),
   )
@@ -426,7 +429,7 @@ pytest tests/unit/test_auth.py::test_hash_password
 - **Eager loading**: Use `joinedload()` to avoid N+1 queries
   ```python
   from sqlalchemy.orm import joinedload
-  
+
   users = db.query(User).options(joinedload(User.workouts)).all()
   ```
 - **Lazy loading awareness**: Understand when queries execute
@@ -436,7 +439,7 @@ pytest tests/unit/test_auth.py::test_hash_password
 - **Caching**: Implement HTTP caching headers when appropriate
   ```python
   from fastapi.responses import Response
-  
+
   @router.get("/users/{id}")
   def get_user(id: str):
       return Response(
