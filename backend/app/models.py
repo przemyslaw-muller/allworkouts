@@ -326,7 +326,7 @@ class PersonalRecord(Base):
     value = Column(Numeric(10, 2), nullable=False)
     unit = Column(String(10), nullable=True)
     exercise_session_id = Column(
-        UUID(as_uuid=True), ForeignKey('exercise_session.id'), nullable=False
+        UUID(as_uuid=True), ForeignKey('exercise_session.id'), nullable=True
     )
     achieved_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)

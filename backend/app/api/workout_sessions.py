@@ -2,7 +2,7 @@
 Workout Session API routes.
 '''
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -475,7 +475,7 @@ async def complete_workout_session(
 
     # Update session status
     session.status = SessionStatusEnum.COMPLETED
-    completed_at = datetime.utcnow()
+    completed_at = datetime.now(timezone.utc)
 
     # Calculate duration
     duration_seconds = int((completed_at - session.created_at).total_seconds())
