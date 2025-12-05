@@ -1,0 +1,53 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+
+interface Props {
+  modelValue: boolean
+  disabled?: boolean
+  id?: string
+  name?: string
+  label?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
+  label: '',
+})
+
+const emit = defineEmits<{
+  'update:modelValue': [value: boolean]
+  change: [value: boolean]
+}>()
+
+const checkboxId = computed(() => props.id || `checkbox-${Math.random().toString(36).slice(2)}`)
+
+function handleChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  emit('update:modelValue', target.checked)
+  emit('change', target.checked)
+}
+</script>
+
+<template>
+  <div class="flex items-center">
+    <input
+      :id="checkboxId"
+      type="checkbox"
+      :checked="modelValue"
+      :disabled="disabled"
+      :name="name"
+      class="h-4 w-4 rounded border-gray-300 text-primary-600 
+             focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+             disabled:opacity-50 disabled:cursor-not-allowed"
+      @change="handleChange"
+    />
+    <label
+      v-if="label"
+      :for="checkboxId"
+      class="ml-2 text-sm text-gray-700 select-none"
+      :class="{ 'opacity-50 cursor-not-allowed': disabled }"
+    >
+      {{ label }}
+    </label>
+  </div>
+</template>
