@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "AllWorkouts backend API"
 authors = ["AllWorkouts Team"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -19,6 +20,9 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 bcrypt = "4.0.1"  # Pin to 4.0.x for passlib compatibility
 python-multipart = "^0.0.6"
+litellm = "^1.17.0"
+rapidfuzz = "^3.5.0"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"

@@ -2,6 +2,7 @@
 Workout Plan API routes.
 '''
 
+import logging
 from datetime import datetime
 from uuid import UUID
 
@@ -10,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user_id
 from app.database import get_db
-from app.models import Exercise, WorkoutExercise, WorkoutPlan
+from app.models import Exercise, WorkoutExercise, WorkoutImportLog, WorkoutPlan
 from app.schemas import (
     APIResponse,
     ExerciseBrief,
@@ -19,11 +20,17 @@ from app.schemas import (
     WorkoutPlanCreateRequest,
     WorkoutPlanCreateResponse,
     WorkoutPlanDetailResponse,
+    WorkoutPlanFromParsedRequest,
     WorkoutPlanListItem,
     WorkoutPlanListResponse,
+    WorkoutPlanParseRequest,
+    WorkoutPlanParseResponse,
     WorkoutPlanUpdateRequest,
     WorkoutPlanUpdateResponse,
 )
+from app.services.parser_service import ParserService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/workout-plans', tags=['Workout Plans'])
 
@@ -358,3 +365,123 @@ async def delete_workout_plan(
     db.commit()
 
     return APIResponse.success_response(None)
+
+
+@router.post(
+    '/parse',
+    response_model=APIResponse[WorkoutPlanParseResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def parse_workout_plan(
+    request: WorkoutPlanParseRequest,
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    '''
+    Parse workout plan from text using AI (Step 1 of import).
+
+    This endpoint:
+    1. Uses LLM to extract workout structure
+    2. Matches exercises to database with confidence scores
+    3. Returns parsed data for user review
+    4. Creates import log for audit trail
+
+    Rate limit: 10 requests per hour per user
+    '''
+    try:
+        parser = ParserService(db, user_id)
+        result = await parser.parse_workout_plan(request.text)
+        return APIResponse.success_response(result)
+    except Exception as e:
+        logger.error(f'Parse failed for user {user_id}: {str(e)}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Failed to parse workout plan: {str(e)}',
+        )
+
+
+@router.post(
+    '/from-parsed',
+    response_model=APIResponse[WorkoutPlanCreateResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_workout_plan_from_parsed(
+    request: WorkoutPlanFromParsedRequest,
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    '''
+    Create workout plan from parsed data (Step 2 of import).
+
+    This endpoint takes the import_log_id from the parse response
+    and creates the actual workout plan with user-confirmed exercises.
+    '''
+    # Verify import log exists and belongs to user
+    import_log = (
+        db.query(WorkoutImportLog)
+        .filter(
+            WorkoutImportLog.id == request.import_log_id,
+            WorkoutImportLog.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not import_log:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Import log not found',
+        )
+
+    if import_log.workout_plan_id is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Workout plan already created from this import',
+        )
+
+    # Validate all exercise IDs exist
+    exercise_ids = [ex.exercise_id for ex in request.exercises]
+    existing_exercises = db.query(Exercise.id).filter(Exercise.id.in_(exercise_ids)).all()
+    existing_ids = {ex.id for ex in existing_exercises}
+    missing_ids = set(exercise_ids) - existing_ids
+
+    if missing_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Exercise IDs not found: {[str(id) for id in missing_ids]}',
+        )
+
+    # Create workout plan
+    plan = WorkoutPlan(user_id=user_id, name=request.name, description=request.description)
+    db.add(plan)
+    db.flush()
+
+    # Create workout exercises
+    for ex in request.exercises:
+        workout_exercise = WorkoutExercise(
+            workout_plan_id=plan.id,
+            exercise_id=ex.exercise_id,
+            sequence=ex.sequence,
+            sets=ex.sets,
+            reps_min=ex.reps_min,
+            reps_max=ex.reps_max,
+            rest_time_seconds=ex.rest_time_seconds,
+            confidence_level=ex.confidence_level,
+        )
+        db.add(workout_exercise)
+
+    # Link import log to created plan
+    import_log.workout_plan_id = plan.id
+
+    db.commit()
+    db.refresh(plan)
+
+    logger.info(f'Created workout plan {plan.id} from import log {import_log.id}')
+
+    return APIResponse.success_response(
+        WorkoutPlanCreateResponse(
+            id=plan.id,
+            name=plan.name,
+            created_at=plan.created_at,
+        )
+    )
+

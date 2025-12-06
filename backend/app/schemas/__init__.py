@@ -67,6 +67,9 @@ from .exercises import (
 
 # Workout plan schemas
 from .workout_plans import (
+    ParsedExerciseItem,
+    ParsedExerciseMatch,
+    ParsedWorkoutPlan,
     WorkoutExerciseBase,
     WorkoutExerciseCreate,
     WorkoutExerciseCreateItem,
@@ -78,8 +81,11 @@ from .workout_plans import (
     WorkoutPlanCreateRequest,
     WorkoutPlanCreateResponse,
     WorkoutPlanDetailResponse,
+    WorkoutPlanFromParsedRequest,
     WorkoutPlanListItem,
     WorkoutPlanListResponse,
+    WorkoutPlanParseRequest,
+    WorkoutPlanParseResponse,
     WorkoutPlanResponse,
     WorkoutPlanUpdateRequest,
     WorkoutPlanUpdateResponse,
@@ -181,6 +187,9 @@ __all__ = [
     'ExerciseSubstituteItem',
     'PersonalRecordBrief',
     # Workout plans
+    'ParsedExerciseItem',
+    'ParsedExerciseMatch',
+    'ParsedWorkoutPlan',
     'WorkoutExerciseBase',
     'WorkoutExerciseCreate',
     'WorkoutExerciseCreateItem',
@@ -192,8 +201,11 @@ __all__ = [
     'WorkoutPlanCreateRequest',
     'WorkoutPlanCreateResponse',
     'WorkoutPlanDetailResponse',
+    'WorkoutPlanFromParsedRequest',
     'WorkoutPlanListItem',
     'WorkoutPlanListResponse',
+    'WorkoutPlanParseRequest',
+    'WorkoutPlanParseResponse',
     'WorkoutPlanResponse',
     'WorkoutPlanUpdateRequest',
     'WorkoutPlanUpdateResponse',

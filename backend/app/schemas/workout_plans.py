@@ -226,3 +226,87 @@ class WorkoutPlanBrief(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Parser-related schemas
+
+
+class ParsedExerciseMatch(BaseModel):
+    '''Matched exercise from database with confidence'''
+
+    exercise_id: UUID
+    exercise_name: str
+    original_text: str
+    confidence: float
+    confidence_level: ConfidenceLevelEnum
+    primary_muscle_groups: list[MuscleGroupEnum]
+    secondary_muscle_groups: list[MuscleGroupEnum]
+
+    class Config:
+        from_attributes = True
+
+
+class ParsedExerciseItem(BaseModel):
+    '''Single parsed exercise with matching info'''
+
+    matched_exercise: Optional[ParsedExerciseMatch] = None
+    original_text: str
+    sets: int
+    reps_min: int
+    reps_max: int
+    rest_seconds: Optional[int] = None
+    notes: Optional[str] = None
+    sequence: int
+    alternatives: list[ParsedExerciseMatch] = []
+
+
+class WorkoutPlanParseRequest(BaseModel):
+    '''Request for parsing workout plan text'''
+
+    text: str
+
+    @field_validator('text')
+    @classmethod
+    def validate_text(cls, v: str) -> str:
+        if len(v.strip()) < 10:
+            raise ValueError('Text must be at least 10 characters')
+        if len(v) > 50000:
+            raise ValueError('Text must be less than 50,000 characters')
+        return v.strip()
+
+
+class ParsedWorkoutPlan(BaseModel):
+    '''Parsed workout plan structure from text'''
+
+    name: str
+    description: Optional[str] = None
+    exercises: list[ParsedExerciseItem]
+    raw_text: str
+    import_log_id: UUID
+
+
+class WorkoutPlanParseResponse(BaseModel):
+    '''Response from parse endpoint'''
+
+    parsed_plan: ParsedWorkoutPlan
+    total_exercises: int
+    high_confidence_count: int
+    medium_confidence_count: int
+    low_confidence_count: int
+    unmatched_count: int
+
+
+class WorkoutPlanFromParsedRequest(BaseModel):
+    '''Create workout plan from parsed data (Step 2)'''
+
+    import_log_id: UUID
+    name: str
+    description: Optional[str] = None
+    exercises: list[WorkoutExerciseCreateItem]
+
+    @field_validator('exercises')
+    @classmethod
+    def validate_exercises(cls, v: list) -> list:
+        if len(v) < 1:
+            raise ValueError('Workout plan must have at least 1 exercise')
+        return v
