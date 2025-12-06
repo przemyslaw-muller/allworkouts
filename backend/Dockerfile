@@ -8,15 +8,15 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Install poetry
-RUN pip install poetry
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy poetry files
+# Copy dependency files
 COPY pyproject.toml ./
 
-# Install dependencies (without installing the project itself)
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root
+# Install dependencies
+RUN uv pip install --system -r pyproject.toml && \
+    uv pip install --system pytest pytest-asyncio httpx ruff black
 
 # Copy application code
 COPY . .

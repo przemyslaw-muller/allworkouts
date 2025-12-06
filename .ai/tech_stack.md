@@ -12,7 +12,7 @@ AllWorkouts MVP uses a straightforward web stack that balances development speed
 - PostgreSQL
 
 ### Python Dependencies
-- poetry - dependency management
+- uv - dependency management
 - SQLAlchemy - Database ORM
 - Alembic - Migrations
 - Pydantic - Data validation

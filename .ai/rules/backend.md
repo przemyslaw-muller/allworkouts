@@ -5,7 +5,7 @@
 - **Database**: PostgreSQL
 - **ORM**: SQLAlchemy
 - **Python Version**: 3.9+
-- **Dependency Manager**: poetry
+- **Dependency Manager**: uv
 
 For complete stack details, see [../tech_stack.md](../tech_stack.md).
 
@@ -452,19 +452,19 @@ pytest tests/unit/test_auth.py::test_hash_password
 
 ## Dependencies Management
 
-### Poetry Usage
+### uv Usage
 ```bash
 # Add dependency
-poetry add package_name
+uv add package_name
 
 # Add dev dependency
-poetry add --group dev package_name
+uv add --dev package_name
 
-# Install from lock file
-poetry install
+# Install from pyproject.toml
+uv sync
 
 # Update dependencies
-poetry update
+uv lock --upgrade
 ```
 
 ### Common Dependencies
@@ -481,7 +481,7 @@ poetry update
 ## Development Workflow
 
 ### Local Development
-1. Activate environment: `poetry shell`
+1. Install dependencies: `uv sync`
 2. Run migrations: `alembic upgrade head`
 3. Start server: `uvicorn app.main:app --reload`
 4. Access API docs: http://localhost:8000/docs
