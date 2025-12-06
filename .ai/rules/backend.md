@@ -476,6 +476,7 @@ poetry update
 - **pytest**: Testing
 - **black**: Code formatting
 - **ruff**: Linting
+- **litellm**: AI provider support
 
 ## Development Workflow
 

@@ -145,6 +145,142 @@ async def list_workout_sessions(
 
 
 @router.get(
+    '/current',
+    response_model=APIResponse[WorkoutSessionStartResponse],
+)
+async def get_current_workout_session(
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    '''
+    Get the current in-progress workout session if any.
+
+    Returns the session with exercise context (like start session).
+    Returns 404 if no active session.
+    '''
+    # Find in-progress session for the user
+    session = (
+        db.query(WorkoutSession)
+        .filter(
+            WorkoutSession.user_id == user_id,
+            WorkoutSession.status == SessionStatusEnum.IN_PROGRESS,
+            WorkoutSession.deleted_at.is_(None),
+        )
+        .order_by(WorkoutSession.created_at.desc())
+        .first()
+    )
+
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='No active workout session',
+        )
+
+    workout_plan = session.workout_plan
+
+    # Get planned exercises for this workout plan
+    workout_exercises = (
+        db.query(WorkoutExercise)
+        .join(Exercise)
+        .filter(WorkoutExercise.workout_plan_id == session.workout_plan_id)
+        .order_by(WorkoutExercise.sequence)
+        .all()
+    )
+
+    exercises_with_context = []
+    for we in workout_exercises:
+        exercise = we.exercise
+
+        # Get PR for this exercise
+        pr = (
+            db.query(PersonalRecord)
+            .filter(
+                PersonalRecord.user_id == user_id,
+                PersonalRecord.exercise_id == exercise.id,
+                PersonalRecord.record_type == RecordTypeEnum.ONE_RM,
+            )
+            .first()
+        )
+
+        pr_brief = None
+        if pr:
+            pr_brief = PersonalRecordBrief(
+                id=pr.id,
+                record_type=pr.record_type,
+                value=pr.value,
+                unit=pr.unit,
+                achieved_at=pr.achieved_at,
+            )
+
+        # Get recent sessions for this exercise (last 3 workouts)
+        recent_exercise_sessions = (
+            db.query(ExerciseSession)
+            .join(WorkoutSession)
+            .filter(
+                WorkoutSession.user_id == user_id,
+                WorkoutSession.deleted_at.is_(None),
+                WorkoutSession.status == SessionStatusEnum.COMPLETED,
+                ExerciseSession.exercise_id == exercise.id,
+            )
+            .order_by(WorkoutSession.created_at.desc())
+            .limit(15)  # Get enough sets to cover 3 workouts
+            .all()
+        )
+
+        # Group sets by workout session (up to 3 sessions)
+        sessions_dict = {}
+        for es in recent_exercise_sessions:
+            ws_id = es.workout_session_id
+            if ws_id not in sessions_dict:
+                if len(sessions_dict) >= 3:
+                    break
+                sessions_dict[ws_id] = {
+                    'date': es.workout_session.created_at,
+                    'sets': [],
+                }
+            sessions_dict[ws_id]['sets'].append(
+                RecentSetInfo(reps=es.reps, weight=es.weight)
+            )
+
+        recent_sessions = [
+            RecentSessionInfo(date=s['date'], sets=s['sets'])
+            for s in sessions_dict.values()
+        ]
+
+        exercises_with_context.append(
+            PlannedExerciseWithContext(
+                planned_exercise_id=we.id,
+                exercise=ExerciseBrief(
+                    id=exercise.id,
+                    name=exercise.name,
+                    primary_muscle_groups=exercise.primary_muscle_groups,
+                    secondary_muscle_groups=exercise.secondary_muscle_groups or [],
+                ),
+                planned_sets=we.sets,
+                planned_reps_min=we.reps_min,
+                planned_reps_max=we.reps_max,
+                rest_seconds=we.rest_time_seconds,
+                context=ExerciseContextInfo(
+                    personal_record=pr_brief,
+                    recent_sessions=recent_sessions,
+                ),
+            )
+        )
+
+    return APIResponse.success_response(
+        WorkoutSessionStartResponse(
+            session_id=session.id,
+            workout_plan=WorkoutPlanBrief(
+                id=workout_plan.id,
+                name=workout_plan.name,
+            ),
+            started_at=session.created_at,
+            exercises=exercises_with_context,
+        )
+    )
+
+
+@router.get(
     '/{session_id}',
     response_model=APIResponse[WorkoutSessionDetailResponse],
 )
@@ -434,7 +570,7 @@ async def log_exercise(
     )
 
 
-@router.put(
+@router.post(
     '/{session_id}/complete',
     response_model=APIResponse[CompleteSessionResponse],
 )
@@ -569,7 +705,7 @@ async def complete_workout_session(
     )
 
 
-@router.put(
+@router.post(
     '/{session_id}/skip',
     response_model=APIResponse[SkipSessionResponse],
 )

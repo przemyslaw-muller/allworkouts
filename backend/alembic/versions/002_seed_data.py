@@ -21,27 +21,23 @@ branch_labels = None
 depends_on = None
 
 
+def _format_array_for_postgres(values: list) -> str:
+    """Format a list as a PostgreSQL array literal with proper enum casting."""
+    if not values:
+        return "'{}'::muscle_group_enum[]"
+    formatted = ','.join(values)
+    return f"ARRAY[{','.join(repr(v) for v in values)}]::muscle_group_enum[]"
+
+
 def upgrade() -> None:
     # Get the path to the backend directory
     backend_dir = Path(__file__).parent.parent.parent
 
-    # Define table structures for bulk insert
+    # Define table structures for bulk insert (equipment only)
     equipment_table = table(
         'equipment',
         column('id', postgresql.UUID),
         column('name', sa.String),
-        column('description', sa.Text),
-    )
-
-    exercise_table = table(
-        'exercise',
-        column('id', postgresql.UUID),
-        column('name', sa.String),
-        column('primary_muscle_groups', postgresql.ARRAY(sa.String)),
-        column('secondary_muscle_groups', postgresql.ARRAY(sa.String)),
-        column('default_weight', sa.Numeric),
-        column('default_reps', sa.Integer),
-        column('default_rest_time_seconds', sa.Integer),
         column('description', sa.Text),
     )
 
@@ -77,22 +73,38 @@ def upgrade() -> None:
         exercise_data_raw = json.load(f)
 
     # Create exercise records and track exercise-equipment relationships
+    # Use raw SQL for exercises to handle enum array types properly
     exercise_equipment_relationships = []
-    exercise_data = []
+    connection = op.get_bind()
 
     for ex in exercise_data_raw:
         ex_id = uuid.uuid4()
 
-        # Prepare exercise record
-        exercise_data.append({
-            'id': ex_id,
+        # Format muscle groups as PostgreSQL array literals with enum casting
+        primary_array = _format_array_for_postgres(ex['primary_muscle_groups'])
+        secondary_array = _format_array_for_postgres(ex['secondary_muscle_groups'])
+
+        # Handle optional fields
+        default_weight = ex.get('default_weight')
+        default_reps = ex.get('default_reps')
+        default_rest_time = ex.get('default_rest_time_seconds')
+        description = ex.get('description')
+
+        # Build the insert statement with proper escaping
+        sql = sa.text('''
+            INSERT INTO exercise (id, name, primary_muscle_groups, secondary_muscle_groups,
+                                  default_weight, default_reps, default_rest_time_seconds, description)
+            VALUES (:id, :name, ''' + primary_array + ', ' + secondary_array + ''',
+                    :default_weight, :default_reps, :default_rest_time_seconds, :description)
+        ''')
+
+        connection.execute(sql, {
+            'id': str(ex_id),
             'name': ex['name'],
-            'primary_muscle_groups': ex['primary_muscle_groups'],
-            'secondary_muscle_groups': ex['secondary_muscle_groups'],
-            'default_weight': ex.get('default_weight'),
-            'default_reps': ex.get('default_reps'),
-            'default_rest_time_seconds': ex.get('default_rest_time_seconds'),
-            'description': ex.get('description')
+            'default_weight': default_weight,
+            'default_reps': default_reps,
+            'default_rest_time_seconds': default_rest_time,
+            'description': description
         })
 
         # Create exercise-equipment relationships
@@ -102,9 +114,6 @@ def upgrade() -> None:
                     'exercise_id': ex_id,
                     'equipment_id': equipment_id_map[equipment_name]
                 })
-
-    # Insert exercises
-    op.bulk_insert(exercise_table, exercise_data)
 
     # Insert exercise-equipment relationships
     if exercise_equipment_relationships:

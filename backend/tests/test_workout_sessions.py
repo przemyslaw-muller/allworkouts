@@ -110,6 +110,80 @@ class TestListWorkoutSessions:
         assert response.status_code == 403
 
 
+class TestGetCurrentWorkoutSession:
+    '''Tests for GET /api/v1/workout-sessions/current'''
+
+    def test_get_current_session_success(
+        self, client: TestClient, auth_headers: dict, test_workout_session: WorkoutSession
+    ):
+        '''Test getting current in-progress session.'''
+        response = client.get('/api/v1/workout-sessions/current', headers=auth_headers)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data['success'] is True
+        assert 'session_id' in data['data']
+        assert 'workout_plan' in data['data']
+        assert 'started_at' in data['data']
+        assert 'exercises' in data['data']
+
+    def test_get_current_session_with_exercises(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        db: Session,
+        test_user: User,
+        test_workout_plan_with_exercises: WorkoutPlan,
+    ):
+        '''Test getting current session includes exercise context.'''
+        # Create an in-progress session for the test
+        session = WorkoutSession(
+            id=uuid.uuid4(),
+            user_id=test_user.id,
+            workout_plan_id=test_workout_plan_with_exercises.id,
+            status=SessionStatusEnum.IN_PROGRESS,
+        )
+        db.add(session)
+        db.commit()
+
+        response = client.get('/api/v1/workout-sessions/current', headers=auth_headers)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data['success'] is True
+        assert data['data']['session_id'] == str(session.id)
+        assert len(data['data']['exercises']) >= 1
+
+        # Check exercise context
+        for exercise in data['data']['exercises']:
+            assert 'planned_exercise_id' in exercise
+            assert 'exercise' in exercise
+            assert 'planned_sets' in exercise
+            assert 'context' in exercise
+
+        # Cleanup
+        db.delete(session)
+        db.commit()
+
+    def test_get_current_session_not_found(
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        db: Session,
+        test_completed_workout_session: WorkoutSession,
+    ):
+        '''Test 404 when no in-progress session exists.'''
+        response = client.get('/api/v1/workout-sessions/current', headers=auth_headers)
+
+        assert response.status_code == 404
+
+    def test_get_current_session_unauthorized(self, client: TestClient):
+        '''Test getting current session without authentication.'''
+        response = client.get('/api/v1/workout-sessions/current')
+
+        assert response.status_code == 403
+
+
 class TestGetWorkoutSession:
     '''Tests for GET /api/v1/workout-sessions/{session_id}'''
 
@@ -370,7 +444,7 @@ class TestLogExercise:
 
 
 class TestCompleteWorkoutSession:
-    '''Tests for PUT /api/v1/workout-sessions/{session_id}/complete'''
+    '''Tests for POST /api/v1/workout-sessions/{session_id}/complete'''
 
     def test_complete_workout_session_success(
         self,
@@ -391,7 +465,7 @@ class TestCompleteWorkoutSession:
         db.add(session)
         db.commit()
 
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{session.id}/complete',
             json={},
             headers=auth_headers,
@@ -412,7 +486,7 @@ class TestCompleteWorkoutSession:
     def test_complete_workout_session_not_found(self, client: TestClient, auth_headers: dict):
         '''Test completing non-existent session.'''
         fake_id = uuid.uuid4()
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{fake_id}/complete',
             json={},
             headers=auth_headers,
@@ -427,7 +501,7 @@ class TestCompleteWorkoutSession:
         test_completed_workout_session: WorkoutSession,
     ):
         '''Test completing already completed session.'''
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{test_completed_workout_session.id}/complete',
             json={},
             headers=auth_headers,
@@ -439,7 +513,7 @@ class TestCompleteWorkoutSession:
         self, client: TestClient, test_workout_session: WorkoutSession
     ):
         '''Test completing session without authentication.'''
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{test_workout_session.id}/complete',
             json={},
         )
@@ -448,7 +522,7 @@ class TestCompleteWorkoutSession:
 
 
 class TestSkipWorkoutSession:
-    '''Tests for PUT /api/v1/workout-sessions/{session_id}/skip'''
+    '''Tests for POST /api/v1/workout-sessions/{session_id}/skip'''
 
     def test_skip_workout_session_success(
         self,
@@ -469,7 +543,7 @@ class TestSkipWorkoutSession:
         db.add(session)
         db.commit()
 
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{session.id}/skip',
             json={},
             headers=auth_headers,
@@ -488,7 +562,7 @@ class TestSkipWorkoutSession:
     def test_skip_workout_session_not_found(self, client: TestClient, auth_headers: dict):
         '''Test skipping non-existent session.'''
         fake_id = uuid.uuid4()
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{fake_id}/skip',
             json={},
             headers=auth_headers,
@@ -503,7 +577,7 @@ class TestSkipWorkoutSession:
         test_completed_workout_session: WorkoutSession,
     ):
         '''Test skipping already completed session.'''
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{test_completed_workout_session.id}/skip',
             json={},
             headers=auth_headers,
@@ -515,7 +589,7 @@ class TestSkipWorkoutSession:
         self, client: TestClient, test_workout_session: WorkoutSession
     ):
         '''Test skipping session without authentication.'''
-        response = client.put(
+        response = client.post(
             f'/api/v1/workout-sessions/{test_workout_session.id}/skip',
             json={},
         )
