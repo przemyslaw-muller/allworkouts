@@ -7,15 +7,14 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
-import BaseSpinner from '@/components/common/BaseSpinner.vue'
 import BaseBadge from '@/components/common/BaseBadge.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
 import { workoutPlanService } from '@/services/workoutPlanService'
-import { useUIStore } from '@/stores/ui'
+import { useUiStore } from '@/stores/ui'
 import type { WorkoutPlanListItem } from '@/types'
 
 const router = useRouter()
-const uiStore = useUIStore()
+const uiStore = useUiStore()
 
 // State
 const plans = ref<WorkoutPlanListItem[]>([])
@@ -43,10 +42,7 @@ const fetchPlans = async (): Promise<void> => {
     plans.value = response.plans
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load plans'
-    uiStore.showNotification({
-      type: 'error',
-      message: 'Failed to load workout plans. Please try again.',
-    })
+    uiStore.error('Failed to load workout plans. Please try again.')
   } finally {
     isLoading.value = false
   }
@@ -81,20 +77,14 @@ const confirmDelete = async (): Promise<void> => {
     // Remove from local list
     plans.value = plans.value.filter((p) => p.id !== deleteDialog.value.planId)
 
-    uiStore.showNotification({
-      type: 'success',
-      message: 'Plan deleted successfully',
-    })
+    uiStore.success('Plan deleted successfully')
 
     closeDeleteDialog()
   } catch (err: any) {
     const errorMessage =
       err.response?.data?.error?.message || 'Failed to delete plan. Please try again.'
 
-    uiStore.showNotification({
-      type: 'error',
-      message: errorMessage,
-    })
+    uiStore.error(errorMessage)
 
     deleteDialog.value.isDeleting = false
   }
@@ -217,7 +207,7 @@ onMounted(() => {
 
         <!-- Metadata -->
         <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-          <BaseBadge variant="secondary">
+          <BaseBadge variant="gray">
             {{ plan.exercise_count }} {{ plan.exercise_count === 1 ? 'exercise' : 'exercises' }}
           </BaseBadge>
           <span>·</span>

@@ -215,7 +215,7 @@ watch(searchQuery, () => {
                 <div class="flex items-center gap-2">
                   <h4 class="font-medium text-gray-900">{{ exercise.name }}</h4>
                   <span
-                    v-if="'match_score' in exercise && exercise.match_score >= 0.8"
+                    v-if="'match_score' in exercise && typeof exercise.match_score === 'number' && exercise.match_score >= 0.8"
                     class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
                   >
                     High Match

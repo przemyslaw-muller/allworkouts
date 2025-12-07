@@ -148,7 +148,7 @@ const muscleGroupDisplay = computed(() => {
       <!-- Rest Time -->
       <div>
         <BaseInput
-          :model-value="exercise.restTimeSeconds"
+          :model-value="exercise.restTimeSeconds ?? ''"
           label="Rest (seconds)"
           type="number"
           min="0"

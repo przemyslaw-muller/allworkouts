@@ -2,9 +2,8 @@
  * Composable for managing workout plan editing state and operations.
  */
 import { ref, computed, type Ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { workoutPlanService } from '@/services/workoutPlanService'
-import { useUIStore } from '@/stores/ui'
+import { useUiStore } from '@/stores/ui'
 import type {
   PlanEditFormData,
   EditableExercise,
@@ -17,8 +16,7 @@ import type {
 } from '@/types'
 
 export function usePlanEdit(planId: Ref<string | undefined>) {
-  const router = useRouter()
-  const uiStore = useUIStore()
+  const uiStore = useUiStore()
 
   // State
   const originalData = ref<PlanEditFormData | null>(null)
@@ -105,10 +103,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
       originalData.value = JSON.parse(JSON.stringify(data))
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load plan'
-      uiStore.showNotification({
-        type: 'error',
-        message: 'Failed to load plan. Please try again.',
-      })
+      uiStore.error('Failed to load plan. Please try again.')
     } finally {
       isLoading.value = false
     }
@@ -204,10 +199,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
     }
 
     if (!validateForm()) {
-      uiStore.showNotification({
-        type: 'error',
-        message: 'Please fix validation errors before saving',
-      })
+      uiStore.error('Please fix validation errors before saving')
       return false
     }
 
@@ -218,10 +210,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
       const updateData = mapFormToUpdateRequest(formData.value)
       await workoutPlanService.update(planId.value, updateData)
 
-      uiStore.showNotification({
-        type: 'success',
-        message: 'Plan saved successfully',
-      })
+      uiStore.success('Plan saved successfully')
 
       // Update original data to match saved data
       originalData.value = JSON.parse(JSON.stringify(formData.value))
@@ -242,10 +231,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
         }
       }
 
-      uiStore.showNotification({
-        type: 'error',
-        message: 'Failed to save plan. Please try again.',
-      })
+      uiStore.error('Failed to save plan. Please try again.')
 
       return false
     } finally {
@@ -343,8 +329,12 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
     }
   }
 
-  const updateField = (field: 'name' | 'description', value: string): void => {
-    formData.value[field] = value || null
+  const updateField = (field: 'name' | 'description', value: string | null): void => {
+    if (field === 'name') {
+      formData.value.name = value || ''
+    } else {
+      formData.value.description = value
+    }
 
     // Clear validation error for this field
     if (validationErrors.value[field]) {

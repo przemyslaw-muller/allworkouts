@@ -16,7 +16,7 @@ import EditableExerciseCard from '@/components/common/EditableExerciseCard.vue'
 import AddExerciseModal from '@/components/common/AddExerciseModal.vue'
 import SubstituteExerciseModal from '@/components/common/SubstituteExerciseModal.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
-import type { ExerciseListItem } from '@/types'
+import type { ExerciseListItem, EditableExercise } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,7 +30,6 @@ const {
   isLoading,
   isSaving,
   isDirty,
-  isValid,
   canSave,
   error,
   validationErrors,
@@ -130,7 +129,7 @@ const handleKeepEditing = () => {
 }
 
 // Navigation guard
-onBeforeRouteLeave((to, from, next) => {
+onBeforeRouteLeave((to, _from, next) => {
   if (isDirty.value) {
     pendingNavigation.value = to.fullPath
     showUnsavedDialog.value = true
@@ -188,7 +187,7 @@ onBeforeUnmount(() => {
             placeholder="e.g., Push Day, Full Body Workout"
             required
             :error="validationErrors.name"
-            @update:model-value="updateField('name', $event)"
+            @update:model-value="updateField('name', String($event))"
           />
 
           <BaseTextarea
@@ -197,7 +196,7 @@ onBeforeUnmount(() => {
             placeholder="Describe your workout plan..."
             :rows="3"
             :error="validationErrors.description"
-            @update:model-value="updateField('description', $event)"
+            @update:model-value="updateField('description', $event || null)"
           />
         </div>
 
@@ -223,13 +222,13 @@ onBeforeUnmount(() => {
           <!-- Exercise List -->
           <div v-if="formData.exercises.length > 0" class="space-y-4">
             <EditableExerciseCard
-              v-for="(exercise, index) in formData.exercises"
+              v-for="exercise in formData.exercises"
               :key="exercise.id"
               :exercise="exercise"
               :can-remove="formData.exercises.length > 1"
               :can-reorder="formData.exercises.length > 1"
               :errors="validationErrors.exerciseErrors.get(exercise.id)"
-              @on-update-field="updateExerciseField(exercise.id, $event[0], $event[1])"
+              @on-update-field="(field: string, value: any) => updateExerciseField(exercise.id, field as keyof EditableExercise, value)"
               @on-substitute="handleSubstitute(exercise.id)"
               @on-remove="handleRemove(exercise.id)"
               @on-move-up="handleMoveUp(exercise.id)"
