@@ -6,7 +6,6 @@
  */
 import { RouterLink } from 'vue-router'
 import BaseCard from '@/components/common/BaseCard.vue'
-import BaseButton from '@/components/common/BaseButton.vue'
 </script>
 
 <template>
@@ -21,14 +20,14 @@ import BaseButton from '@/components/common/BaseButton.vue'
     <BaseCard>
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
       <div class="flex flex-wrap gap-3">
-        <RouterLink to="/plans">
-          <BaseButton variant="primary">Start Workout</BaseButton>
+        <RouterLink to="/plans" class="btn btn-md btn-primary">
+          Start Workout
         </RouterLink>
-        <RouterLink to="/plans/new">
-          <BaseButton variant="outline">Create Plan</BaseButton>
+        <RouterLink to="/plans/new" class="btn btn-md btn-outline">
+          Create Plan
         </RouterLink>
-        <RouterLink to="/plans/import">
-          <BaseButton variant="ghost">Import Plan</BaseButton>
+        <RouterLink to="/plans/import" class="btn btn-md btn-ghost">
+          Import Plan
         </RouterLink>
       </div>
     </BaseCard>

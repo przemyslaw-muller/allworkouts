@@ -77,9 +77,21 @@ api.interceptors.request.use(
   },
 )
 
-// Response interceptor - handle token refresh
+// Response interceptor - unwrap API response and handle token refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Unwrap the APIResponse wrapper: { success, data, error }
+    if (response.data && typeof response.data === 'object' && 'success' in response.data) {
+      const apiResponse = response.data as APIResponse<unknown>
+      if (apiResponse.success && apiResponse.data !== null) {
+        response.data = apiResponse.data
+      } else if (!apiResponse.success && apiResponse.error) {
+        // Handle API-level errors
+        throw new Error(apiResponse.error.message)
+      }
+    }
+    return response
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
 
@@ -121,7 +133,14 @@ api.interceptors.response.use(
           refresh_token: refreshToken,
         })
 
-        const { access_token } = response.data
+        // Unwrap the APIResponse if needed
+        let responseData = response.data
+        if (responseData && typeof responseData === 'object' && 'success' in responseData) {
+          const apiResponse = responseData as APIResponse<{ access_token: string }>
+          responseData = apiResponse.data
+        }
+
+        const { access_token } = responseData as { access_token: string }
         tokenStorage.setAccessToken(access_token)
         processQueue(null, access_token)
 

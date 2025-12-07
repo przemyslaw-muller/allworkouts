@@ -46,7 +46,11 @@ const handleLogout = async () => {
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <RouterLink to="/" class="flex items-center space-x-2">
-            <span class="text-xl font-bold text-primary-600">AllWorkouts</span>
+            <img
+              src="/allworkouts_logo.png"
+              alt="AllWorkouts"
+              class="h-8 w-auto"
+            />
           </RouterLink>
 
           <!-- Desktop Navigation -->

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.auth import (
     create_access_token,
     create_refresh_token,
+    get_current_user,
     hash_password,
     verify_password,
     verify_refresh_token,
@@ -24,6 +25,8 @@ from app.schemas import (
     RefreshResponse,
     RefreshTokenRequest,
     RegisterRequest,
+    UserResponse,
+    UserUpdateRequest,
 )
 
 router = APIRouter(prefix='/auth', tags=['Authentication'])
@@ -144,3 +147,70 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
     return APIResponse.success_response(
         RefreshResponse(access_token=access_token)
     )
+
+
+@router.get(
+    '/me',
+    response_model=APIResponse[UserResponse],
+)
+async def get_me(current_user: User = Depends(get_current_user)):
+    '''
+    Get the current authenticated user's profile.
+    '''
+    return APIResponse.success_response(
+        UserResponse(
+            id=current_user.id,
+            email=current_user.email,
+            unit_system=current_user.unit_system,
+            created_at=current_user.created_at,
+            updated_at=current_user.updated_at,
+        )
+    )
+
+
+@router.patch(
+    '/me',
+    response_model=APIResponse[UserResponse],
+)
+async def update_me(
+    request: UserUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    '''
+    Update the current authenticated user's profile.
+    '''
+    # Update user fields if provided
+    if request.unit_system is not None:
+        current_user.unit_system = request.unit_system
+
+    db.commit()
+    db.refresh(current_user)
+
+    return APIResponse.success_response(
+        UserResponse(
+            id=current_user.id,
+            email=current_user.email,
+            unit_system=current_user.unit_system,
+            created_at=current_user.created_at,
+            updated_at=current_user.updated_at,
+        )
+    )
+
+
+@router.delete(
+    '/me',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    '''
+    Delete the current authenticated user's account.
+    
+    This will permanently delete the user and all associated data.
+    '''
+    db.delete(current_user)
+    db.commit()
+    return None

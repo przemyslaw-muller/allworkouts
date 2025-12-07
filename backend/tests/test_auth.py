@@ -197,3 +197,152 @@ class TestRefreshToken:
         data = response.json()
         assert data['success'] is False
         assert data['error']['code'] == 'AUTH_TOKEN_INVALID'
+
+
+class TestGetMe:
+    '''Tests for GET /api/v1/auth/me'''
+
+    def test_get_me_success(self, client: TestClient, test_user: User, auth_headers: dict):
+        '''Test successful retrieval of current user profile.'''
+        response = client.get('/api/v1/auth/me', headers=auth_headers)
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data['success'] is True
+        assert data['data']['id'] == str(test_user.id)
+        assert data['data']['email'] == test_user.email
+        assert data['data']['unit_system'] == test_user.unit_system.value
+        assert 'created_at' in data['data']
+        assert 'updated_at' in data['data']
+
+    def test_get_me_unauthorized(self, client: TestClient):
+        '''Test get me fails without authentication.'''
+        response = client.get('/api/v1/auth/me')
+        
+        assert response.status_code == 401
+
+    def test_get_me_invalid_token(self, client: TestClient):
+        '''Test get me fails with invalid token.'''
+        response = client.get(
+            '/api/v1/auth/me',
+            headers={'Authorization': 'Bearer invalid.token.here'}
+        )
+        
+        assert response.status_code == 401
+
+
+class TestUpdateMe:
+    '''Tests for PATCH /api/v1/auth/me'''
+
+    def test_update_me_unit_system(self, client: TestClient, test_user: User, auth_headers: dict, db: Session):
+        '''Test successful update of user unit system.'''
+        # Change to imperial
+        response = client.patch(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'unit_system': 'imperial'}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data['success'] is True
+        assert data['data']['unit_system'] == 'imperial'
+        
+        # Verify in database
+        db.refresh(test_user)
+        assert test_user.unit_system.value == 'imperial'
+        
+        # Change back to metric
+        response = client.patch(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'unit_system': 'metric'}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data['data']['unit_system'] == 'metric'
+
+    def test_update_me_no_changes(self, client: TestClient, test_user: User, auth_headers: dict):
+        '''Test update with no fields provided.'''
+        response = client.patch(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={}
+        )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data['success'] is True
+        assert data['data']['email'] == test_user.email
+
+    def test_update_me_unauthorized(self, client: TestClient):
+        '''Test update fails without authentication.'''
+        response = client.patch(
+            '/api/v1/auth/me',
+            json={'unit_system': 'imperial'}
+        )
+        
+        assert response.status_code == 401
+
+    def test_update_me_invalid_unit_system(self, client: TestClient, auth_headers: dict):
+        '''Test update fails with invalid unit system.'''
+        response = client.patch(
+            '/api/v1/auth/me',
+            headers=auth_headers,
+            json={'unit_system': 'invalid'}
+        )
+        
+        assert response.status_code == 422
+
+
+class TestDeleteMe:
+    '''Tests for DELETE /api/v1/auth/me'''
+
+    def test_delete_me_success(self, client: TestClient, db: Session):
+        '''Test successful account deletion.'''
+        # Create a temporary user
+        user = User(
+            id=uuid.uuid4(),
+            email=f'todelete_{uuid.uuid4().hex[:8]}@example.com',
+            password_hash=hash_password('password123'),
+        )
+        db.add(user)
+        db.commit()
+        
+        # Login to get token
+        response = client.post(
+            '/api/v1/auth/login',
+            json={
+                'email': user.email,
+                'password': 'password123',
+            },
+        )
+        access_token = response.json()['data']['access_token']
+        
+        # Delete account
+        response = client.delete(
+            '/api/v1/auth/me',
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+        
+        assert response.status_code == 204
+        
+        # Verify user was deleted
+        deleted_user = db.query(User).filter(User.id == user.id).first()
+        assert deleted_user is None
+
+    def test_delete_me_unauthorized(self, client: TestClient):
+        '''Test delete fails without authentication.'''
+        response = client.delete('/api/v1/auth/me')
+        
+        assert response.status_code == 401
+
+    def test_delete_me_invalid_token(self, client: TestClient):
+        '''Test delete fails with invalid token.'''
+        response = client.delete(
+            '/api/v1/auth/me',
+            headers={'Authorization': 'Bearer invalid.token.here'}
+        )
+        
+        assert response.status_code == 401

@@ -24,8 +24,8 @@ const planId = route.params.id
         <p class="text-gray-600">Plan ID: {{ planId }}</p>
       </div>
       <div class="flex gap-2">
-        <RouterLink :to="`/plans/${planId}/edit`">
-          <BaseButton variant="outline">Edit</BaseButton>
+        <RouterLink :to="`/plans/${planId}/edit`" class="btn btn-md btn-outline">
+          Edit
         </RouterLink>
         <BaseButton variant="primary">Start Workout</BaseButton>
       </div>

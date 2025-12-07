@@ -6,7 +6,6 @@
  */
 import { RouterLink } from 'vue-router'
 import BaseCard from '@/components/common/BaseCard.vue'
-import BaseButton from '@/components/common/BaseButton.vue'
 </script>
 
 <template>
@@ -18,11 +17,11 @@ import BaseButton from '@/components/common/BaseButton.vue'
         <p class="text-gray-600">Manage your workout routines</p>
       </div>
       <div class="flex gap-2">
-        <RouterLink to="/plans/import">
-          <BaseButton variant="outline">Import</BaseButton>
+        <RouterLink to="/plans/import" class="btn btn-md btn-outline">
+          Import
         </RouterLink>
-        <RouterLink to="/plans/new">
-          <BaseButton variant="primary">New Plan</BaseButton>
+        <RouterLink to="/plans/new" class="btn btn-md btn-primary">
+          New Plan
         </RouterLink>
       </div>
     </div>
@@ -35,11 +34,11 @@ import BaseButton from '@/components/common/BaseButton.vue'
       <h3 class="mt-4 text-lg font-medium text-gray-900">No workout plans yet</h3>
       <p class="mt-2 text-gray-500">Get started by creating your first workout plan.</p>
       <div class="mt-6 flex justify-center gap-3">
-        <RouterLink to="/plans/new">
-          <BaseButton variant="primary">Create Plan</BaseButton>
+        <RouterLink to="/plans/new" class="btn btn-md btn-primary">
+          Create Plan
         </RouterLink>
-        <RouterLink to="/plans/import">
-          <BaseButton variant="outline">Import Plan</BaseButton>
+        <RouterLink to="/plans/import" class="btn btn-md btn-outline">
+          Import Plan
         </RouterLink>
       </div>
     </BaseCard>

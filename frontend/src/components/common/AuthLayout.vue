@@ -9,9 +9,13 @@
   <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <!-- Branding -->
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
-      <h1 class="text-center text-3xl font-bold text-primary-600">
-        AllWorkouts
-      </h1>
+      <div class="flex justify-center mb-4">
+        <img
+          src="/allworkouts_logo.png"
+          alt="AllWorkouts Logo"
+          class="h-16 w-auto"
+        />
+      </div>
       <p class="mt-2 text-center text-sm text-gray-600">
         Track your fitness journey
       </p>

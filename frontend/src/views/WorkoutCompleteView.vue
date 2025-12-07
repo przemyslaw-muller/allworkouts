@@ -6,7 +6,6 @@
  */
 import { RouterLink } from 'vue-router'
 import BaseCard from '@/components/common/BaseCard.vue'
-import BaseButton from '@/components/common/BaseButton.vue'
 </script>
 
 <template>
@@ -52,11 +51,11 @@ import BaseButton from '@/components/common/BaseButton.vue'
 
     <!-- Actions -->
     <div class="flex flex-col gap-3">
-      <RouterLink to="/history">
-        <BaseButton variant="outline" class="w-full">View Details</BaseButton>
+      <RouterLink to="/history" class="btn btn-md btn-outline w-full">
+        View Details
       </RouterLink>
-      <RouterLink to="/">
-        <BaseButton variant="primary" class="w-full">Back to Dashboard</BaseButton>
+      <RouterLink to="/" class="btn btn-md btn-primary w-full">
+        Back to Dashboard
       </RouterLink>
     </div>
   </div>

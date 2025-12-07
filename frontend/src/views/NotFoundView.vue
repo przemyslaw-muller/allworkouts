@@ -3,7 +3,6 @@
  * 404 Not Found view.
  */
 import { RouterLink } from 'vue-router'
-import BaseButton from '@/components/common/BaseButton.vue'
 </script>
 
 <template>
@@ -14,8 +13,8 @@ import BaseButton from '@/components/common/BaseButton.vue'
       The page you're looking for doesn't exist or has been moved.
     </p>
     <div class="mt-8">
-      <RouterLink to="/">
-        <BaseButton variant="primary">Go to Dashboard</BaseButton>
+      <RouterLink to="/" class="btn btn-md btn-primary">
+        Go to Dashboard
       </RouterLink>
     </div>
   </div>

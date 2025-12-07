@@ -55,8 +55,8 @@ const handleImport = async () => {
         </div>
 
         <div class="flex justify-end gap-3">
-          <RouterLink to="/plans">
-            <BaseButton variant="ghost">Cancel</BaseButton>
+          <RouterLink to="/plans" class="btn btn-md btn-ghost">
+            Cancel
           </RouterLink>
           <BaseButton
             variant="primary"

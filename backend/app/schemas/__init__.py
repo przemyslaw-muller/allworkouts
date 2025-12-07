@@ -39,6 +39,7 @@ from .user import (
     UserBase,
     UserCreate,
     UserResponse,
+    UserUpdateRequest,
 )
 
 # Equipment schemas
@@ -168,6 +169,7 @@ __all__ = [
     'UserBase',
     'UserCreate',
     'UserResponse',
+    'UserUpdateRequest',
     # Equipment
     'EquipmentBase',
     'EquipmentBrief',

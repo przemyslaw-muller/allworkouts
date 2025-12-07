@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
@@ -28,3 +29,9 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class UserUpdateRequest(BaseModel):
+    '''Schema for updating user profile'''
+
+    unit_system: Optional[UnitSystemEnum] = None
