@@ -506,3 +506,44 @@ export interface PersonalRecordListParams extends PaginationParams {
   exercise_id?: string
   record_type?: RecordType
 }
+
+// ============================================================================
+// Plan Edit Types (Frontend-specific)
+// ============================================================================
+
+export interface EditableExercise {
+  id: string // workout_exercise ID (or temp ID for new)
+  exerciseId: string // actual exercise ID
+  exerciseName: string
+  primaryMuscleGroups: MuscleGroup[]
+  secondaryMuscleGroups: MuscleGroup[]
+  equipment: EquipmentBrief[]
+  sequence: number
+  sets: number
+  repsMin: number
+  repsMax: number
+  restTimeSeconds: number | null
+  confidenceLevel: ConfidenceLevel
+  isNew: boolean // True if added during this edit session
+  isModified: boolean // True if changed during this edit session
+}
+
+export interface PlanEditFormData {
+  name: string
+  description: string | null
+  exercises: EditableExercise[]
+}
+
+export interface ExerciseFieldErrors {
+  sets?: string
+  repsMin?: string
+  repsMax?: string
+  restTimeSeconds?: string
+}
+
+export interface FormValidationErrors {
+  name?: string
+  description?: string
+  exercises?: string // List-level error (e.g., "At least 1 exercise required")
+  exerciseErrors: Map<string, ExerciseFieldErrors>
+}
