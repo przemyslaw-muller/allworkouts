@@ -160,10 +160,10 @@ onBeforeUnmount(() => {
   <div class="space-y-6">
     <!-- Header -->
     <div>
-      <RouterLink to="/plans" class="text-sm text-gray-500 hover:text-gray-700 mb-1 inline-block">
+      <RouterLink to="/plans" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-1 inline-block">
         &larr; Back to Plans
       </RouterLink>
-      <h1 class="text-2xl font-bold text-gray-900">{{ pageTitle }}</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ pageTitle }}</h1>
     </div>
 
     <!-- Loading State -->
@@ -201,9 +201,9 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Exercises Section -->
-        <div class="border-t pt-6">
+        <div class="border-t dark:border-gray-700 pt-6">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Exercises</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Exercises</h3>
             <BaseButton
               type="button"
               variant="outline"
@@ -237,8 +237,8 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Empty State -->
-          <div v-else class="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-            <p class="text-gray-500 mb-4">No exercises added yet</p>
+          <div v-else class="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+            <p class="text-gray-500 dark:text-gray-400 mb-4">No exercises added yet</p>
             <BaseButton
               type="button"
               variant="primary"
@@ -250,11 +250,11 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Actions -->
-        <div class="flex justify-between items-center pt-6 border-t">
-          <div v-if="isDirty" class="text-sm text-amber-600">
+        <div class="flex justify-between items-center pt-6 border-t dark:border-gray-700">
+          <div v-if="isDirty" class="text-sm text-amber-600 dark:text-amber-400">
             You have unsaved changes
           </div>
-          <div v-else class="text-sm text-gray-500">
+          <div v-else class="text-sm text-gray-500 dark:text-gray-400">
             No changes
           </div>
           <div class="flex gap-3">

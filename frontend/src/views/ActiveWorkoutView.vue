@@ -33,9 +33,9 @@ const logSet = () => {
 </script>
 
 <template>
-  <div class="p-4 space-y-4">
+  <div class="p-4 space-y-4 min-h-screen bg-gray-900">
     <!-- Current Exercise -->
-    <BaseCard class="bg-gray-800 border-gray-700">
+    <BaseCard class="!bg-gray-800 !border-gray-700">
       <div class="text-center">
         <h2 class="text-xl font-bold text-white">{{ currentExercise.name }}</h2>
         <p class="text-gray-400 mt-1">
@@ -45,7 +45,7 @@ const logSet = () => {
     </BaseCard>
 
     <!-- Set logging -->
-    <BaseCard class="bg-gray-800 border-gray-700">
+    <BaseCard class="!bg-gray-800 !border-gray-700">
       <h3 class="text-lg font-semibold text-white mb-4">Log Set</h3>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
@@ -53,7 +53,7 @@ const logSet = () => {
           <input
             v-model="weight"
             type="number"
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center text-lg"
+            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="0"
           />
         </div>
@@ -62,7 +62,7 @@ const logSet = () => {
           <input
             v-model="reps"
             type="number"
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center text-lg"
+            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="0"
           />
         </div>
@@ -73,7 +73,7 @@ const logSet = () => {
     </BaseCard>
 
     <!-- Completed sets -->
-    <BaseCard class="bg-gray-800 border-gray-700">
+    <BaseCard class="!bg-gray-800 !border-gray-700">
       <h3 class="text-lg font-semibold text-white mb-4">
         Completed Sets ({{ completedSets.length }}/{{ currentExercise.targetSets }})
       </h3>
@@ -94,7 +94,7 @@ const logSet = () => {
 
     <!-- Navigation placeholder -->
     <div class="flex gap-3">
-      <BaseButton variant="outline" class="flex-1">Previous</BaseButton>
+      <BaseButton variant="outline" class="flex-1 !border-gray-600 !text-gray-300 hover:!bg-gray-700">Previous</BaseButton>
       <BaseButton variant="primary" class="flex-1">Next Exercise</BaseButton>
     </div>
   </div>

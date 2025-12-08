@@ -21,8 +21,14 @@ RUN uv pip install --system -r pyproject.toml && \
 # Copy application code
 COPY . .
 
+# Make entrypoint executable
+RUN chmod +x /app/entrypoint.sh
+
 # Expose port
 EXPOSE 8000
+
+# Set entrypoint to run migrations before app
+ENTRYPOINT ["bash", "/app/entrypoint.sh"]
 
 # Run the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

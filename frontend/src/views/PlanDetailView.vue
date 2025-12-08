@@ -189,22 +189,22 @@ onMounted(() => {
     <div v-if="isLoading" class="space-y-6">
       <!-- Header skeleton -->
       <div class="animate-pulse">
-        <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-        <div class="h-8 bg-gray-200 rounded w-64 mb-2"></div>
-        <div class="h-4 bg-gray-200 rounded w-48"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64 mb-2"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
       </div>
 
       <!-- Exercise cards skeleton -->
       <BaseCard v-for="i in 3" :key="i" class="animate-pulse">
-        <div class="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
       </BaseCard>
     </div>
 
     <!-- Error State -->
     <BaseCard v-else-if="error" class="text-center py-8">
-      <div class="text-red-600 mb-4">
+      <div class="text-red-600 dark:text-red-400 mb-4">
         <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -214,7 +214,7 @@ onMounted(() => {
           />
         </svg>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">{{ error }}</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{{ error }}</h3>
       <div class="flex gap-2 justify-center">
         <BaseButton @click="fetchPlan">Try Again</BaseButton>
         <RouterLink to="/plans" class="btn btn-md btn-outline"> Back to Plans </RouterLink>
@@ -227,7 +227,7 @@ onMounted(() => {
       <div>
         <RouterLink
           to="/plans"
-          class="text-sm text-blue-600 hover:text-blue-700 mb-2 inline-flex items-center gap-1"
+          class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mb-2 inline-flex items-center gap-1"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -237,8 +237,8 @@ onMounted(() => {
 
         <div class="flex items-start justify-between">
           <div class="flex-1 min-w-0">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ plan.name }}</h1>
-            <p v-if="plan.description" class="text-gray-600 mb-4">{{ plan.description }}</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{{ plan.name }}</h1>
+            <p v-if="plan.description" class="text-gray-600 dark:text-gray-400 mb-4">{{ plan.description }}</p>
           </div>
 
           <div class="flex gap-2 ml-4">
@@ -250,7 +250,7 @@ onMounted(() => {
               {{ isStartingWorkout ? 'Starting...' : 'Start Workout' }}
             </BaseButton>
             <BaseButton variant="ghost" size="md" @click="openDeleteDialog">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -267,7 +267,7 @@ onMounted(() => {
       <BaseCard>
         <div class="flex items-center gap-6">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -275,14 +275,14 @@ onMounted(() => {
                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
               />
             </svg>
-            <span class="text-sm text-gray-600">
-              <span class="font-semibold text-gray-900">{{ plan.exercises.length }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-semibold text-gray-900 dark:text-gray-100">{{ plan.exercises.length }}</span>
               {{ plan.exercises.length === 1 ? 'exercise' : 'exercises' }}
             </span>
           </div>
 
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -290,14 +290,14 @@ onMounted(() => {
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span class="text-sm text-gray-600">
-              <span class="font-semibold text-gray-900">~{{ estimatedDurationMinutes }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-semibold text-gray-900 dark:text-gray-100">~{{ estimatedDurationMinutes }}</span>
               minutes
             </span>
           </div>
 
           <div v-if="primaryMuscleGroups.length > 0" class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -316,11 +316,11 @@ onMounted(() => {
 
       <!-- Exercises -->
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Exercises</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Exercises</h2>
 
         <!-- Empty state -->
         <BaseCard v-if="plan.exercises.length === 0" class="text-center py-8">
-          <p class="text-gray-500">No exercises in this plan yet.</p>
+          <p class="text-gray-500 dark:text-gray-400">No exercises in this plan yet.</p>
           <RouterLink :to="`/plans/${plan.id}/edit`" class="btn btn-md btn-primary mt-4">
             Add Exercises
           </RouterLink>
@@ -339,7 +339,7 @@ onMounted(() => {
             <div class="space-y-3">
               <!-- Exercise name and muscle groups -->
               <div>
-                <h3 class="text-lg font-semibold text-gray-900">{{ exercise.exercise.name }}</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ exercise.exercise.name }}</h3>
                 <div class="flex items-center gap-2 mt-1">
                   <BaseBadge
                     v-for="mg in exercise.exercise.primary_muscle_groups"
@@ -363,7 +363,7 @@ onMounted(() => {
               <!-- Sets, reps, rest -->
               <div class="flex items-center gap-4 text-sm">
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -371,16 +371,16 @@ onMounted(() => {
                       d="M4 6h16M4 12h16M4 18h16"
                     />
                   </svg>
-                  <span class="text-gray-600">
-                    <span class="font-semibold text-gray-900">{{ exercise.sets }}</span>
+                  <span class="text-gray-600 dark:text-gray-400">
+                    <span class="font-semibold text-gray-900 dark:text-gray-100">{{ exercise.sets }}</span>
                     {{ exercise.sets === 1 ? 'set' : 'sets' }}
                   </span>
                 </div>
 
-                <span class="text-gray-300">×</span>
+                <span class="text-gray-300 dark:text-gray-600">×</span>
 
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -388,15 +388,15 @@ onMounted(() => {
                       d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
                     />
                   </svg>
-                  <span class="text-gray-600">
-                    <span class="font-semibold text-gray-900">{{ formatReps(exercise) }}</span>
+                  <span class="text-gray-600 dark:text-gray-400">
+                    <span class="font-semibold text-gray-900 dark:text-gray-100">{{ formatReps(exercise) }}</span>
                   </span>
                 </div>
 
-                <span class="text-gray-300">·</span>
+                <span class="text-gray-300 dark:text-gray-600">·</span>
 
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -404,7 +404,7 @@ onMounted(() => {
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <span class="text-gray-600 text-sm">{{ formatRestTime(exercise.rest_time_seconds) }}</span>
+                  <span class="text-gray-600 dark:text-gray-400 text-sm">{{ formatRestTime(exercise.rest_time_seconds) }}</span>
                 </div>
               </div>
 
@@ -413,7 +413,7 @@ onMounted(() => {
                 <BaseBadge :variant="getConfidenceBadgeVariant(exercise.confidence_level)" size="sm">
                   {{ exercise.confidence_level }} confidence
                 </BaseBadge>
-                <span class="text-xs text-gray-500">From import</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">From import</span>
               </div>
             </div>
           </BaseCard>

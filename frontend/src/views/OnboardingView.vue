@@ -26,34 +26,34 @@ const handleComplete = async () => {
 <template>
   <div class="space-y-6">
     <div class="text-center">
-      <h1 class="text-2xl font-bold text-gray-900">Welcome to AllWorkouts!</h1>
-      <p class="text-gray-600 mt-2">Let's set up your preferences to get started.</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Welcome to AllWorkouts!</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">Let's set up your preferences to get started.</p>
     </div>
 
     <BaseCard>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Unit System</h2>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Unit System</h2>
       <div class="flex items-center justify-between">
         <div>
-          <p class="font-medium text-gray-900">Use Metric Units</p>
-          <p class="text-sm text-gray-600">Weights in kg, distances in km</p>
+          <p class="font-medium text-gray-900 dark:text-gray-100">Use Metric Units</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Weights in kg, distances in km</p>
         </div>
         <BaseToggle v-model="useMetric" />
       </div>
-      <p class="text-sm text-gray-500 mt-2">
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
         {{ useMetric ? 'Using kilograms and kilometers' : 'Using pounds and miles' }}
       </p>
     </BaseCard>
 
     <BaseCard>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Available Equipment</h2>
-      <p class="text-gray-600 text-sm mb-4">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Available Equipment</h2>
+      <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
         You can configure your available equipment later in your profile settings.
       </p>
       <div class="flex flex-wrap gap-2">
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Dumbbells</span>
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Barbell</span>
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Pull-up Bar</span>
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Bench</span>
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">Dumbbells</span>
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">Barbell</span>
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">Pull-up Bar</span>
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm">Bench</span>
       </div>
     </BaseCard>
 

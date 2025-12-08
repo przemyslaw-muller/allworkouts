@@ -29,20 +29,20 @@ function handleCancel() {
 
         <!-- Dialog -->
         <div
-          class="relative w-full max-w-md bg-white rounded-lg shadow-xl animate-slide-up"
+          class="relative w-full max-w-md bg-white rounded-lg shadow-xl animate-slide-up dark:bg-gray-800"
           role="alertdialog"
           aria-modal="true"
         >
           <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2 dark:text-gray-100">
               {{ uiStore.confirmation.title }}
             </h3>
-            <p class="text-gray-600">
+            <p class="text-gray-600 dark:text-gray-400">
               {{ uiStore.confirmation.message }}
             </p>
           </div>
 
-          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 dark:border-gray-700">
             <BaseButton variant="secondary" @click="handleCancel">
               {{ uiStore.confirmation.cancelText }}
             </BaseButton>

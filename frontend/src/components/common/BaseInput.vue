@@ -14,6 +14,8 @@ interface Props {
   min?: number | string
   max?: number | string
   step?: number | string
+  label?: string
+  required?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -22,7 +24,10 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   readonly: false,
   error: '',
+  required: false,
 })
+
+const inputId = computed(() => props.id || (props.label ? `input-${props.label.toLowerCase().replace(/\s+/g, '-')}` : undefined))
 
 const emit = defineEmits<{
   'update:modelValue': [value: string | number]
@@ -45,8 +50,12 @@ function handleInput(event: Event) {
 
 <template>
   <div class="w-full">
+    <label v-if="label" :for="inputId" class="label">
+      {{ label }}
+      <span v-if="required" class="text-red-500 dark:text-red-400">*</span>
+    </label>
     <input
-      :id="id"
+      :id="inputId"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"

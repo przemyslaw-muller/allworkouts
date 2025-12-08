@@ -67,8 +67,28 @@ export const useUiStore = defineStore('ui', () => {
   // Sidebar state (for mobile)
   const isSidebarOpen = ref(false)
 
-  // Theme (future use)
+  // Theme
   const isDarkMode = ref(false)
+
+  // Initialize dark mode from localStorage or system preference
+  function initDarkMode() {
+    const stored = localStorage.getItem('darkMode')
+    if (stored !== null) {
+      isDarkMode.value = stored === 'true'
+    } else {
+      isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    applyDarkMode()
+  }
+
+  // Apply dark mode class to document
+  function applyDarkMode() {
+    if (isDarkMode.value) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }
 
   // Getters
   const hasNotifications = computed(() => notifications.value.length > 0)
@@ -226,12 +246,18 @@ export const useUiStore = defineStore('ui', () => {
   // Theme actions
   function toggleDarkMode() {
     isDarkMode.value = !isDarkMode.value
-    // Could persist to localStorage here
+    localStorage.setItem('darkMode', String(isDarkMode.value))
+    applyDarkMode()
   }
 
   function setDarkMode(value: boolean) {
     isDarkMode.value = value
+    localStorage.setItem('darkMode', String(value))
+    applyDarkMode()
   }
+
+  // Initialize on store creation
+  initDarkMode()
 
   return {
     // Loading state
@@ -272,6 +298,7 @@ export const useUiStore = defineStore('ui', () => {
     openSidebar,
     closeSidebar,
     // Theme actions
+    initDarkMode,
     toggleDarkMode,
     setDarkMode,
   }

@@ -19,28 +19,28 @@ const alertClasses = computed(() => {
   const base = 'rounded-lg p-4 flex items-start gap-3'
   switch (props.type) {
     case 'success':
-      return `${base} bg-green-50 text-green-800`
+      return `${base} bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300`
     case 'error':
-      return `${base} bg-red-50 text-red-800`
+      return `${base} bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300`
     case 'warning':
-      return `${base} bg-yellow-50 text-yellow-800`
+      return `${base} bg-yellow-50 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300`
     case 'info':
     default:
-      return `${base} bg-blue-50 text-blue-800`
+      return `${base} bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`
   }
 })
 
 const iconColor = computed(() => {
   switch (props.type) {
     case 'success':
-      return 'text-green-500'
+      return 'text-green-500 dark:text-green-400'
     case 'error':
-      return 'text-red-500'
+      return 'text-red-500 dark:text-red-400'
     case 'warning':
-      return 'text-yellow-500'
+      return 'text-yellow-500 dark:text-yellow-400'
     case 'info':
     default:
-      return 'text-blue-500'
+      return 'text-blue-500 dark:text-blue-400'
   }
 })
 </script>

@@ -11,6 +11,8 @@ interface Props {
   name?: string
   rows?: number
   maxlength?: number
+  label?: string
+  required?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -19,7 +21,10 @@ const props = withDefaults(defineProps<Props>(), {
   readonly: false,
   error: '',
   rows: 3,
+  required: false,
 })
+
+const textareaId = computed(() => props.id || (props.label ? `textarea-${props.label.toLowerCase().replace(/\s+/g, '-')}` : undefined))
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -41,8 +46,12 @@ function handleInput(event: Event) {
 
 <template>
   <div class="w-full">
+    <label v-if="label" :for="textareaId" class="label">
+      {{ label }}
+      <span v-if="required" class="text-red-500 dark:text-red-400">*</span>
+    </label>
     <textarea
-      :id="id"
+      :id="textareaId"
       :value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"

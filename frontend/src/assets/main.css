@@ -10,6 +10,7 @@
 
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
+    @apply dark:bg-gray-900 dark:text-gray-100;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
@@ -24,15 +25,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100;
+    @apply bg-gray-100 dark:bg-gray-800;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
+    @apply bg-gray-300 rounded-full dark:bg-gray-600;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
+    @apply bg-gray-400 dark:bg-gray-500;
   }
 }
 
@@ -41,11 +42,13 @@
   /* Focus ring utility */
   .focus-ring {
     @apply focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply dark:focus:ring-offset-gray-900;
   }
 
   /* Card styles */
   .card {
     @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    @apply dark:bg-gray-800 dark:border-gray-700;
   }
 
   .card-hover {
@@ -59,6 +62,7 @@
            focus:outline-none focus:ring-2 focus:ring-offset-2
            disabled:opacity-50 disabled:cursor-not-allowed
            active:scale-[0.98] cursor-pointer;
+    @apply dark:focus:ring-offset-gray-900;
     background-image: none;
   }
 
@@ -84,7 +88,12 @@
     @apply text-gray-900 hover:bg-gray-200 hover:shadow
            focus:ring-primary-500 border border-gray-300
            hover:border-primary-300 hover:bg-primary-50;
+    @apply dark:text-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-500;
     background-color: rgb(243 244 246); /* gray-100 */
+  }
+
+  .dark .btn-secondary {
+    background-color: rgb(55 65 81); /* gray-700 */
   }
 
   .btn-danger {
@@ -96,14 +105,24 @@
   .btn-ghost {
     @apply text-gray-700 hover:bg-primary-50 hover:text-primary-900
            focus:ring-primary-500 border border-gray-300 hover:border-primary-300;
+    @apply dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100;
     background-color: rgb(243 244 246); /* gray-100 */
+  }
+
+  .dark .btn-ghost {
+    background-color: rgb(55 65 81); /* gray-700 */
   }
 
   .btn-outline {
     @apply border border-primary-600 text-primary-700
            hover:bg-primary-100 hover:border-primary-700
            focus:ring-primary-500;
+    @apply dark:text-primary-400 dark:border-primary-500 dark:hover:bg-primary-900;
     background-color: rgb(204 251 241); /* primary-50 */
+  }
+
+  .dark .btn-outline {
+    background-color: rgb(17 94 89); /* primary-800 */
   }
 
   /* Input styles */
@@ -112,25 +131,31 @@
            text-gray-900 placeholder-gray-400
            focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-20
            disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed;
+    @apply dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-500
+           dark:disabled:bg-gray-900 dark:disabled:text-gray-600;
   }
 
   .input-error {
     @apply border-red-500 focus:border-red-500 focus:ring-red-500 focus:ring-opacity-20;
+    @apply dark:border-red-400 dark:focus:border-red-400 dark:focus:ring-red-400;
   }
 
   /* Label styles */
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply dark:text-gray-300;
   }
 
   /* Error message styles */
   .error-message {
     @apply text-sm text-red-600 mt-1;
+    @apply dark:text-red-400;
   }
 
   /* Link styles */
   .link {
     @apply text-primary-600 hover:text-primary-700 hover:underline transition-colors;
+    @apply dark:text-primary-400 dark:hover:text-primary-300;
   }
 
   /* Badge styles */
@@ -140,22 +165,27 @@
 
   .badge-primary {
     @apply bg-primary-100 text-primary-800;
+    @apply dark:bg-primary-900 dark:text-primary-200;
   }
 
   .badge-success {
     @apply bg-green-100 text-green-800;
+    @apply dark:bg-green-900 dark:text-green-200;
   }
 
   .badge-warning {
     @apply bg-yellow-100 text-yellow-800;
+    @apply dark:bg-yellow-900 dark:text-yellow-200;
   }
 
   .badge-danger {
     @apply bg-red-100 text-red-800;
+    @apply dark:bg-red-900 dark:text-red-200;
   }
 
   .badge-gray {
     @apply bg-gray-100 text-gray-800;
+    @apply dark:bg-gray-700 dark:text-gray-200;
   }
 
   /* Page container */
@@ -170,10 +200,12 @@
 
   .page-title {
     @apply text-2xl font-bold text-gray-900;
+    @apply dark:text-gray-100;
   }
 
   .page-subtitle {
     @apply text-gray-600 mt-1;
+    @apply dark:text-gray-400;
   }
 }
 

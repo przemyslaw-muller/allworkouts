@@ -130,10 +130,10 @@ watch(searchQuery, () => {
   >
     <div class="space-y-4">
       <!-- Current Exercise Info -->
-      <div v-if="currentExercise" class="bg-gray-50 rounded-lg p-4">
-        <p class="text-sm text-gray-600 mb-1">Current exercise:</p>
-        <h4 class="font-medium text-gray-900">{{ currentExercise.exerciseName }}</h4>
-        <p class="text-sm text-gray-500 mt-1">
+      <div v-if="currentExercise" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current exercise:</p>
+        <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ currentExercise.exerciseName }}</h4>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {{ currentExercise.primaryMuscleGroups.map(mg => mg.charAt(0).toUpperCase() + mg.slice(1)).join(', ') }}
         </p>
       </div>
@@ -150,7 +150,7 @@ watch(searchQuery, () => {
 
       <!-- Section Header -->
       <div class="flex items-center justify-between">
-        <h4 class="font-medium text-gray-900">
+        <h4 class="font-medium text-gray-900 dark:text-gray-100">
           {{ showAllExercises ? 'All Exercises' : 'Similar Exercises' }}
         </h4>
         <BaseButton
@@ -174,19 +174,19 @@ watch(searchQuery, () => {
       </div>
 
       <!-- Exercise List -->
-      <div class="border border-gray-200 rounded-lg max-h-96 overflow-y-auto">
+      <div class="border border-gray-200 dark:border-gray-700 rounded-lg max-h-96 overflow-y-auto">
         <!-- Loading State -->
         <div v-if="isLoadingSubstitutes || isSearching" class="flex items-center justify-center py-12">
           <BaseSpinner size="lg" />
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="p-4 text-center text-red-600">
+        <div v-else-if="error" class="p-4 text-center text-red-600 dark:text-red-400">
           {{ error }}
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="displayedExercises.length === 0" class="p-8 text-center text-gray-500">
+        <div v-else-if="displayedExercises.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
           <p v-if="showAllExercises">No exercises found. Try adjusting your search.</p>
           <p v-else>No similar exercises found for this exercise.</p>
           <BaseButton
@@ -202,40 +202,40 @@ watch(searchQuery, () => {
         </div>
 
         <!-- Exercise Items -->
-        <div v-else class="divide-y divide-gray-200">
+        <div v-else class="divide-y divide-gray-200 dark:divide-gray-700">
           <button
             v-for="exercise in displayedExercises"
             :key="exercise.id"
             type="button"
-            class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+            class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             @click="handleSelect(exercise)"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <h4 class="font-medium text-gray-900">{{ exercise.name }}</h4>
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ exercise.name }}</h4>
                   <span
                     v-if="'match_score' in exercise && typeof exercise.match_score === 'number' && exercise.match_score >= 0.8"
-                    class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+                    class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-400"
                   >
                     High Match
                   </span>
                 </div>
-                <p class="text-sm text-gray-500 mt-1">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {{ exercise.primary_muscle_groups.map(mg => mg.charAt(0).toUpperCase() + mg.slice(1)).join(', ') }}
                 </p>
                 <div v-if="exercise.equipment.length > 0" class="flex items-center gap-1 mt-1">
                   <span
                     v-for="eq in exercise.equipment"
                     :key="eq.id"
-                    class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
+                    class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-700 dark:text-gray-300"
                   >
                     {{ eq.name }}
                   </span>
                 </div>
               </div>
               <div class="ml-4">
-                <span class="text-blue-600 text-sm font-medium">Select →</span>
+                <span class="text-blue-600 dark:text-blue-400 text-sm font-medium">Select →</span>
               </div>
             </div>
           </button>
@@ -243,7 +243,7 @@ watch(searchQuery, () => {
       </div>
 
       <!-- Help Text -->
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
         {{ showAllExercises 
           ? 'Click on an exercise to replace the current one.' 
           : 'These exercises work similar muscle groups and use compatible equipment.' 

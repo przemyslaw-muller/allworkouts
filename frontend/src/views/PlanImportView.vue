@@ -29,11 +29,11 @@ const handleImport = async () => {
   <div class="space-y-6">
     <!-- Header -->
     <div>
-      <RouterLink to="/plans" class="text-sm text-gray-500 hover:text-gray-700 mb-1 inline-block">
+      <RouterLink to="/plans" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-1 inline-block">
         &larr; Back to Plans
       </RouterLink>
-      <h1 class="text-2xl font-bold text-gray-900">Import Workout Plan</h1>
-      <p class="text-gray-600">Paste your workout plan below to import it.</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Import Workout Plan</h1>
+      <p class="text-gray-600 dark:text-gray-400">Paste your workout plan below to import it.</p>
     </div>
 
     <BaseCard>
@@ -45,9 +45,9 @@ const handleImport = async () => {
           :rows="10"
         />
 
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <h3 class="text-sm font-medium text-gray-900 mb-2">Supported Formats</h3>
-          <ul class="text-sm text-gray-600 space-y-1">
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Supported Formats</h3>
+          <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>- Plain text with exercise names and sets/reps</li>
             <li>- JSON format from AllWorkouts export</li>
             <li>- Common workout app export formats</li>

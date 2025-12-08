@@ -123,8 +123,8 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Workout Plans</h1>
-        <p class="text-gray-600">Manage your workout routines</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Workout Plans</h1>
+        <p class="text-gray-600 dark:text-gray-400">Manage your workout routines</p>
       </div>
       <RouterLink to="/plans/import" class="btn btn-md btn-primary">
         Import Plan
@@ -134,15 +134,15 @@ onMounted(() => {
     <!-- Loading State -->
     <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <BaseCard v-for="i in 3" :key="i" class="animate-pulse">
-        <div class="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
       </BaseCard>
     </div>
 
     <!-- Error State -->
     <BaseCard v-else-if="error" class="text-center py-8">
-      <div class="text-red-600 mb-4">
+      <div class="text-red-600 dark:text-red-400 mb-4">
         <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -152,15 +152,15 @@ onMounted(() => {
           />
         </svg>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load plans</h3>
-      <p class="text-gray-600 mb-4">{{ error }}</p>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Failed to load plans</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-4">{{ error }}</p>
       <BaseButton @click="fetchPlans">Try Again</BaseButton>
     </BaseCard>
 
     <!-- Empty State -->
     <BaseCard v-else-if="!hasPlans" class="text-center py-12">
       <svg
-        class="mx-auto h-12 w-12 text-gray-400"
+        class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -172,8 +172,8 @@ onMounted(() => {
           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
         />
       </svg>
-      <h3 class="mt-4 text-lg font-medium text-gray-900">No workout plans yet</h3>
-      <p class="mt-2 text-gray-500">Get started by importing your first workout plan.</p>
+      <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No workout plans yet</h3>
+      <p class="mt-2 text-gray-500 dark:text-gray-400">Get started by importing your first workout plan.</p>
       <div class="mt-6">
         <RouterLink to="/plans/import" class="btn btn-md btn-primary">
           Import Your First Plan
@@ -192,21 +192,21 @@ onMounted(() => {
         <!-- Plan Header -->
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
-            <h3 class="text-lg font-semibold text-gray-900 truncate">{{ plan.name }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">{{ plan.name }}</h3>
           </div>
         </div>
 
         <!-- Description -->
         <p
           v-if="plan.description"
-          class="text-sm text-gray-600 mb-3 line-clamp-2"
+          class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2"
           :title="plan.description"
         >
           {{ plan.description }}
         </p>
 
         <!-- Metadata -->
-        <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
           <BaseBadge variant="gray">
             {{ plan.exercise_count }} {{ plan.exercise_count === 1 ? 'exercise' : 'exercises' }}
           </BaseBadge>
@@ -215,7 +215,7 @@ onMounted(() => {
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center gap-2 pt-3 border-t border-gray-100" @click.stop>
+        <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700" @click.stop>
           <BaseButton type="button" variant="outline" size="sm" @click="navigateToPlan(plan.id)">
             View
           </BaseButton>
@@ -226,7 +226,7 @@ onMounted(() => {
             type="button"
             variant="ghost"
             size="sm"
-            class="text-red-600 hover:text-red-700 hover:bg-red-50"
+            class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30"
             @click="openDeleteDialog(plan)"
           >
             Delete

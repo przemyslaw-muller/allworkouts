@@ -35,26 +35,26 @@ const muscleGroupDisplay = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
+  <div class="rounded-lg border border-gray-200 bg-white p-4 space-y-4 dark:bg-gray-800 dark:border-gray-700">
     <!-- Exercise Header -->
     <div class="flex items-start justify-between">
       <div class="flex-1">
         <div class="flex items-center gap-2">
-          <h3 class="text-lg font-medium text-gray-900">{{ exercise.exerciseName }}</h3>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ exercise.exerciseName }}</h3>
           <span
             v-if="exercise.isNew"
-            class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+            class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200"
           >
             New
           </span>
           <span
             v-else-if="exercise.isModified"
-            class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+            class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200"
           >
             Modified
           </span>
         </div>
-        <p class="text-sm text-gray-500 mt-1">{{ muscleGroupDisplay }}</p>
+        <p class="text-sm text-gray-500 mt-1 dark:text-gray-400">{{ muscleGroupDisplay }}</p>
       </div>
 
       <!-- Action Buttons -->
@@ -93,7 +93,7 @@ const muscleGroupDisplay = computed(() => {
           size="sm"
           :disabled="!canRemove"
           @click="emit('on-remove')"
-          class="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50"
+          class="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900"
           title="Remove exercise"
         >
           Remove
@@ -161,7 +161,7 @@ const muscleGroupDisplay = computed(() => {
     </div>
 
     <!-- Equipment Display -->
-    <div v-if="exercise.equipment.length > 0" class="flex items-center gap-2 text-sm text-gray-600">
+    <div v-if="exercise.equipment.length > 0" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
       <span class="font-medium">Equipment:</span>
       <span>{{ exercise.equipment.map(e => e.name).join(', ') }}</span>
     </div>
