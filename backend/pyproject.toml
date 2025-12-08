@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "AllWorkouts backend API"
 authors = [{name = "AllWorkouts Team"}]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
@@ -39,5 +39,5 @@ ignore = ["E501"]
 
 [tool.black]
 line-length = 100
-target-version = ['py39']
+target-version = ['py310']
 skip-string-normalization = true
