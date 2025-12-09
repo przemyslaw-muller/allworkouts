@@ -10,6 +10,9 @@ import type {
   WorkoutPlanCreateResponse,
   WorkoutPlanUpdateRequest,
   WorkoutPlanUpdateResponse,
+  ParseWorkoutTextRequest,
+  WorkoutPlanParseResponse,
+  WorkoutPlanFromParsedRequest,
 } from '@/types'
 
 export const workoutPlanService = {
@@ -50,5 +53,22 @@ export const workoutPlanService = {
    */
   async delete(planId: string): Promise<void> {
     await api.delete(`/workout-plans/${planId}`)
+  },
+
+  /**
+   * Parse workout plan text using AI.
+   * Returns parsed exercises with confidence scores.
+   */
+  async parseWorkoutText(data: ParseWorkoutTextRequest): Promise<WorkoutPlanParseResponse> {
+    const response = await api.post<WorkoutPlanParseResponse>('/workout-plans/parse', data)
+    return response.data
+  },
+
+  /**
+   * Create a workout plan from parsed data (Step 2 of import wizard).
+   */
+  async createFromParsed(data: WorkoutPlanFromParsedRequest): Promise<WorkoutPlanCreateResponse> {
+    const response = await api.post<WorkoutPlanCreateResponse>('/workout-plans/from-parsed', data)
+    return response.data
   },
 }

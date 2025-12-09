@@ -547,3 +547,105 @@ export interface FormValidationErrors {
   exercises?: string // List-level error (e.g., "At least 1 exercise required")
   exerciseErrors: Map<string, ExerciseFieldErrors>
 }
+
+// ============================================================================
+// Plan Import / Parse Types
+// ============================================================================
+
+export interface ParseWorkoutTextRequest {
+  text: string
+}
+
+export interface ParsedExerciseMatch {
+  exercise_id: string
+  exercise_name: string
+  original_text: string
+  confidence: number
+  confidence_level: ConfidenceLevel
+  primary_muscle_groups: MuscleGroup[]
+  secondary_muscle_groups: MuscleGroup[]
+}
+
+export interface ParsedExerciseItem {
+  matched_exercise: ParsedExerciseMatch | null
+  original_text: string
+  sets: number
+  reps_min: number
+  reps_max: number
+  rest_seconds: number | null
+  notes: string | null
+  sequence: number
+  alternatives: ParsedExerciseMatch[]
+}
+
+export interface ParsedWorkoutPlan {
+  name: string
+  description: string | null
+  exercises: ParsedExerciseItem[]
+  raw_text: string
+  import_log_id: string
+}
+
+export interface WorkoutPlanParseResponse {
+  parsed_plan: ParsedWorkoutPlan
+  total_exercises: number
+  high_confidence_count: number
+  medium_confidence_count: number
+  low_confidence_count: number
+  unmatched_count: number
+}
+
+export interface WorkoutPlanFromParsedRequest {
+  import_log_id: string
+  name: string
+  description?: string | null
+  exercises: WorkoutExerciseCreateItem[]
+}
+
+// ============================================================================
+// Plan Import Wizard Types (Frontend-specific)
+// ============================================================================
+
+export type WizardStep = 1 | 2 | 3
+
+export interface ImportWizardState {
+  currentStep: WizardStep
+  inputText: string
+  isParsing: boolean
+  parseError: string | null
+  parsedData: ParsedWorkoutPlan | null
+  parseStats: ParseStats | null
+  isCreating: boolean
+  createError: string | null
+}
+
+export interface ParseStats {
+  total: number
+  highConfidence: number
+  mediumConfidence: number
+  lowConfidence: number
+  unmatched: number
+}
+
+export interface ParsedExerciseViewModel {
+  id: string // Temp ID for UI tracking
+  originalText: string
+  matchedExercise: ParsedExerciseMatch | null
+  alternativeMatches: ParsedExerciseMatch[]
+  sets: number
+  repsMin: number
+  repsMax: number
+  restSeconds: number | null
+  notes: string | null
+  confidenceLevel: ConfidenceLevel | null
+  sequence: number
+  isManuallyAdded: boolean
+  isModified: boolean
+}
+
+export interface ImportedPlanFormData {
+  name: string
+  description: string | null
+  exercises: ParsedExerciseViewModel[]
+  importLogId: string
+}
