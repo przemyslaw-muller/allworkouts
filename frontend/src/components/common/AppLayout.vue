@@ -75,9 +75,9 @@ const handleLogout = async () => {
           <div class="flex items-center space-x-4">
             <!-- Dark mode toggle -->
             <button
-              @click="uiStore.toggleDarkMode()"
               class="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700"
               :title="uiStore.isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+              @click="uiStore.toggleDarkMode()"
             >
               <!-- Sun icon (shown in dark mode) -->
               <svg
@@ -113,17 +113,17 @@ const handleLogout = async () => {
 
             <!-- User menu (desktop) -->
             <button
-              @click="handleLogout"
               class="hidden md:block text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              @click="handleLogout"
             >
               Logout
             </button>
 
             <!-- Mobile menu button -->
             <button
-              @click="toggleMobileMenu"
               class="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700"
               aria-label="Toggle menu"
+              @click="toggleMobileMenu"
             >
               <svg
                 v-if="!isMobileMenuOpen"
@@ -187,15 +187,15 @@ const handleLogout = async () => {
 
             <!-- Dark mode toggle (mobile) -->
             <button
-              @click="uiStore.toggleDarkMode()"
               class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+              @click="uiStore.toggleDarkMode()"
             >
               {{ uiStore.isDarkMode ? 'Light Mode' : 'Dark Mode' }}
             </button>
 
             <button
-              @click="handleLogout"
               class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+              @click="handleLogout"
             >
               Logout
             </button>

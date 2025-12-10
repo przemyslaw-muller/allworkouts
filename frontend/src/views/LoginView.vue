@@ -42,7 +42,7 @@ const handleSubmit = async () => {
   <div>
     <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Sign in to your account</h2>
 
-    <form @submit.prevent="handleSubmit" class="space-y-4">
+    <form class="space-y-4" @submit.prevent="handleSubmit">
       <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-md text-sm">
         {{ error }}
       </div>

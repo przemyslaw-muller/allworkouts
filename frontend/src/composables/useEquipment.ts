@@ -25,12 +25,12 @@ export function useEquipment() {
 
     const query = searchQuery.value.toLowerCase()
     return equipment.value.filter((eq) =>
-      eq.name.toLowerCase().includes(query)
+      eq.name.toLowerCase().includes(query),
     )
   })
 
   const ownedCount = computed(() =>
-    equipment.value.filter((eq) => eq.is_user_owned).length
+    equipment.value.filter((eq) => eq.is_user_owned).length,
   )
 
   const totalCount = computed(() => equipment.value.length)
@@ -62,7 +62,7 @@ export function useEquipment() {
     try {
       const result = await profileStore.updateEquipmentOwnership(
         equipmentItem.id,
-        newOwned
+        newOwned,
       )
 
       if (!result.success) {

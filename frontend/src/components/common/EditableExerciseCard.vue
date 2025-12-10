@@ -64,8 +64,8 @@ const muscleGroupDisplay = computed(() => {
           type="button"
           variant="ghost"
           size="sm"
-          @click="emit('on-move-up')"
           title="Move up"
+          @click="emit('on-move-up')"
         >
           ↑
         </BaseButton>
@@ -74,8 +74,8 @@ const muscleGroupDisplay = computed(() => {
           type="button"
           variant="ghost"
           size="sm"
-          @click="emit('on-move-down')"
           title="Move down"
+          @click="emit('on-move-down')"
         >
           ↓
         </BaseButton>
@@ -92,9 +92,9 @@ const muscleGroupDisplay = computed(() => {
           variant="ghost"
           size="sm"
           :disabled="!canRemove"
-          @click="emit('on-remove')"
           class="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900"
           title="Remove exercise"
+          @click="emit('on-remove')"
         >
           Remove
         </BaseButton>

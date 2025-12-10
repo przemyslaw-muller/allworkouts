@@ -38,7 +38,7 @@ const exerciseToReplace = ref<string | null>(null)
 
 const hasWarnings = computed(() => {
   return props.exercises.some(
-    (ex) => !ex.matchedExercise || ex.confidenceLevel === 'low'
+    (ex) => !ex.matchedExercise || ex.confidenceLevel === 'low',
   )
 })
 
@@ -48,7 +48,7 @@ const unmatchedCount = computed(() => {
 
 const lowConfidenceCount = computed(() => {
   return props.exercises.filter(
-    (ex) => ex.matchedExercise && ex.confidenceLevel === 'low'
+    (ex) => ex.matchedExercise && ex.confidenceLevel === 'low',
   ).length
 })
 

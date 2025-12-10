@@ -54,7 +54,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
           ex.repsMax <= 200 &&
           ex.repsMin <= ex.repsMax &&
           (ex.restTimeSeconds === null ||
-            (ex.restTimeSeconds >= 0 && ex.restTimeSeconds <= 3600))
+            (ex.restTimeSeconds >= 0 && ex.restTimeSeconds <= 3600)),
       )
     )
   })
@@ -311,7 +311,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
   const updateExerciseField = (
     exerciseId: string,
     field: keyof EditableExercise,
-    value: any
+    value: any,
   ): void => {
     const exercise = formData.value.exercises.find((ex) => ex.id === exerciseId)
     if (exercise) {

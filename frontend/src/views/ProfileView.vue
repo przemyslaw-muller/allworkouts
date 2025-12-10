@@ -130,9 +130,9 @@ const memberSince = computed(() => {
           />
           <button
             v-if="searchQuery"
-            @click="clearSearch"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             aria-label="Clear search"
+            @click="clearSearch"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -184,7 +184,7 @@ const memberSince = computed(() => {
 
         <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No equipment found matching "{{ searchQuery }}"</p>
-          <button @click="clearSearch" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mt-2">
+          <button class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mt-2" @click="clearSearch">
             Clear search
           </button>
         </div>

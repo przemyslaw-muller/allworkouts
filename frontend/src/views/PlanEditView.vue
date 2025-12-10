@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
 
     <!-- Form -->
     <BaseCard v-else>
-      <form @submit.prevent="handleSave" class="space-y-6">
+      <form class="space-y-6" @submit.prevent="handleSave">
         <!-- Plan Info -->
         <div class="space-y-4">
           <BaseInput

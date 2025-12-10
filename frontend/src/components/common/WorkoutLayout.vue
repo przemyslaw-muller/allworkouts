@@ -88,9 +88,9 @@ onUnmounted(() => {
         <div class="flex items-center justify-between">
           <!-- Back/Cancel -->
           <button
-            @click="handleCancelWorkout"
             class="p-2 -ml-2 text-gray-400 hover:text-white"
             aria-label="Cancel workout"
+            @click="handleCancelWorkout"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -106,8 +106,8 @@ onUnmounted(() => {
           <!-- End workout -->
           <button
             v-if="hasActiveSession"
-            @click="handleEndWorkout"
             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+            @click="handleEndWorkout"
           >
             Finish
           </button>
