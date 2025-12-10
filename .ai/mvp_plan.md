@@ -193,16 +193,16 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [ ] Backend extends refresh token expiration (30 days vs 7 days)
 
 ### 3.5 Frontend: Update for new workout structure
-**Estimated: 4-6 hours**
+**Estimated: 4-6 hours** ✓ COMPLETED
 
 After backend restructure (1.1), update frontend:
-- [ ] Update TypeScript types for nested workout structure
-- [ ] Update PlanDetailView to show workouts with exercises
-- [ ] Update PlanEditView for nested editing
-- [ ] Update PlanImportView for nested structure
-- [ ] Update ActiveWorkoutView to work with specific workout
-- [ ] Update workoutPlanService response handling
-- [ ] Update workout store
+- [x] Update TypeScript types for nested workout structure
+- [x] Update PlanDetailView to show workouts with exercises
+- [x] Update PlanEditView for nested editing
+- [x] Update PlanImportView for nested structure
+- [x] Update ActiveWorkoutView to work with specific workout
+- [x] Update workoutPlanService response handling
+- [x] Update workout store
 
 ---
 
@@ -275,3 +275,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 1.2 Backend is_active | ✓ Completed | Toggle endpoint added |
 | 2025-01-10 | 2.1 Backend name field | ✓ Completed | User name with auth support |
 | 2025-01-10 | 2.5 Backend custom exercises | ✓ Completed | CRUD with user ownership |
+| 2025-01-10 | 3.5 Frontend update for new structure | ✓ Completed | Nested workouts in all views |
