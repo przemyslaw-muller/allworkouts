@@ -123,20 +123,20 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [ ] Style PR highlights consistently with WorkoutCompleteView
 
 ### 2.5 Backend: Add custom exercise CRUD
-**Estimated: 3-4 hours**
+**Estimated: 3-4 hours** ✓ COMPLETED
 
-- [ ] Add `is_custom` and `user_id` fields to Exercise model (if not present)
-- [ ] Create migration
-- [ ] Implement `POST /exercises` - create custom exercise
-  - [ ] Validate name uniqueness per user
-  - [ ] Set is_custom=true, user_id=current_user
-- [ ] Implement `PUT /exercises/{id}` - update custom exercise
-  - [ ] Only allow if is_custom=true and user is owner
-- [ ] Implement `DELETE /exercises/{id}` - delete custom exercise
-  - [ ] Only allow if is_custom=true and user is owner
-  - [ ] Check not used in any plans (or soft delete)
-- [ ] Update exercise list to include user's custom exercises
-- [ ] Add tests
+- [x] Add `is_custom` and `user_id` fields to Exercise model (if not present)
+- [x] Create migration
+- [x] Implement `POST /exercises` - create custom exercise
+  - [x] Validate name uniqueness per user
+  - [x] Set is_custom=true, user_id=current_user
+- [x] Implement `PUT /exercises/{id}` - update custom exercise
+  - [x] Only allow if is_custom=true and user is owner
+- [x] Implement `DELETE /exercises/{id}` - delete custom exercise
+  - [x] Only allow if is_custom=true and user is owner
+  - [x] Check not used in any plans (or soft delete)
+- [x] Update exercise list to include user's custom exercises
+- [x] Add tests
 
 ### 2.6 Frontend: Add custom exercise creation
 **Estimated: 2-3 hours**
@@ -274,3 +274,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 1.1 Backend restructure | ✓ Completed | Workout hierarchy implemented |
 | 2025-01-10 | 1.2 Backend is_active | ✓ Completed | Toggle endpoint added |
 | 2025-01-10 | 2.1 Backend name field | ✓ Completed | User name with auth support |
+| 2025-01-10 | 2.5 Backend custom exercises | ✓ Completed | CRUD with user ownership |
