@@ -99,11 +99,11 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [x] Update auth endpoints
 
 ### 2.2 Frontend: Add name field to registration
-**Estimated: 30 minutes**
+**Estimated: 30 minutes** ✓ COMPLETED
 
-- [ ] Add name input field to RegisterView
-- [ ] Add validation (1-100 characters)
-- [ ] Update register API call
+- [x] Add name input field to RegisterView
+- [x] Add validation (1-100 characters)
+- [x] Update register API call
 
 ### 2.3 Frontend: Add active plan indicator and toggle
 **Estimated: 1-2 hours**
@@ -279,3 +279,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 1.3 Frontend onboarding | ✓ Completed | 2-step wizard with equipment selection |
 | 2025-01-10 | 1.4 Frontend StatsView | ✓ Completed | Real data with CSS-based charts |
 | 2025-01-10 | 1.5 Frontend localStorage | ✓ Completed | Session persistence with 24h stale detection |
+| 2025-01-10 | 2.2 Frontend registration name | ✓ Completed | Optional name field with validation |
