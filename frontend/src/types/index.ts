@@ -196,6 +196,35 @@ export interface ExerciseSubstituteItem {
   match_score: number
 }
 
+export interface ExerciseCreateRequest {
+  name: string
+  primary_muscle_groups: MuscleGroup[]
+  secondary_muscle_groups?: MuscleGroup[]
+  description?: string | null
+  default_weight?: number | null
+  default_reps?: number | null
+  default_rest_time_seconds?: number | null
+  equipment_ids?: string[]
+}
+
+export interface ExerciseUpdateRequest {
+  name?: string
+  primary_muscle_groups?: MuscleGroup[]
+  secondary_muscle_groups?: MuscleGroup[]
+  description?: string | null
+  default_weight?: number | null
+  default_reps?: number | null
+  default_rest_time_seconds?: number | null
+  equipment_ids?: string[]
+}
+
+export interface ExerciseCreateResponse {
+  id: string
+  name: string
+  is_custom: boolean
+  created_at: string
+}
+
 // ============================================================================
 // Workout Plan Types
 // ============================================================================

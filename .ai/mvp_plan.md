@@ -139,16 +139,16 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [x] Add tests
 
 ### 2.6 Frontend: Add custom exercise creation
-**Estimated: 2-3 hours**
+**Estimated: 2-3 hours** ✓ COMPLETED
 
-- [ ] Add create/update/delete methods to exerciseService
-- [ ] Create "Add Custom Exercise" button in exercise picker
-- [ ] Create custom exercise form modal
-  - [ ] Name input
-  - [ ] Description textarea
-  - [ ] Muscle groups multi-select
-  - [ ] Equipment multi-select
-- [ ] Allow editing/deleting custom exercises from exercise detail
+- [x] Add create/update/delete methods to exerciseService
+- [x] Create "Add Custom Exercise" button in exercise picker
+- [x] Create custom exercise form modal (CustomExerciseModal.vue)
+  - [x] Name input
+  - [x] Description textarea
+  - [x] Muscle groups multi-select (primary & secondary)
+  - [x] Equipment multi-select
+- [x] Allow editing/deleting custom exercises from AddExerciseModal
 
 ---
 
@@ -282,3 +282,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 2.2 Frontend registration name | ✓ Completed | Optional name field with validation |
 | 2025-01-10 | 2.3 Frontend active plan toggle | ✓ Completed | Set Active button with confirmation |
 | 2025-12-10 | 2.4 Frontend session detail PRs | ✓ Completed | Backend returns is_pr and personal_records |
+| 2025-12-10 | 2.6 Frontend custom exercises | ✓ Completed | CustomExerciseModal with CRUD in AddExerciseModal |
