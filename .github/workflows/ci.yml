@@ -33,9 +33,6 @@ jobs:
       - name: Run ruff
         run: uv run ruff check .
 
-      - name: Run black check
-        run: uv run black --check .
-
   backend-test:
     name: Backend Tests
     needs: [backend-lint, frontend-lint]
