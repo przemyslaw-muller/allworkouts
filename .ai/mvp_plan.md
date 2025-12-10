@@ -53,21 +53,21 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [ ] Add onboarding_completed flag check to auth flow (deferred)
 
 ### 1.4 Frontend: Implement StatsView with real data
-**Estimated: 4-6 hours**
+**Estimated: 4-6 hours** ✓ COMPLETED
 
-- [ ] Connect to statsService.getOverview()
-- [ ] Display key metrics cards:
-  - [ ] Total workouts
-  - [ ] Total duration (formatted)
-  - [ ] Current streak
-  - [ ] Total PRs
-- [ ] Workout frequency visualization (simple CSS-based bars)
-  - [ ] Show last 6 months
-  - [ ] Display count per month
-- [ ] Muscle group distribution (simple CSS-based pie/donut or horizontal bars)
-- [ ] Add date range filter (optional, can be deferred)
-- [ ] Loading skeletons
-- [ ] Error state handling
+- [x] Connect to statsService.getOverview()
+- [x] Display key metrics cards:
+  - [x] Total workouts
+  - [x] Total duration (formatted)
+  - [x] Current streak
+  - [x] Total PRs
+- [x] Workout frequency visualization (simple CSS-based bars)
+  - [x] Show last 6 months
+  - [x] Display count per month
+- [x] Muscle group distribution (simple CSS-based horizontal bars)
+- [ ] Add date range filter (optional, deferred)
+- [x] Loading skeletons
+- [x] Error state handling
 
 ### 1.5 Frontend: Add localStorage persistence for active workout
 **Estimated: 2-3 hours**
@@ -277,3 +277,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 2.5 Backend custom exercises | ✓ Completed | CRUD with user ownership |
 | 2025-01-10 | 3.5 Frontend update for new structure | ✓ Completed | Nested workouts in all views |
 | 2025-01-10 | 1.3 Frontend onboarding | ✓ Completed | 2-step wizard with equipment selection |
+| 2025-01-10 | 1.4 Frontend StatsView | ✓ Completed | Real data with CSS-based charts |
