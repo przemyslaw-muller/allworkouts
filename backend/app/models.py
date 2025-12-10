@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     ARRAY,
+    Boolean,
     Column,
     DateTime,
     Enum,
@@ -28,15 +29,20 @@ from app.enums import (
 
 
 class User(Base):
-    '''User account information and preferences'''
+    """User account information and preferences"""
 
-    __tablename__ = 'user'
+    __tablename__ = "user"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
     unit_system = Column(
-        Enum(UnitSystemEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]),
+        Enum(
+            UnitSystemEnum,
+            native_enum=True,
+            create_constraint=True,
+            values_callable=lambda e: [x.value for x in e],
+        ),
         nullable=False,
         default=UnitSystemEnum.METRIC,
     )
@@ -46,19 +52,19 @@ class User(Base):
     )
 
     # Relationships
-    workout_plans = relationship('WorkoutPlan', back_populates='user')
-    workout_sessions = relationship('WorkoutSession', back_populates='user')
-    personal_records = relationship('PersonalRecord', back_populates='user')
-    workout_import_logs = relationship('WorkoutImportLog', back_populates='user')
-    user_equipment = relationship('UserEquipment', back_populates='user')
+    workout_plans = relationship("WorkoutPlan", back_populates="user")
+    workout_sessions = relationship("WorkoutSession", back_populates="user")
+    personal_records = relationship("PersonalRecord", back_populates="user")
+    workout_import_logs = relationship("WorkoutImportLog", back_populates="user")
+    user_equipment = relationship("UserEquipment", back_populates="user")
 
-    __table_args__ = (Index('idx_user_email', 'email'),)
+    __table_args__ = (Index("idx_user_email", "email"),)
 
 
 class Equipment(Base):
-    '''Global reference table for all available equipment'''
+    """Global reference table for all available equipment"""
 
-    __tablename__ = 'equipment'
+    __tablename__ = "equipment"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, unique=True)
@@ -66,24 +72,41 @@ class Equipment(Base):
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
     # Relationships
-    exercise_equipment = relationship('ExerciseEquipment', back_populates='equipment')
-    user_equipment = relationship('UserEquipment', back_populates='equipment')
+    exercise_equipment = relationship("ExerciseEquipment", back_populates="equipment")
+    user_equipment = relationship("UserEquipment", back_populates="equipment")
 
-    __table_args__ = (Index('idx_equipment_name', 'name'),)
+    __table_args__ = (Index("idx_equipment_name", "name"),)
 
 
 class Exercise(Base):
-    '''Global exercise database with muscle groups and default parameters'''
+    """Global exercise database with muscle groups and default parameters"""
 
-    __tablename__ = 'exercise'
+    __tablename__ = "exercise"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, unique=True)
     primary_muscle_groups = Column(
-        ARRAY(Enum(MuscleGroupEnum, name='muscle_group_enum', native_enum=True, create_constraint=False, values_callable=lambda e: [x.value for x in e])), nullable=False
+        ARRAY(
+            Enum(
+                MuscleGroupEnum,
+                name="muscle_group_enum",
+                native_enum=True,
+                create_constraint=False,
+                values_callable=lambda e: [x.value for x in e],
+            )
+        ),
+        nullable=False,
     )
     secondary_muscle_groups = Column(
-        ARRAY(Enum(MuscleGroupEnum, name='muscle_group_enum', native_enum=True, create_constraint=False, values_callable=lambda e: [x.value for x in e])),
+        ARRAY(
+            Enum(
+                MuscleGroupEnum,
+                name="muscle_group_enum",
+                native_enum=True,
+                create_constraint=False,
+                values_callable=lambda e: [x.value for x in e],
+            )
+        ),
         nullable=False,
         default=list,
     )
@@ -97,80 +120,81 @@ class Exercise(Base):
     )
 
     # Relationships
-    exercise_equipment = relationship('ExerciseEquipment', back_populates='exercise')
-    workout_exercises = relationship('WorkoutExercise', back_populates='exercise')
-    exercise_sessions = relationship('ExerciseSession', back_populates='exercise')
-    personal_records = relationship('PersonalRecord', back_populates='exercise')
+    exercise_equipment = relationship("ExerciseEquipment", back_populates="exercise")
+    workout_exercises = relationship("WorkoutExercise", back_populates="exercise")
+    exercise_sessions = relationship("ExerciseSession", back_populates="exercise")
+    personal_records = relationship("PersonalRecord", back_populates="exercise")
 
     __table_args__ = (
-        Index('idx_exercise_name', 'name'),
+        Index("idx_exercise_name", "name"),
         Index(
-            'idx_exercise_primary_muscle_groups',
-            'primary_muscle_groups',
-            postgresql_using='gin',
+            "idx_exercise_primary_muscle_groups",
+            "primary_muscle_groups",
+            postgresql_using="gin",
         ),
         Index(
-            'idx_exercise_secondary_muscle_groups',
-            'secondary_muscle_groups',
-            postgresql_using='gin',
+            "idx_exercise_secondary_muscle_groups",
+            "secondary_muscle_groups",
+            postgresql_using="gin",
         ),
     )
 
 
 class ExerciseEquipment(Base):
-    '''Links exercises to required equipment (many-to-many)'''
+    """Links exercises to required equipment (many-to-many)"""
 
-    __tablename__ = 'exercise_equipment'
+    __tablename__ = "exercise_equipment"
 
     exercise_id = Column(
-        UUID(as_uuid=True), ForeignKey('exercise.id'), primary_key=True, nullable=False
+        UUID(as_uuid=True), ForeignKey("exercise.id"), primary_key=True, nullable=False
     )
     equipment_id = Column(
-        UUID(as_uuid=True), ForeignKey('equipment.id'), primary_key=True, nullable=False
+        UUID(as_uuid=True), ForeignKey("equipment.id"), primary_key=True, nullable=False
     )
 
     # Relationships
-    exercise = relationship('Exercise', back_populates='exercise_equipment')
-    equipment = relationship('Equipment', back_populates='exercise_equipment')
+    exercise = relationship("Exercise", back_populates="exercise_equipment")
+    equipment = relationship("Equipment", back_populates="exercise_equipment")
 
-    __table_args__ = (Index('idx_exercise_equipment_equipment_id', 'equipment_id'),)
+    __table_args__ = (Index("idx_exercise_equipment_equipment_id", "equipment_id"),)
 
 
 class UserEquipment(Base):
-    '''Links users to their available equipment (many-to-many, with soft delete)'''
+    """Links users to their available equipment (many-to-many, with soft delete)"""
 
-    __tablename__ = 'user_equipment'
+    __tablename__ = "user_equipment"
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), primary_key=True, nullable=False)
     equipment_id = Column(
-        UUID(as_uuid=True), ForeignKey('equipment.id'), primary_key=True, nullable=False
+        UUID(as_uuid=True), ForeignKey("equipment.id"), primary_key=True, nullable=False
     )
     deleted_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
     # Relationships
-    user = relationship('User', back_populates='user_equipment')
-    equipment = relationship('Equipment', back_populates='user_equipment')
+    user = relationship("User", back_populates="user_equipment")
+    equipment = relationship("Equipment", back_populates="user_equipment")
 
     __table_args__ = (
         Index(
-            'idx_user_equipment_user_id',
-            'user_id',
-            postgresql_where='deleted_at IS NULL',
+            "idx_user_equipment_user_id",
+            "user_id",
+            postgresql_where="deleted_at IS NULL",
         ),
-        Index('idx_user_equipment_equipment_id', 'equipment_id'),
+        Index("idx_user_equipment_equipment_id", "equipment_id"),
     )
 
 
 class WorkoutPlan(Base):
-    '''User-owned workout plan templates with soft delete support'''
+    """User-owned workout plan templates with soft delete support"""
 
-    __tablename__ = 'workout_plan'
+    __tablename__ = "workout_plan"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
+    is_active = Column(Boolean, nullable=False, default=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(
@@ -178,42 +202,75 @@ class WorkoutPlan(Base):
     )
 
     # Relationships
-    user = relationship('User', back_populates='workout_plans')
-    workout_exercises = relationship('WorkoutExercise', back_populates='workout_plan')
-    workout_sessions = relationship('WorkoutSession', back_populates='workout_plan')
-    workout_import_logs = relationship('WorkoutImportLog', back_populates='workout_plan')
+    user = relationship("User", back_populates="workout_plans")
+    workouts = relationship("Workout", back_populates="workout_plan", cascade="all, delete-orphan")
+    workout_sessions = relationship("WorkoutSession", back_populates="workout_plan")
+    workout_import_logs = relationship("WorkoutImportLog", back_populates="workout_plan")
 
     __table_args__ = (
         Index(
-            'idx_workout_plan_user_id',
-            'user_id',
-            postgresql_where='deleted_at IS NULL',
+            "idx_workout_plan_user_id",
+            "user_id",
+            postgresql_where="deleted_at IS NULL",
         ),
-        Index('idx_workout_plan_created_at', 'user_id', 'created_at'),
+        Index("idx_workout_plan_created_at", "user_id", "created_at"),
         Index(
-            'idx_workout_plan_name',
-            'user_id',
-            'name',
-            postgresql_where='deleted_at IS NULL',
+            "idx_workout_plan_name",
+            "user_id",
+            "name",
+            postgresql_where="deleted_at IS NULL",
         ),
     )
 
 
-class WorkoutExercise(Base):
-    '''Exercises within a specific workout plan with plan-specific parameters'''
+class Workout(Base):
+    """Individual workout within a workout plan (e.g., "Day 1", "Push Day")"""
 
-    __tablename__ = 'workout_exercise'
+    __tablename__ = "workout"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    workout_plan_id = Column(UUID(as_uuid=True), ForeignKey('workout_plan.id'), nullable=False)
-    exercise_id = Column(UUID(as_uuid=True), ForeignKey('exercise.id'), nullable=False)
+    workout_plan_id = Column(UUID(as_uuid=True), ForeignKey("workout_plan.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    day_number = Column(Integer, nullable=True)  # Optional day number
+    order_index = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    # Relationships
+    workout_plan = relationship("WorkoutPlan", back_populates="workouts")
+    workout_exercises = relationship(
+        "WorkoutExercise", back_populates="workout", cascade="all, delete-orphan"
+    )
+    workout_sessions = relationship("WorkoutSession", back_populates="workout")
+
+    __table_args__ = (
+        Index("idx_workout_workout_plan_id", "workout_plan_id"),
+        Index("idx_workout_order", "workout_plan_id", "order_index"),
+    )
+
+
+class WorkoutExercise(Base):
+    """Exercises within a specific workout with workout-specific parameters"""
+
+    __tablename__ = "workout_exercise"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    workout_id = Column(UUID(as_uuid=True), ForeignKey("workout.id"), nullable=False)
+    exercise_id = Column(UUID(as_uuid=True), ForeignKey("exercise.id"), nullable=False)
     sequence = Column(Integer, nullable=False)
     sets = Column(Integer, nullable=False)
     reps_min = Column(Integer, nullable=False)
     reps_max = Column(Integer, nullable=False)
     rest_time_seconds = Column(Integer, nullable=True)
     confidence_level = Column(
-        Enum(ConfidenceLevelEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]),
+        Enum(
+            ConfidenceLevelEnum,
+            native_enum=True,
+            create_constraint=True,
+            values_callable=lambda e: [x.value for x in e],
+        ),
         nullable=False,
         default=ConfidenceLevelEnum.MEDIUM,
     )
@@ -223,27 +280,33 @@ class WorkoutExercise(Base):
     )
 
     # Relationships
-    workout_plan = relationship('WorkoutPlan', back_populates='workout_exercises')
-    exercise = relationship('Exercise', back_populates='workout_exercises')
+    workout = relationship("Workout", back_populates="workout_exercises")
+    exercise = relationship("Exercise", back_populates="workout_exercises")
 
     __table_args__ = (
-        UniqueConstraint('workout_plan_id', 'sequence'),
-        Index('idx_workout_exercise_workout_plan_id', 'workout_plan_id'),
-        Index('idx_workout_exercise_exercise_id', 'exercise_id'),
-        Index('idx_workout_exercise_sequence', 'workout_plan_id', 'sequence'),
+        UniqueConstraint("workout_id", "sequence"),
+        Index("idx_workout_exercise_workout_id", "workout_id"),
+        Index("idx_workout_exercise_exercise_id", "exercise_id"),
+        Index("idx_workout_exercise_sequence", "workout_id", "sequence"),
     )
 
 
 class WorkoutSession(Base):
-    '''Individual workout execution records with status tracking'''
+    """Individual workout execution records with status tracking"""
 
-    __tablename__ = 'workout_session'
+    __tablename__ = "workout_session"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
-    workout_plan_id = Column(UUID(as_uuid=True), ForeignKey('workout_plan.id'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
+    workout_plan_id = Column(UUID(as_uuid=True), ForeignKey("workout_plan.id"), nullable=False)
+    workout_id = Column(UUID(as_uuid=True), ForeignKey("workout.id"), nullable=False)
     status = Column(
-        Enum(SessionStatusEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]),
+        Enum(
+            SessionStatusEnum,
+            native_enum=True,
+            create_constraint=True,
+            values_callable=lambda e: [x.value for x in e],
+        ),
         nullable=False,
         default=SessionStatusEnum.IN_PROGRESS,
     )
@@ -254,43 +317,45 @@ class WorkoutSession(Base):
     )
 
     # Relationships
-    user = relationship('User', back_populates='workout_sessions')
-    workout_plan = relationship('WorkoutPlan', back_populates='workout_sessions')
-    exercise_sessions = relationship('ExerciseSession', back_populates='workout_session')
+    user = relationship("User", back_populates="workout_sessions")
+    workout_plan = relationship("WorkoutPlan", back_populates="workout_sessions")
+    workout = relationship("Workout", back_populates="workout_sessions")
+    exercise_sessions = relationship("ExerciseSession", back_populates="workout_session")
 
     __table_args__ = (
         Index(
-            'idx_workout_session_user_id',
-            'user_id',
-            postgresql_where='deleted_at IS NULL',
+            "idx_workout_session_user_id",
+            "user_id",
+            postgresql_where="deleted_at IS NULL",
         ),
         Index(
-            'idx_workout_session_user_status_created',
-            'user_id',
-            'status',
-            'created_at',
-            postgresql_where='deleted_at IS NULL',
+            "idx_workout_session_user_status_created",
+            "user_id",
+            "status",
+            "created_at",
+            postgresql_where="deleted_at IS NULL",
         ),
         Index(
-            'idx_workout_session_user_created',
-            'user_id',
-            'created_at',
-            postgresql_where='deleted_at IS NULL',
+            "idx_workout_session_user_created",
+            "user_id",
+            "created_at",
+            postgresql_where="deleted_at IS NULL",
         ),
-        Index('idx_workout_session_workout_plan_id', 'workout_plan_id'),
+        Index("idx_workout_session_workout_plan_id", "workout_plan_id"),
+        Index("idx_workout_session_workout_id", "workout_id"),
     )
 
 
 class ExerciseSession(Base):
-    '''Individual logged sets within a workout session (mutable records)'''
+    """Individual logged sets within a workout session (mutable records)"""
 
-    __tablename__ = 'exercise_session'
+    __tablename__ = "exercise_session"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     workout_session_id = Column(
-        UUID(as_uuid=True), ForeignKey('workout_session.id'), nullable=False
+        UUID(as_uuid=True), ForeignKey("workout_session.id"), nullable=False
     )
-    exercise_id = Column(UUID(as_uuid=True), ForeignKey('exercise.id'), nullable=False)
+    exercise_id = Column(UUID(as_uuid=True), ForeignKey("exercise.id"), nullable=False)
     weight = Column(Numeric(10, 2), nullable=False)
     reps = Column(Integer, nullable=False)
     rest_time_seconds = Column(Integer, nullable=True)
@@ -301,32 +366,38 @@ class ExerciseSession(Base):
     )
 
     # Relationships
-    workout_session = relationship('WorkoutSession', back_populates='exercise_sessions')
-    exercise = relationship('Exercise', back_populates='exercise_sessions')
-    personal_records = relationship('PersonalRecord', back_populates='exercise_session')
+    workout_session = relationship("WorkoutSession", back_populates="exercise_sessions")
+    exercise = relationship("Exercise", back_populates="exercise_sessions")
+    personal_records = relationship("PersonalRecord", back_populates="exercise_session")
 
     __table_args__ = (
-        Index('idx_exercise_session_workout_session_id', 'workout_session_id'),
-        Index('idx_exercise_session_exercise_id', 'exercise_id'),
-        Index('idx_exercise_session_user_exercise', 'workout_session_id', 'exercise_id'),
+        Index("idx_exercise_session_workout_session_id", "workout_session_id"),
+        Index("idx_exercise_session_exercise_id", "exercise_id"),
+        Index("idx_exercise_session_user_exercise", "workout_session_id", "exercise_id"),
     )
 
 
 class PersonalRecord(Base):
-    '''Denormalized personal record tracking for fast retrieval'''
+    """Denormalized personal record tracking for fast retrieval"""
 
-    __tablename__ = 'personal_record'
+    __tablename__ = "personal_record"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
-    exercise_id = Column(UUID(as_uuid=True), ForeignKey('exercise.id'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
+    exercise_id = Column(UUID(as_uuid=True), ForeignKey("exercise.id"), nullable=False)
     record_type = Column(
-        Enum(RecordTypeEnum, native_enum=True, create_constraint=True, values_callable=lambda e: [x.value for x in e]), nullable=False
+        Enum(
+            RecordTypeEnum,
+            native_enum=True,
+            create_constraint=True,
+            values_callable=lambda e: [x.value for x in e],
+        ),
+        nullable=False,
     )
     value = Column(Numeric(10, 2), nullable=False)
     unit = Column(String(10), nullable=True)
     exercise_session_id = Column(
-        UUID(as_uuid=True), ForeignKey('exercise_session.id'), nullable=True
+        UUID(as_uuid=True), ForeignKey("exercise_session.id"), nullable=True
     )
     achieved_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
@@ -335,37 +406,37 @@ class PersonalRecord(Base):
     )
 
     # Relationships
-    user = relationship('User', back_populates='personal_records')
-    exercise = relationship('Exercise', back_populates='personal_records')
-    exercise_session = relationship('ExerciseSession', back_populates='personal_records')
+    user = relationship("User", back_populates="personal_records")
+    exercise = relationship("Exercise", back_populates="personal_records")
+    exercise_session = relationship("ExerciseSession", back_populates="personal_records")
 
     __table_args__ = (
-        UniqueConstraint('user_id', 'exercise_id', 'record_type'),
-        Index('idx_personal_record_user_exercise', 'user_id', 'exercise_id'),
-        Index('idx_personal_record_user_id', 'user_id'),
-        Index('idx_personal_record_achieved_at', 'user_id', 'achieved_at'),
+        UniqueConstraint("user_id", "exercise_id", "record_type"),
+        Index("idx_personal_record_user_exercise", "user_id", "exercise_id"),
+        Index("idx_personal_record_user_id", "user_id"),
+        Index("idx_personal_record_achieved_at", "user_id", "achieved_at"),
     )
 
 
 class WorkoutImportLog(Base):
-    '''Audit trail for AI parsing and import history'''
+    """Audit trail for AI parsing and import history"""
 
-    __tablename__ = 'workout_import_log'
+    __tablename__ = "workout_import_log"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id'), nullable=False)
-    workout_plan_id = Column(UUID(as_uuid=True), ForeignKey('workout_plan.id'), nullable=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
+    workout_plan_id = Column(UUID(as_uuid=True), ForeignKey("workout_plan.id"), nullable=True)
     raw_text = Column(Text, nullable=False)
     parsed_exercises = Column(JSONB, nullable=True)
     confidence_scores = Column(JSONB, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
     # Relationships
-    user = relationship('User', back_populates='workout_import_logs')
-    workout_plan = relationship('WorkoutPlan', back_populates='workout_import_logs')
+    user = relationship("User", back_populates="workout_import_logs")
+    workout_plan = relationship("WorkoutPlan", back_populates="workout_import_logs")
 
     __table_args__ = (
-        Index('idx_workout_import_log_user_id', 'user_id'),
-        Index('idx_workout_import_log_workout_plan_id', 'workout_plan_id'),
-        Index('idx_workout_import_log_created_at', 'user_id', 'created_at'),
+        Index("idx_workout_import_log_user_id", "user_id"),
+        Index("idx_workout_import_log_workout_plan_id", "workout_plan_id"),
+        Index("idx_workout_import_log_created_at", "user_id", "created_at"),
     )

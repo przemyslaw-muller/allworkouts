@@ -11,23 +11,24 @@ from .exercises import ExerciseBrief
 
 
 class WorkoutPlanBase(BaseModel):
-    '''Base workout plan schema'''
+    """Base workout plan schema"""
 
     name: str
     description: Optional[str] = None
 
 
 class WorkoutPlanCreate(WorkoutPlanBase):
-    '''Schema for workout plan creation'''
+    """Schema for workout plan creation"""
 
     pass
 
 
 class WorkoutPlanResponse(WorkoutPlanBase):
-    '''Schema for workout plan response'''
+    """Schema for workout plan response"""
 
     id: UUID
     user_id: UUID
+    is_active: bool = False
     deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
@@ -36,8 +37,55 @@ class WorkoutPlanResponse(WorkoutPlanBase):
         from_attributes = True
 
 
+# =============================================================================
+# Workout Schemas (intermediate level between Plan and Exercises)
+# =============================================================================
+
+
+class WorkoutBase(BaseModel):
+    """Base workout schema"""
+
+    name: str
+    day_number: Optional[int] = None
+    order_index: int = 0
+
+
+class WorkoutCreate(WorkoutBase):
+    """Schema for workout creation"""
+
+    pass
+
+
+class WorkoutResponse(WorkoutBase):
+    """Schema for workout response"""
+
+    id: UUID
+    workout_plan_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class WorkoutBrief(BaseModel):
+    """Brief workout info for session responses"""
+
+    id: UUID
+    name: str
+    day_number: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+
+# =============================================================================
+# Workout Exercise Schemas
+# =============================================================================
+
+
 class WorkoutExerciseBase(BaseModel):
-    '''Base workout exercise schema'''
+    """Base workout exercise schema"""
 
     exercise_id: UUID
     sequence: int
@@ -49,16 +97,16 @@ class WorkoutExerciseBase(BaseModel):
 
 
 class WorkoutExerciseCreate(WorkoutExerciseBase):
-    '''Schema for workout exercise creation'''
+    """Schema for workout exercise creation"""
 
     pass
 
 
 class WorkoutExerciseResponse(WorkoutExerciseBase):
-    '''Schema for workout exercise response'''
+    """Schema for workout exercise response"""
 
     id: UUID
-    workout_plan_id: UUID
+    workout_id: UUID
     created_at: datetime
     updated_at: datetime
 
@@ -67,7 +115,7 @@ class WorkoutExerciseResponse(WorkoutExerciseBase):
 
 
 class WorkoutExerciseDetail(BaseModel):
-    '''Exercise details within a workout plan'''
+    """Exercise details within a workout"""
 
     id: UUID
     exercise: ExerciseBrief
@@ -82,43 +130,8 @@ class WorkoutExerciseDetail(BaseModel):
         from_attributes = True
 
 
-class WorkoutPlanListItem(BaseModel):
-    '''Workout plan item in list response'''
-
-    id: UUID
-    name: str
-    description: Optional[str] = None
-    exercise_count: int = 0
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class WorkoutPlanListResponse(BaseModel):
-    '''Response for workout plan list endpoint'''
-
-    plans: list[WorkoutPlanListItem]
-    pagination: PaginationInfo
-
-
-class WorkoutPlanDetailResponse(BaseModel):
-    '''Detailed workout plan response with exercises'''
-
-    id: UUID
-    name: str
-    description: Optional[str] = None
-    exercises: list[WorkoutExerciseDetail] = []
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
 class WorkoutExerciseCreateItem(BaseModel):
-    '''Exercise item for workout plan creation/update'''
+    """Exercise item for workout creation/update"""
 
     exercise_id: UUID
     sequence: int
@@ -128,59 +141,150 @@ class WorkoutExerciseCreateItem(BaseModel):
     rest_time_seconds: Optional[int] = None
     confidence_level: ConfidenceLevelEnum = ConfidenceLevelEnum.MEDIUM
 
-    @field_validator('sets')
+    @field_validator("sets")
     @classmethod
     def validate_sets(cls, v: int) -> int:
         if v < 1 or v > 50:
-            raise ValueError('Sets must be between 1 and 50')
+            raise ValueError("Sets must be between 1 and 50")
         return v
 
-    @field_validator('reps_min', 'reps_max')
+    @field_validator("reps_min", "reps_max")
     @classmethod
     def validate_reps(cls, v: int) -> int:
         if v < 1 or v > 200:
-            raise ValueError('Reps must be between 1 and 200')
+            raise ValueError("Reps must be between 1 and 200")
         return v
 
-    @field_validator('rest_time_seconds')
+    @field_validator("rest_time_seconds")
     @classmethod
     def validate_rest_time(cls, v: Optional[int]) -> Optional[int]:
         if v is not None and (v < 0 or v > 3600):
-            raise ValueError('Rest time must be between 0 and 3600 seconds')
+            raise ValueError("Rest time must be between 0 and 3600 seconds")
         return v
 
-    @field_validator('sequence')
+    @field_validator("sequence")
     @classmethod
     def validate_sequence(cls, v: int) -> int:
         if v < 0:
-            raise ValueError('Sequence must be non-negative')
+            raise ValueError("Sequence must be non-negative")
         return v
 
 
-class WorkoutPlanCreateRequest(BaseModel):
-    '''Request for creating a workout plan'''
+# =============================================================================
+# Workout Detail (with exercises nested)
+# =============================================================================
+
+
+class WorkoutDetail(BaseModel):
+    """Workout details with exercises"""
+
+    id: UUID
+    name: str
+    day_number: Optional[int] = None
+    order_index: int
+    exercises: list[WorkoutExerciseDetail] = []
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class WorkoutCreateItem(BaseModel):
+    """Workout item for plan creation/update (with nested exercises)"""
 
     name: str
-    description: Optional[str] = None
-    exercises: list[WorkoutExerciseCreateItem]
+    day_number: Optional[int] = None
+    order_index: int = 0
+    exercises: list[WorkoutExerciseCreateItem] = []
 
-    @field_validator('name')
+    @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
-        if len(v.strip()) < 1 or len(v) > 200:
-            raise ValueError('Name must be between 1 and 200 characters')
+        if len(v.strip()) < 1 or len(v) > 255:
+            raise ValueError("Workout name must be between 1 and 255 characters")
         return v.strip()
 
-    @field_validator('exercises')
+    @field_validator("exercises")
     @classmethod
     def validate_exercises(cls, v: list) -> list:
         if len(v) < 1:
-            raise ValueError('Workout plan must have at least 1 exercise')
+            raise ValueError("Workout must have at least 1 exercise")
+        return v
+
+
+# =============================================================================
+# Workout Plan List and Detail Responses
+# =============================================================================
+
+
+class WorkoutPlanListItem(BaseModel):
+    """Workout plan item in list response"""
+
+    id: UUID
+    name: str
+    description: Optional[str] = None
+    is_active: bool = False
+    workout_count: int = 0
+    exercise_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class WorkoutPlanListResponse(BaseModel):
+    """Response for workout plan list endpoint"""
+
+    plans: list[WorkoutPlanListItem]
+    pagination: PaginationInfo
+
+
+class WorkoutPlanDetailResponse(BaseModel):
+    """Detailed workout plan response with workouts and exercises"""
+
+    id: UUID
+    name: str
+    description: Optional[str] = None
+    is_active: bool = False
+    workouts: list[WorkoutDetail] = []
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# =============================================================================
+# Workout Plan Create/Update Requests
+# =============================================================================
+
+
+class WorkoutPlanCreateRequest(BaseModel):
+    """Request for creating a workout plan with nested workouts"""
+
+    name: str
+    description: Optional[str] = None
+    workouts: list[WorkoutCreateItem]
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        if len(v.strip()) < 1 or len(v) > 200:
+            raise ValueError("Name must be between 1 and 200 characters")
+        return v.strip()
+
+    @field_validator("workouts")
+    @classmethod
+    def validate_workouts(cls, v: list) -> list:
+        if len(v) < 1:
+            raise ValueError("Workout plan must have at least 1 workout")
         return v
 
 
 class WorkoutPlanCreateResponse(BaseModel):
-    '''Response for workout plan creation'''
+    """Response for workout plan creation"""
 
     id: UUID
     name: str
@@ -188,38 +292,38 @@ class WorkoutPlanCreateResponse(BaseModel):
 
 
 class WorkoutPlanUpdateRequest(BaseModel):
-    '''Request for updating a workout plan'''
+    """Request for updating a workout plan"""
 
     name: Optional[str] = None
     description: Optional[str] = None
-    exercises: Optional[list[WorkoutExerciseCreateItem]] = None
+    workouts: Optional[list[WorkoutCreateItem]] = None
 
-    @field_validator('name')
+    @field_validator("name")
     @classmethod
     def validate_name(cls, v: Optional[str]) -> Optional[str]:
         if v is not None:
             if len(v.strip()) < 1 or len(v) > 200:
-                raise ValueError('Name must be between 1 and 200 characters')
+                raise ValueError("Name must be between 1 and 200 characters")
             return v.strip()
         return v
 
-    @field_validator('exercises')
+    @field_validator("workouts")
     @classmethod
-    def validate_exercises(cls, v: Optional[list]) -> Optional[list]:
+    def validate_workouts(cls, v: Optional[list]) -> Optional[list]:
         if v is not None and len(v) < 1:
-            raise ValueError('Workout plan must have at least 1 exercise')
+            raise ValueError("Workout plan must have at least 1 workout")
         return v
 
 
 class WorkoutPlanUpdateResponse(BaseModel):
-    '''Response for workout plan update'''
+    """Response for workout plan update"""
 
     id: UUID
     updated_at: datetime
 
 
 class WorkoutPlanBrief(BaseModel):
-    '''Brief workout plan info for session responses'''
+    """Brief workout plan info for session responses"""
 
     id: UUID
     name: str
@@ -228,11 +332,27 @@ class WorkoutPlanBrief(BaseModel):
         from_attributes = True
 
 
+class WorkoutPlanToggleActiveRequest(BaseModel):
+    """Request to toggle active status of a workout plan"""
+
+    is_active: bool
+
+
+class WorkoutPlanToggleActiveResponse(BaseModel):
+    """Response for toggling active status"""
+
+    id: UUID
+    is_active: bool
+    updated_at: datetime
+
+
+# =============================================================================
 # Parser-related schemas
+# =============================================================================
 
 
 class ParsedExerciseMatch(BaseModel):
-    '''Matched exercise from database with confidence'''
+    """Matched exercise from database with confidence"""
 
     exercise_id: UUID
     exercise_name: str
@@ -247,7 +367,7 @@ class ParsedExerciseMatch(BaseModel):
 
 
 class ParsedExerciseItem(BaseModel):
-    '''Single parsed exercise with matching info'''
+    """Single parsed exercise with matching info"""
 
     matched_exercise: Optional[ParsedExerciseMatch] = None
     original_text: str
@@ -260,33 +380,42 @@ class ParsedExerciseItem(BaseModel):
     alternatives: list[ParsedExerciseMatch] = []
 
 
+class ParsedWorkoutItem(BaseModel):
+    """Single parsed workout (day) with exercises"""
+
+    name: str
+    day_number: Optional[int] = None
+    order_index: int = 0
+    exercises: list[ParsedExerciseItem] = []
+
+
 class WorkoutPlanParseRequest(BaseModel):
-    '''Request for parsing workout plan text'''
+    """Request for parsing workout plan text"""
 
     text: str
 
-    @field_validator('text')
+    @field_validator("text")
     @classmethod
     def validate_text(cls, v: str) -> str:
         if len(v.strip()) < 10:
-            raise ValueError('Text must be at least 10 characters')
+            raise ValueError("Text must be at least 10 characters")
         if len(v) > 50000:
-            raise ValueError('Text must be less than 50,000 characters')
+            raise ValueError("Text must be less than 50,000 characters")
         return v.strip()
 
 
 class ParsedWorkoutPlan(BaseModel):
-    '''Parsed workout plan structure from text'''
+    """Parsed workout plan structure from text (nested workouts)"""
 
     name: str
     description: Optional[str] = None
-    exercises: list[ParsedExerciseItem]
+    workouts: list[ParsedWorkoutItem]
     raw_text: str
     import_log_id: UUID
 
 
 class WorkoutPlanParseResponse(BaseModel):
-    '''Response from parse endpoint'''
+    """Response from parse endpoint"""
 
     parsed_plan: ParsedWorkoutPlan
     total_exercises: int
@@ -297,16 +426,16 @@ class WorkoutPlanParseResponse(BaseModel):
 
 
 class WorkoutPlanFromParsedRequest(BaseModel):
-    '''Create workout plan from parsed data (Step 2)'''
+    """Create workout plan from parsed data (Step 2)"""
 
     import_log_id: UUID
     name: str
     description: Optional[str] = None
-    exercises: list[WorkoutExerciseCreateItem]
+    workouts: list[WorkoutCreateItem]
 
-    @field_validator('exercises')
+    @field_validator("workouts")
     @classmethod
-    def validate_exercises(cls, v: list) -> list:
+    def validate_workouts(cls, v: list) -> list:
         if len(v) < 1:
-            raise ValueError('Workout plan must have at least 1 exercise')
+            raise ValueError("Workout plan must have at least 1 workout")
         return v

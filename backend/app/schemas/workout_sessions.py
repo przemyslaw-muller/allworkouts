@@ -9,24 +9,25 @@ from app.enums import RecordTypeEnum, SessionStatusEnum
 
 from .base import PaginationInfo
 from .exercises import ExerciseBrief, PersonalRecordBrief
-from .workout_plans import WorkoutPlanBrief
+from .workout_plans import WorkoutBrief, WorkoutPlanBrief
 
 
 class WorkoutSessionBase(BaseModel):
-    '''Base workout session schema'''
+    """Base workout session schema"""
 
     workout_plan_id: UUID
+    workout_id: UUID
     status: SessionStatusEnum = SessionStatusEnum.IN_PROGRESS
 
 
 class WorkoutSessionCreate(WorkoutSessionBase):
-    '''Schema for workout session creation'''
+    """Schema for workout session creation"""
 
     pass
 
 
 class WorkoutSessionResponse(WorkoutSessionBase):
-    '''Schema for workout session response'''
+    """Schema for workout session response"""
 
     id: UUID
     user_id: UUID
@@ -39,7 +40,7 @@ class WorkoutSessionResponse(WorkoutSessionBase):
 
 
 class ExerciseSessionBase(BaseModel):
-    '''Base exercise session schema'''
+    """Base exercise session schema"""
 
     exercise_id: UUID
     weight: Decimal
@@ -49,13 +50,13 @@ class ExerciseSessionBase(BaseModel):
 
 
 class ExerciseSessionCreate(ExerciseSessionBase):
-    '''Schema for exercise session creation'''
+    """Schema for exercise session creation"""
 
     pass
 
 
 class ExerciseSessionResponse(ExerciseSessionBase):
-    '''Schema for exercise session response'''
+    """Schema for exercise session response"""
 
     id: UUID
     workout_session_id: UUID
@@ -67,10 +68,11 @@ class ExerciseSessionResponse(ExerciseSessionBase):
 
 
 class WorkoutSessionListItem(BaseModel):
-    '''Workout session item in list response'''
+    """Workout session item in list response"""
 
     id: UUID
     workout_plan: WorkoutPlanBrief
+    workout: WorkoutBrief
     status: SessionStatusEnum
     exercise_count: int = 0
     created_at: datetime
@@ -81,14 +83,14 @@ class WorkoutSessionListItem(BaseModel):
 
 
 class WorkoutSessionListResponse(BaseModel):
-    '''Response for workout session list endpoint'''
+    """Response for workout session list endpoint"""
 
     sessions: list[WorkoutSessionListItem]
     pagination: PaginationInfo
 
 
 class ExerciseSessionSetDetail(BaseModel):
-    '''Individual set within an exercise session'''
+    """Individual set within an exercise session"""
 
     id: UUID
     set_number: int
@@ -102,7 +104,7 @@ class ExerciseSessionSetDetail(BaseModel):
 
 
 class ExerciseSessionDetail(BaseModel):
-    '''Exercise session with all sets for session detail view'''
+    """Exercise session with all sets for session detail view"""
 
     id: UUID
     exercise: ExerciseBrief
@@ -117,10 +119,11 @@ class ExerciseSessionDetail(BaseModel):
 
 
 class WorkoutSessionDetailResponse(BaseModel):
-    '''Detailed workout session response with exercise sessions'''
+    """Detailed workout session response with exercise sessions"""
 
     id: UUID
     workout_plan: WorkoutPlanBrief
+    workout: WorkoutBrief
     status: SessionStatusEnum
     exercise_sessions: list[ExerciseSessionDetail] = []
     created_at: datetime
@@ -131,7 +134,7 @@ class WorkoutSessionDetailResponse(BaseModel):
 
 
 class RecentSetInfo(BaseModel):
-    '''Recent set info for exercise context'''
+    """Recent set info for exercise context"""
 
     reps: int
     weight: Decimal
@@ -141,7 +144,7 @@ class RecentSetInfo(BaseModel):
 
 
 class RecentSessionInfo(BaseModel):
-    '''Recent session info for exercise context'''
+    """Recent session info for exercise context"""
 
     date: datetime
     sets: list[RecentSetInfo]
@@ -151,7 +154,7 @@ class RecentSessionInfo(BaseModel):
 
 
 class ExerciseContextInfo(BaseModel):
-    '''Context info for an exercise (PR and recent sessions)'''
+    """Context info for an exercise (PR and recent sessions)"""
 
     personal_record: Optional[PersonalRecordBrief] = None
     recent_sessions: list[RecentSessionInfo] = []
@@ -161,7 +164,7 @@ class ExerciseContextInfo(BaseModel):
 
 
 class PlannedExerciseWithContext(BaseModel):
-    '''Planned exercise with historical context for session start'''
+    """Planned exercise with historical context for session start"""
 
     planned_exercise_id: UUID
     exercise: ExerciseBrief
@@ -176,78 +179,79 @@ class PlannedExerciseWithContext(BaseModel):
 
 
 class WorkoutSessionStartRequest(BaseModel):
-    '''Request for starting a workout session'''
+    """Request for starting a workout session"""
 
-    workout_plan_id: UUID
+    workout_id: UUID
 
 
 class WorkoutSessionStartResponse(BaseModel):
-    '''Response for starting a workout session'''
+    """Response for starting a workout session"""
 
     session_id: UUID
     workout_plan: WorkoutPlanBrief
+    workout: WorkoutBrief
     started_at: datetime
     exercises: list[PlannedExerciseWithContext]
 
 
 class ExerciseSetLogItem(BaseModel):
-    '''Individual set data for logging exercise'''
+    """Individual set data for logging exercise"""
 
     set_number: int
     reps: int
     weight: Decimal
     rest_time_seconds: Optional[int] = None
 
-    @field_validator('set_number')
+    @field_validator("set_number")
     @classmethod
     def validate_set_number(cls, v: int) -> int:
         if v < 1:
-            raise ValueError('Set number must be at least 1')
+            raise ValueError("Set number must be at least 1")
         return v
 
-    @field_validator('reps')
+    @field_validator("reps")
     @classmethod
     def validate_reps(cls, v: int) -> int:
         if v < 1:
-            raise ValueError('Reps must be at least 1')
+            raise ValueError("Reps must be at least 1")
         return v
 
-    @field_validator('weight')
+    @field_validator("weight")
     @classmethod
     def validate_weight(cls, v: Decimal) -> Decimal:
         if v < 0:
-            raise ValueError('Weight must be non-negative')
+            raise ValueError("Weight must be non-negative")
         return v
 
 
 class LogExerciseRequest(BaseModel):
-    '''Request for logging an exercise during a session'''
+    """Request for logging an exercise during a session"""
 
     exercise_id: UUID
     sets: list[ExerciseSetLogItem]
 
-    @field_validator('sets')
+    @field_validator("sets")
     @classmethod
     def validate_sets(cls, v: list) -> list:
         if len(v) < 1:
-            raise ValueError('Must log at least 1 set')
+            raise ValueError("Must log at least 1 set")
         return v
 
 
 class LogExerciseResponse(BaseModel):
-    '''Response for logging an exercise'''
+    """Response for logging an exercise"""
 
     exercise_session_ids: list[UUID]
 
 
 class CompleteSessionRequest(BaseModel):
-    '''Request for completing a session'''
+    """Request for completing a session"""
 
     notes: Optional[str] = None
 
 
 class NewPersonalRecordInfo(BaseModel):
-    '''Info about a new personal record'''
+    """Info about a new personal record"""
 
     exercise_name: str
     record_type: RecordTypeEnum
@@ -256,7 +260,7 @@ class NewPersonalRecordInfo(BaseModel):
 
 
 class CompleteSessionResponse(BaseModel):
-    '''Response for completing a session'''
+    """Response for completing a session"""
 
     session_id: UUID
     status: SessionStatusEnum
@@ -265,13 +269,13 @@ class CompleteSessionResponse(BaseModel):
 
 
 class SkipSessionRequest(BaseModel):
-    '''Request for skipping a session'''
+    """Request for skipping a session"""
 
     notes: Optional[str] = None
 
 
 class SkipSessionResponse(BaseModel):
-    '''Response for skipping a session'''
+    """Response for skipping a session"""
 
     session_id: UUID
     status: SessionStatusEnum

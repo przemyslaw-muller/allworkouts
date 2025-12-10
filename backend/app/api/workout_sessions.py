@@ -1,6 +1,6 @@
-'''
+"""
 Workout Session API routes.
-'''
+"""
 
 from datetime import datetime, timezone
 from typing import Optional
@@ -16,6 +16,7 @@ from app.models import (
     Exercise,
     ExerciseSession,
     PersonalRecord,
+    Workout,
     WorkoutExercise,
     WorkoutPlan,
     WorkoutSession,
@@ -37,6 +38,7 @@ from app.schemas import (
     RecentSetInfo,
     SkipSessionRequest,
     SkipSessionResponse,
+    WorkoutBrief,
     WorkoutPlanBrief,
     WorkoutSessionDetailResponse,
     WorkoutSessionListItem,
@@ -45,15 +47,16 @@ from app.schemas import (
     WorkoutSessionStartResponse,
 )
 
-router = APIRouter(prefix='/workout-sessions', tags=['Workout Sessions'])
+router = APIRouter(prefix="/workout-sessions", tags=["Workout Sessions"])
 
 
 @router.get(
-    '',
+    "",
     response_model=APIResponse[WorkoutSessionListResponse],
 )
 async def list_workout_sessions(
     workout_plan_id: Optional[UUID] = None,
+    workout_id: Optional[UUID] = None,
     status_filter: Optional[SessionStatusEnum] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
@@ -62,17 +65,18 @@ async def list_workout_sessions(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     List workout sessions (history).
 
     Query Parameters:
     - workout_plan_id: Filter by workout plan
+    - workout_id: Filter by specific workout
     - status_filter: Filter by status (in_progress, completed, skipped)
     - start_date: Filter by date range start
     - end_date: Filter by date range end
     - page: Page number (default: 1)
     - limit: Items per page (default: 20, max: 100)
-    '''
+    """
     # Validate pagination
     if limit > 100:
         limit = 100
@@ -88,6 +92,8 @@ async def list_workout_sessions(
     # Apply filters
     if workout_plan_id:
         query = query.filter(WorkoutSession.workout_plan_id == workout_plan_id)
+    if workout_id:
+        query = query.filter(WorkoutSession.workout_id == workout_id)
     if status_filter:
         query = query.filter(WorkoutSession.status == status_filter)
     if start_date:
@@ -114,8 +120,9 @@ async def list_workout_sessions(
             .count()
         )
 
-        # Get workout plan info
+        # Get workout plan and workout info
         workout_plan = session.workout_plan
+        workout = session.workout
 
         session_list.append(
             WorkoutSessionListItem(
@@ -123,6 +130,11 @@ async def list_workout_sessions(
                 workout_plan=WorkoutPlanBrief(
                     id=workout_plan.id,
                     name=workout_plan.name,
+                ),
+                workout=WorkoutBrief(
+                    id=workout.id,
+                    name=workout.name,
+                    day_number=workout.day_number,
                 ),
                 status=session.status,
                 exercise_count=exercise_count,
@@ -145,19 +157,19 @@ async def list_workout_sessions(
 
 
 @router.get(
-    '/current',
+    "/current",
     response_model=APIResponse[WorkoutSessionStartResponse],
 )
 async def get_current_workout_session(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Get the current in-progress workout session if any.
 
     Returns the session with exercise context (like start session).
     Returns 404 if no active session.
-    '''
+    """
     # Find in-progress session for the user
     session = (
         db.query(WorkoutSession)
@@ -173,16 +185,17 @@ async def get_current_workout_session(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='No active workout session',
+            detail="No active workout session",
         )
 
     workout_plan = session.workout_plan
+    workout = session.workout
 
-    # Get planned exercises for this workout plan
+    # Get planned exercises for this workout
     workout_exercises = (
         db.query(WorkoutExercise)
         .join(Exercise)
-        .filter(WorkoutExercise.workout_plan_id == session.workout_plan_id)
+        .filter(WorkoutExercise.workout_id == session.workout_id)
         .order_by(WorkoutExercise.sequence)
         .all()
     )
@@ -235,16 +248,13 @@ async def get_current_workout_session(
                 if len(sessions_dict) >= 3:
                     break
                 sessions_dict[ws_id] = {
-                    'date': es.workout_session.created_at,
-                    'sets': [],
+                    "date": es.workout_session.created_at,
+                    "sets": [],
                 }
-            sessions_dict[ws_id]['sets'].append(
-                RecentSetInfo(reps=es.reps, weight=es.weight)
-            )
+            sessions_dict[ws_id]["sets"].append(RecentSetInfo(reps=es.reps, weight=es.weight))
 
         recent_sessions = [
-            RecentSessionInfo(date=s['date'], sets=s['sets'])
-            for s in sessions_dict.values()
+            RecentSessionInfo(date=s["date"], sets=s["sets"]) for s in sessions_dict.values()
         ]
 
         exercises_with_context.append(
@@ -274,6 +284,11 @@ async def get_current_workout_session(
                 id=workout_plan.id,
                 name=workout_plan.name,
             ),
+            workout=WorkoutBrief(
+                id=workout.id,
+                name=workout.name,
+                day_number=workout.day_number,
+            ),
             started_at=session.created_at,
             exercises=exercises_with_context,
         )
@@ -281,7 +296,7 @@ async def get_current_workout_session(
 
 
 @router.get(
-    '/{session_id}',
+    "/{session_id}",
     response_model=APIResponse[WorkoutSessionDetailResponse],
 )
 async def get_workout_session(
@@ -289,9 +304,9 @@ async def get_workout_session(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Get workout session details with all exercise sessions.
-    '''
+    """
     # Get the session
     session = (
         db.query(WorkoutSession)
@@ -306,7 +321,7 @@ async def get_workout_session(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Workout session not found',
+            detail="Workout session not found",
         )
 
     # Get exercise sessions with exercise details
@@ -339,6 +354,7 @@ async def get_workout_session(
         )
 
     workout_plan = session.workout_plan
+    workout = session.workout
 
     return APIResponse.success_response(
         WorkoutSessionDetailResponse(
@@ -346,6 +362,11 @@ async def get_workout_session(
             workout_plan=WorkoutPlanBrief(
                 id=workout_plan.id,
                 name=workout_plan.name,
+            ),
+            workout=WorkoutBrief(
+                id=workout.id,
+                name=workout.name,
+                day_number=workout.day_number,
             ),
             status=session.status,
             exercise_sessions=exercise_session_details,
@@ -356,7 +377,7 @@ async def get_workout_session(
 
 
 @router.post(
-    '/start',
+    "/start",
     response_model=APIResponse[WorkoutSessionStartResponse],
     status_code=status.HTTP_201_CREATED,
 )
@@ -365,44 +386,48 @@ async def start_workout_session(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Start a new workout session.
 
     Creates a session with status=in_progress and returns
     exercise context (PRs and recent sessions).
-    '''
-    # Verify workout plan exists and belongs to user
-    workout_plan = (
-        db.query(WorkoutPlan)
+    """
+    # Verify workout exists and belongs to user
+    workout = (
+        db.query(Workout)
+        .join(WorkoutPlan)
         .filter(
-            WorkoutPlan.id == request.workout_plan_id,
+            Workout.id == request.workout_id,
             WorkoutPlan.user_id == user_id,
             WorkoutPlan.deleted_at.is_(None),
         )
         .first()
     )
 
-    if not workout_plan:
+    if not workout:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Workout plan not found',
+            detail="Workout not found",
         )
+
+    workout_plan = workout.workout_plan
 
     # Create new session
     session = WorkoutSession(
         user_id=user_id,
-        workout_plan_id=request.workout_plan_id,
+        workout_plan_id=workout_plan.id,
+        workout_id=workout.id,
         status=SessionStatusEnum.IN_PROGRESS,
     )
     db.add(session)
     db.commit()
     db.refresh(session)
 
-    # Get planned exercises for this workout plan
+    # Get planned exercises for this workout
     workout_exercises = (
         db.query(WorkoutExercise)
         .join(Exercise)
-        .filter(WorkoutExercise.workout_plan_id == request.workout_plan_id)
+        .filter(WorkoutExercise.workout_id == workout.id)
         .order_by(WorkoutExercise.sequence)
         .all()
     )
@@ -455,16 +480,13 @@ async def start_workout_session(
                 if len(sessions_dict) >= 3:
                     break
                 sessions_dict[ws_id] = {
-                    'date': es.workout_session.created_at,
-                    'sets': [],
+                    "date": es.workout_session.created_at,
+                    "sets": [],
                 }
-            sessions_dict[ws_id]['sets'].append(
-                RecentSetInfo(reps=es.reps, weight=es.weight)
-            )
+            sessions_dict[ws_id]["sets"].append(RecentSetInfo(reps=es.reps, weight=es.weight))
 
         recent_sessions = [
-            RecentSessionInfo(date=s['date'], sets=s['sets'])
-            for s in sessions_dict.values()
+            RecentSessionInfo(date=s["date"], sets=s["sets"]) for s in sessions_dict.values()
         ]
 
         exercises_with_context.append(
@@ -494,6 +516,11 @@ async def start_workout_session(
                 id=workout_plan.id,
                 name=workout_plan.name,
             ),
+            workout=WorkoutBrief(
+                id=workout.id,
+                name=workout.name,
+                day_number=workout.day_number,
+            ),
             started_at=session.created_at,
             exercises=exercises_with_context,
         )
@@ -501,7 +528,7 @@ async def start_workout_session(
 
 
 @router.post(
-    '/{session_id}/exercises',
+    "/{session_id}/exercises",
     response_model=APIResponse[LogExerciseResponse],
     status_code=status.HTTP_201_CREATED,
 )
@@ -511,11 +538,11 @@ async def log_exercise(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Log exercise sets during a workout session.
 
     Creates exercise session records for each set.
-    '''
+    """
     # Get the session and verify ownership
     session = (
         db.query(WorkoutSession)
@@ -530,14 +557,14 @@ async def log_exercise(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Workout session not found',
+            detail="Workout session not found",
         )
 
     # Verify session is in progress
     if session.status != SessionStatusEnum.IN_PROGRESS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Cannot log exercises to a session that is not in progress',
+            detail="Cannot log exercises to a session that is not in progress",
         )
 
     # Verify exercise exists
@@ -545,7 +572,7 @@ async def log_exercise(
     if not exercise:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Exercise not found',
+            detail="Exercise not found",
         )
 
     # Create exercise session records for each set
@@ -571,7 +598,7 @@ async def log_exercise(
 
 
 @router.post(
-    '/{session_id}/complete',
+    "/{session_id}/complete",
     response_model=APIResponse[CompleteSessionResponse],
 )
 async def complete_workout_session(
@@ -580,11 +607,11 @@ async def complete_workout_session(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Complete a workout session.
 
     Calculates duration, checks for new PRs, and updates status.
-    '''
+    """
     # Get the session
     session = (
         db.query(WorkoutSession)
@@ -599,14 +626,14 @@ async def complete_workout_session(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Workout session not found',
+            detail="Workout session not found",
         )
 
     # Verify session is in progress
     if session.status != SessionStatusEnum.IN_PROGRESS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Session is not in progress',
+            detail="Session is not in progress",
         )
 
     # Update session status
@@ -619,9 +646,7 @@ async def complete_workout_session(
     # Check for new PRs
     # Get all exercise sessions for this workout
     exercise_sessions = (
-        db.query(ExerciseSession)
-        .filter(ExerciseSession.workout_session_id == session_id)
-        .all()
+        db.query(ExerciseSession).filter(ExerciseSession.workout_session_id == session_id).all()
     )
 
     new_prs = []
@@ -630,23 +655,23 @@ async def complete_workout_session(
     for es in exercise_sessions:
         if es.exercise_id not in exercise_max:
             exercise_max[es.exercise_id] = {
-                'max_weight': es.weight,
-                'max_reps': es.reps,
-                'best_session': es,
+                "max_weight": es.weight,
+                "max_reps": es.reps,
+                "best_session": es,
             }
         else:
             # Check for higher weight or higher reps at same weight
             current = exercise_max[es.exercise_id]
-            if es.weight > current['max_weight']:
-                current['max_weight'] = es.weight
-                current['best_session'] = es
-            elif es.weight == current['max_weight'] and es.reps > current['max_reps']:
-                current['max_reps'] = es.reps
-                current['best_session'] = es
+            if es.weight > current["max_weight"]:
+                current["max_weight"] = es.weight
+                current["best_session"] = es
+            elif es.weight == current["max_weight"] and es.reps > current["max_reps"]:
+                current["max_reps"] = es.reps
+                current["best_session"] = es
 
     # Check against existing PRs and create new ones if needed
     for exercise_id, data in exercise_max.items():
-        best_session = data['best_session']
+        best_session = data["best_session"]
 
         # Calculate estimated 1RM using Epley formula: weight * (1 + reps/30)
         estimated_1rm = float(best_session.weight) * (1 + best_session.reps / 30)
@@ -678,7 +703,7 @@ async def complete_workout_session(
                     exercise_id=exercise_id,
                     record_type=RecordTypeEnum.ONE_RM,
                     value=estimated_1rm,
-                    unit='kg',  # Default to kg
+                    unit="kg",  # Default to kg
                     exercise_session_id=best_session.id,
                     achieved_at=completed_at,
                 )
@@ -689,7 +714,7 @@ async def complete_workout_session(
                     exercise_name=exercise.name,
                     record_type=RecordTypeEnum.ONE_RM,
                     value=round(estimated_1rm, 2),
-                    unit='kg',
+                    unit="kg",
                 )
             )
 
@@ -706,7 +731,7 @@ async def complete_workout_session(
 
 
 @router.post(
-    '/{session_id}/skip',
+    "/{session_id}/skip",
     response_model=APIResponse[SkipSessionResponse],
 )
 async def skip_workout_session(
@@ -715,9 +740,9 @@ async def skip_workout_session(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Skip a workout session.
-    '''
+    """
     # Get the session
     session = (
         db.query(WorkoutSession)
@@ -732,14 +757,14 @@ async def skip_workout_session(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Workout session not found',
+            detail="Workout session not found",
         )
 
     # Verify session is in progress
     if session.status != SessionStatusEnum.IN_PROGRESS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Session is not in progress',
+            detail="Session is not in progress",
         )
 
     # Update session status
@@ -755,7 +780,7 @@ async def skip_workout_session(
 
 
 @router.delete(
-    '/{session_id}',
+    "/{session_id}",
     response_model=APIResponse[None],
 )
 async def delete_workout_session(
@@ -763,9 +788,9 @@ async def delete_workout_session(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    '''
+    """
     Soft delete a workout session.
-    '''
+    """
     # Get the session
     session = (
         db.query(WorkoutSession)
@@ -780,7 +805,7 @@ async def delete_workout_session(
     if not session:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Workout session not found',
+            detail="Workout session not found",
         )
 
     # Soft delete
