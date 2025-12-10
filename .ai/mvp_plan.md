@@ -90,13 +90,13 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 ## Priority 2: Important Features
 
 ### 2.1 Backend: Add name field to User model
-**Estimated: 1 hour**
+**Estimated: 1 hour** ✓ COMPLETED
 
-- [ ] Add nullable `name` field to User model
-- [ ] Create migration
-- [ ] Include name in register request schema
-- [ ] Include name in user response schemas
-- [ ] Update auth endpoints
+- [x] Add nullable `name` field to User model
+- [x] Create migration
+- [x] Include name in register request schema
+- [x] Include name in user response schemas
+- [x] Update auth endpoints
 
 ### 2.2 Frontend: Add name field to registration
 **Estimated: 30 minutes**
@@ -273,3 +273,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | Plan created | - | Initial gap analysis |
 | 2025-01-10 | 1.1 Backend restructure | ✓ Completed | Workout hierarchy implemented |
 | 2025-01-10 | 1.2 Backend is_active | ✓ Completed | Toggle endpoint added |
+| 2025-01-10 | 2.1 Backend name field | ✓ Completed | User name with auth support |
