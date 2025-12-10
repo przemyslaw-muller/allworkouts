@@ -58,6 +58,7 @@ class User(Base):
     personal_records = relationship("PersonalRecord", back_populates="user")
     workout_import_logs = relationship("WorkoutImportLog", back_populates="user")
     user_equipment = relationship("UserEquipment", back_populates="user")
+    custom_exercises = relationship("Exercise", back_populates="user")
 
     __table_args__ = (Index("idx_user_email", "email"),)
 
@@ -85,7 +86,7 @@ class Exercise(Base):
     __tablename__ = "exercise"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String(255), nullable=False, unique=True)
+    name = Column(String(255), nullable=False)
     primary_muscle_groups = Column(
         ARRAY(
             Enum(
@@ -115,6 +116,8 @@ class Exercise(Base):
     default_reps = Column(Integer, nullable=True)
     default_rest_time_seconds = Column(Integer, nullable=True)
     description = Column(Text, nullable=True)
+    is_custom = Column(Boolean, nullable=False, default=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
@@ -125,6 +128,7 @@ class Exercise(Base):
     workout_exercises = relationship("WorkoutExercise", back_populates="exercise")
     exercise_sessions = relationship("ExerciseSession", back_populates="exercise")
     personal_records = relationship("PersonalRecord", back_populates="exercise")
+    user = relationship("User", back_populates="custom_exercises")
 
     __table_args__ = (
         Index("idx_exercise_name", "name"),
@@ -138,6 +142,10 @@ class Exercise(Base):
             "secondary_muscle_groups",
             postgresql_using="gin",
         ),
+        Index("idx_exercise_user_id", "user_id", postgresql_where="is_custom = true"),
+        # Unique constraint: name must be unique for global exercises (user_id IS NULL)
+        # and unique per user for custom exercises
+        UniqueConstraint("name", "user_id", name="uq_exercise_name_user"),
     )
 
 

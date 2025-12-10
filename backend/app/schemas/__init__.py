@@ -54,6 +54,7 @@ from .exercises import (
     ExerciseListResponse,
     ExerciseResponse,
     ExerciseSubstituteItem,
+    ExerciseUpdate,
     PersonalRecordBrief,
 )
 
@@ -194,6 +195,7 @@ __all__ = [
     "ExerciseListResponse",
     "ExerciseResponse",
     "ExerciseSubstituteItem",
+    "ExerciseUpdate",
     "PersonalRecordBrief",
     # Workout plans
     "ParsedExerciseItem",
