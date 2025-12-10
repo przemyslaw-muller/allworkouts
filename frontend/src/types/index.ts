@@ -62,6 +62,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string
   password: string
+  name?: string
 }
 
 export interface RefreshTokenRequest {
@@ -71,6 +72,7 @@ export interface RefreshTokenRequest {
 export interface AuthUser {
   id: string
   email: string
+  name: string | null
   created_at: string
 }
 
@@ -96,6 +98,7 @@ export interface RefreshResponse {
 export interface User {
   id: string
   email: string
+  name: string | null
   unit_system: UnitSystem
   created_at: string
   updated_at: string
@@ -103,6 +106,7 @@ export interface User {
 
 export interface UserUpdateRequest {
   unit_system?: UnitSystem
+  name?: string | null
 }
 
 // ============================================================================
@@ -149,6 +153,7 @@ export interface ExerciseListItem {
   primary_muscle_groups: MuscleGroup[]
   secondary_muscle_groups: MuscleGroup[]
   equipment: EquipmentBrief[]
+  is_custom: boolean
 }
 
 export interface ExerciseListResponse {
@@ -175,6 +180,8 @@ export interface ExerciseDetailResponse {
   default_rest_time_seconds: number | null
   equipment: EquipmentBrief[]
   personal_records: PersonalRecordBrief[]
+  is_custom: boolean
+  user_id: string | null
   created_at: string
   updated_at: string
 }
@@ -209,10 +216,29 @@ export interface WorkoutExerciseDetail {
   confidence_level: ConfidenceLevel
 }
 
+// Workout (intermediate level between Plan and Exercises)
+export interface WorkoutBrief {
+  id: string
+  name: string
+  day_number: number | null
+}
+
+export interface WorkoutDetail {
+  id: string
+  name: string
+  day_number: number | null
+  order_index: number
+  exercises: WorkoutExerciseDetail[]
+  created_at: string
+  updated_at: string
+}
+
 export interface WorkoutPlanListItem {
   id: string
   name: string
   description: string | null
+  is_active: boolean
+  workout_count: number
   exercise_count: number
   created_at: string
   updated_at: string
@@ -227,7 +253,8 @@ export interface WorkoutPlanDetailResponse {
   id: string
   name: string
   description: string | null
-  exercises: WorkoutExerciseDetail[]
+  is_active: boolean
+  workouts: WorkoutDetail[]
   created_at: string
   updated_at: string
 }
@@ -242,10 +269,17 @@ export interface WorkoutExerciseCreateItem {
   confidence_level?: ConfidenceLevel
 }
 
+export interface WorkoutCreateItem {
+  name: string
+  day_number?: number | null
+  order_index: number
+  exercises: WorkoutExerciseCreateItem[]
+}
+
 export interface WorkoutPlanCreateRequest {
   name: string
   description?: string | null
-  exercises: WorkoutExerciseCreateItem[]
+  workouts: WorkoutCreateItem[]
 }
 
 export interface WorkoutPlanCreateResponse {
@@ -257,11 +291,21 @@ export interface WorkoutPlanCreateResponse {
 export interface WorkoutPlanUpdateRequest {
   name?: string | null
   description?: string | null
-  exercises?: WorkoutExerciseCreateItem[] | null
+  workouts?: WorkoutCreateItem[] | null
 }
 
 export interface WorkoutPlanUpdateResponse {
   id: string
+  updated_at: string
+}
+
+export interface WorkoutPlanToggleActiveRequest {
+  is_active: boolean
+}
+
+export interface WorkoutPlanToggleActiveResponse {
+  id: string
+  is_active: boolean
   updated_at: string
 }
 
@@ -295,12 +339,13 @@ export interface PlannedExerciseWithContext {
 }
 
 export interface WorkoutSessionStartRequest {
-  workout_plan_id: string
+  workout_id: string
 }
 
 export interface WorkoutSessionStartResponse {
   session_id: string
   workout_plan: WorkoutPlanBrief
+  workout: WorkoutBrief
   started_at: string
   exercises: PlannedExerciseWithContext[]
 }
@@ -350,8 +395,8 @@ export interface SkipSessionResponse {
 
 export interface WorkoutSessionListItem {
   id: string
-  workout_name: string
-  workout_plan_name: string
+  workout_plan: WorkoutPlanBrief
+  workout: WorkoutBrief
   status: SessionStatus
   started_at: string
   completed_at: string | null
@@ -383,11 +428,6 @@ export interface ExerciseSessionDetail {
   order_index: number
   notes: string | null
   sets: ExerciseSetDetail[]
-}
-
-export interface WorkoutBrief {
-  id: string
-  name: string
 }
 
 export interface WorkoutSessionDetailResponse {
@@ -598,10 +638,17 @@ export interface ParsedExerciseItem {
   alternatives: ParsedExerciseMatch[]
 }
 
+export interface ParsedWorkoutItem {
+  name: string
+  day_number: number | null
+  order_index: number
+  exercises: ParsedExerciseItem[]
+}
+
 export interface ParsedWorkoutPlan {
   name: string
   description: string | null
-  exercises: ParsedExerciseItem[]
+  workouts: ParsedWorkoutItem[]
   raw_text: string
   import_log_id: string
 }
@@ -619,7 +666,7 @@ export interface WorkoutPlanFromParsedRequest {
   import_log_id: string
   name: string
   description?: string | null
-  exercises: WorkoutExerciseCreateItem[]
+  workouts: WorkoutCreateItem[]
 }
 
 // ============================================================================
@@ -663,9 +710,17 @@ export interface ParsedExerciseViewModel {
   isModified: boolean
 }
 
+export interface ParsedWorkoutViewModel {
+  id: string // Temp ID for UI tracking
+  name: string
+  dayNumber: number | null
+  orderIndex: number
+  exercises: ParsedExerciseViewModel[]
+}
+
 export interface ImportedPlanFormData {
   name: string
   description: string | null
-  exercises: ParsedExerciseViewModel[]
+  workouts: ParsedWorkoutViewModel[]
   importLogId: string
 }

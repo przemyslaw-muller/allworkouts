@@ -11,6 +11,7 @@ import type {
   ParsedExerciseViewModel,
   ParseStats,
   WorkoutExerciseCreateItem,
+  WorkoutCreateItem,
   ExerciseListItem,
   ParsedExerciseMatch,
   ConfidenceLevel,
@@ -87,21 +88,32 @@ export function useImportWizard() {
   const mapParsedResponseToViewModels = (
     parsedPlan: ParsedWorkoutPlan,
   ): ParsedExerciseViewModel[] => {
-    return parsedPlan.exercises.map((item, index) => ({
-      id: `parsed-${index}-${Date.now()}`,
-      originalText: item.original_text,
-      matchedExercise: item.matched_exercise,
-      alternativeMatches: item.alternatives || [],
-      sets: item.sets,
-      repsMin: item.reps_min,
-      repsMax: item.reps_max,
-      restSeconds: item.rest_seconds,
-      notes: item.notes,
-      confidenceLevel: item.matched_exercise?.confidence_level || null,
-      sequence: item.sequence,
-      isManuallyAdded: false,
-      isModified: false,
-    }))
+    // Flatten exercises from all workouts
+    const allExercises: ParsedExerciseViewModel[] = []
+    let globalIndex = 0
+
+    for (const workout of parsedPlan.workouts) {
+      for (const item of workout.exercises) {
+        allExercises.push({
+          id: `parsed-${globalIndex}-${Date.now()}`,
+          originalText: item.original_text,
+          matchedExercise: item.matched_exercise,
+          alternativeMatches: item.alternatives || [],
+          sets: item.sets,
+          repsMin: item.reps_min,
+          repsMax: item.reps_max,
+          restSeconds: item.rest_seconds,
+          notes: item.notes,
+          confidenceLevel: item.matched_exercise?.confidence_level || null,
+          sequence: globalIndex,
+          isManuallyAdded: false,
+          isModified: false,
+        })
+        globalIndex++
+      }
+    }
+
+    return allExercises
   }
 
   const parseWorkoutText = async (): Promise<void> => {
@@ -304,7 +316,7 @@ export function useImportWizard() {
     createError.value = null
 
     try {
-      // Map exercises to create request format
+      // Map exercises to create request format (nested structure)
       const exerciseItems: WorkoutExerciseCreateItem[] = exercises.value
         .filter((ex) => ex.matchedExercise !== null)
         .map((ex, index) => ({
@@ -317,11 +329,19 @@ export function useImportWizard() {
           confidence_level: ex.confidenceLevel || 'medium',
         }))
 
+      // Create a single workout with all exercises
+      const workout: WorkoutCreateItem = {
+        name: planName.value.trim(),
+        day_number: null,
+        order_index: 0,
+        exercises: exerciseItems,
+      }
+
       const response = await workoutPlanService.createFromParsed({
         import_log_id: importLogId.value,
         name: planName.value.trim(),
         description: planDescription.value?.trim() || null,
-        exercises: exerciseItems,
+        workouts: [workout],
       })
 
       uiStore.success('Workout plan created successfully!')

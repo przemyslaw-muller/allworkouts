@@ -13,6 +13,8 @@ import type {
   ParseWorkoutTextRequest,
   WorkoutPlanParseResponse,
   WorkoutPlanFromParsedRequest,
+  WorkoutPlanToggleActiveRequest,
+  WorkoutPlanToggleActiveResponse,
 } from '@/types'
 
 export const workoutPlanService = {
@@ -53,6 +55,20 @@ export const workoutPlanService = {
    */
   async delete(planId: string): Promise<void> {
     await api.delete(`/workout-plans/${planId}`)
+  },
+
+  /**
+   * Set a workout plan as active (deactivates all others).
+   */
+  async setActive(
+    planId: string,
+    data: WorkoutPlanToggleActiveRequest,
+  ): Promise<WorkoutPlanToggleActiveResponse> {
+    const response = await api.patch<WorkoutPlanToggleActiveResponse>(
+      `/workout-plans/${planId}/active`,
+      data,
+    )
+    return response.data
   },
 
   /**

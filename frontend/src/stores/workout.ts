@@ -116,11 +116,11 @@ export const useWorkoutStore = defineStore('workout', () => {
   }
 
   // Session actions
-  async function startSession(planId: string) {
+  async function startSession(workoutId: string) {
     try {
       isSessionLoading.value = true
       sessionError.value = null
-      const data = await workoutSessionService.start({ workout_plan_id: planId })
+      const data = await workoutSessionService.start({ workout_id: workoutId })
       activeSession.value = data
       loggedExercises.value = new Map()
       currentExerciseIndex.value = 0

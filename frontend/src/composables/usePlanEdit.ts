@@ -11,6 +11,7 @@ import type {
   ExerciseFieldErrors,
   WorkoutPlanDetailResponse,
   WorkoutPlanUpdateRequest,
+  WorkoutCreateItem,
   WorkoutExerciseCreateItem,
   ExerciseListItem,
 } from '@/types'
@@ -62,12 +63,13 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
 
   // Methods
   const mapResponseToFormData = (response: WorkoutPlanDetailResponse): PlanEditFormData => {
-    return {
-      name: response.name,
-      description: response.description,
-      exercises: response.exercises
-        .sort((a, b) => a.sequence - b.sequence)
-        .map((ex) => ({
+    // Flatten exercises from all workouts for editing
+    // Each exercise gets a reference to its workout for reconstruction on save
+    const allExercises: EditableExercise[] = []
+
+    for (const workout of response.workouts) {
+      for (const ex of workout.exercises.sort((a, b) => a.sequence - b.sequence)) {
+        allExercises.push({
           id: ex.id,
           exerciseId: ex.exercise.id,
           exerciseName: ex.exercise.name,
@@ -82,7 +84,14 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
           confidenceLevel: ex.confidence_level,
           isNew: false,
           isModified: false,
-        })),
+        })
+      }
+    }
+
+    return {
+      name: response.name,
+      description: response.description,
+      exercises: allExercises,
     }
   }
 
@@ -174,6 +183,8 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
   }
 
   const mapFormToUpdateRequest = (data: PlanEditFormData): WorkoutPlanUpdateRequest => {
+    // For MVP, we create a single workout with all exercises
+    // This simplifies the editing flow while still supporting the nested structure
     const exercises: WorkoutExerciseCreateItem[] = data.exercises.map((ex, index) => ({
       exercise_id: ex.exerciseId,
       sequence: index,
@@ -184,10 +195,17 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
       confidence_level: ex.confidenceLevel,
     }))
 
+    const workout: WorkoutCreateItem = {
+      name: data.name,
+      day_number: null,
+      order_index: 0,
+      exercises,
+    }
+
     return {
       name: data.name,
       description: data.description,
-      exercises,
+      workouts: [workout],
     }
   }
 

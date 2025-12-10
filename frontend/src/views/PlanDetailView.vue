@@ -24,6 +24,7 @@ const plan = ref<WorkoutPlanDetailResponse | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const isStartingWorkout = ref(false)
+const startingWorkoutId = ref<string | null>(null)
 
 // Delete dialog state
 const deleteDialog = ref({
@@ -34,16 +35,23 @@ const deleteDialog = ref({
 // Computed
 const planId = computed(() => route.params.id as string)
 
+const totalExerciseCount = computed(() => {
+  if (!plan.value) return 0
+  return plan.value.workouts.reduce((acc, w) => acc + w.exercises.length, 0)
+})
+
 const estimatedDurationMinutes = computed(() => {
   if (!plan.value) return 0
 
   let totalSeconds = 0
-  for (const exercise of plan.value.exercises) {
-    // Assume ~45 seconds per set for actual lifting
-    totalSeconds += exercise.sets * 45
-    // Add rest time between sets
-    const restTime = exercise.rest_time_seconds || 60
-    totalSeconds += (exercise.sets - 1) * restTime
+  for (const workout of plan.value.workouts) {
+    for (const exercise of workout.exercises) {
+      // Assume ~45 seconds per set for actual lifting
+      totalSeconds += exercise.sets * 45
+      // Add rest time between sets
+      const restTime = exercise.rest_time_seconds || 60
+      totalSeconds += (exercise.sets - 1) * restTime
+    }
   }
 
   return Math.ceil(totalSeconds / 60)
@@ -54,9 +62,11 @@ const primaryMuscleGroups = computed(() => {
 
   const muscleGroupCounts = new Map<MuscleGroup, number>()
 
-  for (const exercise of plan.value.exercises) {
-    for (const mg of exercise.exercise.primary_muscle_groups) {
-      muscleGroupCounts.set(mg, (muscleGroupCounts.get(mg) || 0) + 1)
+  for (const workout of plan.value.workouts) {
+    for (const exercise of workout.exercises) {
+      for (const mg of exercise.exercise.primary_muscle_groups) {
+        muscleGroupCounts.set(mg, (muscleGroupCounts.get(mg) || 0) + 1)
+      }
     }
   }
 
@@ -89,14 +99,15 @@ const fetchPlan = async (): Promise<void> => {
   }
 }
 
-const startWorkout = async (): Promise<void> => {
+const startWorkout = async (workoutId: string): Promise<void> => {
   if (!plan.value) return
 
   isStartingWorkout.value = true
+  startingWorkoutId.value = workoutId
 
   try {
     await workoutSessionService.start({
-      workout_plan_id: plan.value.id,
+      workout_id: workoutId,
     })
 
     uiStore.success('Workout started!')
@@ -113,6 +124,7 @@ const startWorkout = async (): Promise<void> => {
     }
   } finally {
     isStartingWorkout.value = false
+    startingWorkoutId.value = null
   }
 }
 
@@ -254,10 +266,6 @@ onMounted(() => {
             <RouterLink :to="`/plans/${plan.id}/edit`" class="btn btn-md btn-outline">
               Edit
             </RouterLink>
-            <BaseButton variant="primary" :disabled="isStartingWorkout" @click="startWorkout">
-              <BaseSpinner v-if="isStartingWorkout" size="sm" class="mr-2" />
-              {{ isStartingWorkout ? 'Starting...' : 'Start Workout' }}
-            </BaseButton>
             <BaseButton variant="ghost" size="md" @click="openDeleteDialog">
               <svg
                 class="w-5 h-5 text-red-600 dark:text-red-400"
@@ -279,7 +287,29 @@ onMounted(() => {
 
       <!-- Plan Stats -->
       <BaseCard>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-6 flex-wrap">
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-5 h-5 text-gray-400 dark:text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-semibold text-gray-900 dark:text-gray-100">{{
+                plan.workouts.length
+              }}</span>
+              {{ plan.workouts.length === 1 ? 'workout' : 'workouts' }}
+            </span>
+          </div>
+
           <div class="flex items-center gap-2">
             <svg
               class="w-5 h-5 text-gray-400 dark:text-gray-500"
@@ -296,9 +326,9 @@ onMounted(() => {
             </svg>
             <span class="text-sm text-gray-600 dark:text-gray-400">
               <span class="font-semibold text-gray-900 dark:text-gray-100">{{
-                plan.exercises.length
+                totalExerciseCount
               }}</span>
-              {{ plan.exercises.length === 1 ? 'exercise' : 'exercises' }}
+              {{ totalExerciseCount === 1 ? 'exercise' : 'exercises' }}
             </span>
           </div>
 
@@ -344,138 +374,189 @@ onMounted(() => {
               </BaseBadge>
             </div>
           </div>
+
+          <div v-if="plan.is_active" class="flex items-center gap-2">
+            <BaseBadge variant="success" size="sm">Active Plan</BaseBadge>
+          </div>
         </div>
       </BaseCard>
 
-      <!-- Exercises -->
+      <!-- Workouts -->
       <div>
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Exercises</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Workouts</h2>
 
         <!-- Empty state -->
-        <BaseCard v-if="plan.exercises.length === 0" class="text-center py-8">
-          <p class="text-gray-500 dark:text-gray-400">No exercises in this plan yet.</p>
+        <BaseCard v-if="plan.workouts.length === 0" class="text-center py-8">
+          <p class="text-gray-500 dark:text-gray-400">No workouts in this plan yet.</p>
           <RouterLink :to="`/plans/${plan.id}/edit`" class="btn btn-md btn-primary mt-4">
-            Add Exercises
+            Add Workouts
           </RouterLink>
         </BaseCard>
 
-        <!-- Exercise list -->
-        <div v-else class="space-y-4">
-          <BaseCard v-for="(exercise, index) in plan.exercises" :key="exercise.id" class="relative">
-            <!-- Sequence number badge -->
-            <div
-              class="absolute -left-3 -top-3 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm shadow-md"
-            >
-              {{ index + 1 }}
-            </div>
-
-            <div class="space-y-3">
-              <!-- Exercise name and muscle groups -->
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {{ exercise.exercise.name }}
-                </h3>
-                <div class="flex items-center gap-2 mt-1">
-                  <BaseBadge
-                    v-for="mg in exercise.exercise.primary_muscle_groups"
-                    :key="mg"
-                    variant="primary"
-                    size="sm"
-                  >
-                    {{ formatMuscleGroup(mg) }}
-                  </BaseBadge>
-                  <BaseBadge
-                    v-for="mg in exercise.exercise.secondary_muscle_groups"
-                    :key="mg"
-                    variant="gray"
-                    size="sm"
-                  >
-                    {{ formatMuscleGroup(mg) }}
-                  </BaseBadge>
-                </div>
-              </div>
-
-              <!-- Sets, reps, rest -->
-              <div class="flex items-center gap-4 text-sm">
-                <div class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 text-gray-400 dark:text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                  <span class="text-gray-600 dark:text-gray-400">
-                    <span class="font-semibold text-gray-900 dark:text-gray-100">{{
-                      exercise.sets
-                    }}</span>
-                    {{ exercise.sets === 1 ? 'set' : 'sets' }}
-                  </span>
-                </div>
-
-                <span class="text-gray-300 dark:text-gray-600">×</span>
-
-                <div class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 text-gray-400 dark:text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                    />
-                  </svg>
-                  <span class="text-gray-600 dark:text-gray-400">
-                    <span class="font-semibold text-gray-900 dark:text-gray-100">{{
-                      formatReps(exercise)
-                    }}</span>
-                  </span>
-                </div>
-
-                <span class="text-gray-300 dark:text-gray-600">·</span>
-
-                <div class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 text-gray-400 dark:text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span class="text-gray-600 dark:text-gray-400 text-sm">{{
-                    formatRestTime(exercise.rest_time_seconds)
-                  }}</span>
-                </div>
-              </div>
-
-              <!-- Confidence badge -->
-              <div v-if="exercise.confidence_level !== 'high'" class="flex items-center gap-2">
-                <BaseBadge
-                  :variant="getConfidenceBadgeVariant(exercise.confidence_level)"
-                  size="sm"
+        <!-- Workouts list -->
+        <div v-else class="space-y-6">
+          <div v-for="(workout, workoutIndex) in plan.workouts" :key="workout.id">
+            <!-- Workout header -->
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm shadow-md"
                 >
-                  {{ exercise.confidence_level }} confidence
+                  {{ workoutIndex + 1 }}
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {{ workout.name }}
+                </h3>
+                <BaseBadge v-if="workout.day_number" variant="gray" size="sm">
+                  Day {{ workout.day_number }}
                 </BaseBadge>
-                <span class="text-xs text-gray-500 dark:text-gray-400">From import</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ workout.exercises.length }}
+                  {{ workout.exercises.length === 1 ? 'exercise' : 'exercises' }}
+                </span>
               </div>
+              <BaseButton
+                variant="primary"
+                size="sm"
+                :disabled="isStartingWorkout"
+                @click="startWorkout(workout.id)"
+              >
+                <BaseSpinner
+                  v-if="isStartingWorkout && startingWorkoutId === workout.id"
+                  size="sm"
+                  class="mr-2"
+                />
+                {{
+                  isStartingWorkout && startingWorkoutId === workout.id
+                    ? 'Starting...'
+                    : 'Start Workout'
+                }}
+              </BaseButton>
             </div>
-          </BaseCard>
+
+            <!-- Exercises in workout -->
+            <div class="space-y-3 ml-11">
+              <BaseCard
+                v-for="(exercise, exerciseIndex) in workout.exercises"
+                :key="exercise.id"
+                class="relative"
+              >
+                <!-- Sequence number badge -->
+                <div
+                  class="absolute -left-3 -top-3 w-6 h-6 bg-gray-500 text-white rounded-full flex items-center justify-center font-semibold text-xs shadow-md"
+                >
+                  {{ exerciseIndex + 1 }}
+                </div>
+
+                <div class="space-y-3">
+                  <!-- Exercise name and muscle groups -->
+                  <div>
+                    <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                      {{ exercise.exercise.name }}
+                    </h4>
+                    <div class="flex items-center gap-2 mt-1">
+                      <BaseBadge
+                        v-for="mg in exercise.exercise.primary_muscle_groups"
+                        :key="mg"
+                        variant="primary"
+                        size="sm"
+                      >
+                        {{ formatMuscleGroup(mg) }}
+                      </BaseBadge>
+                      <BaseBadge
+                        v-for="mg in exercise.exercise.secondary_muscle_groups"
+                        :key="mg"
+                        variant="gray"
+                        size="sm"
+                      >
+                        {{ formatMuscleGroup(mg) }}
+                      </BaseBadge>
+                    </div>
+                  </div>
+
+                  <!-- Sets, reps, rest -->
+                  <div class="flex items-center gap-4 text-sm">
+                    <div class="flex items-center gap-2">
+                      <svg
+                        class="w-4 h-4 text-gray-400 dark:text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16"
+                        />
+                      </svg>
+                      <span class="text-gray-600 dark:text-gray-400">
+                        <span class="font-semibold text-gray-900 dark:text-gray-100">{{
+                          exercise.sets
+                        }}</span>
+                        {{ exercise.sets === 1 ? 'set' : 'sets' }}
+                      </span>
+                    </div>
+
+                    <span class="text-gray-300 dark:text-gray-600">x</span>
+
+                    <div class="flex items-center gap-2">
+                      <svg
+                        class="w-4 h-4 text-gray-400 dark:text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                        />
+                      </svg>
+                      <span class="text-gray-600 dark:text-gray-400">
+                        <span class="font-semibold text-gray-900 dark:text-gray-100">{{
+                          formatReps(exercise)
+                        }}</span>
+                      </span>
+                    </div>
+
+                    <span class="text-gray-300 dark:text-gray-600">-</span>
+
+                    <div class="flex items-center gap-2">
+                      <svg
+                        class="w-4 h-4 text-gray-400 dark:text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span class="text-gray-600 dark:text-gray-400 text-sm">{{
+                        formatRestTime(exercise.rest_time_seconds)
+                      }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Confidence badge -->
+                  <div v-if="exercise.confidence_level !== 'high'" class="flex items-center gap-2">
+                    <BaseBadge
+                      :variant="getConfidenceBadgeVariant(exercise.confidence_level)"
+                      size="sm"
+                    >
+                      {{ exercise.confidence_level }} confidence
+                    </BaseBadge>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">From import</span>
+                  </div>
+                </div>
+              </BaseCard>
+            </div>
+          </div>
         </div>
       </div>
     </template>

@@ -196,9 +196,12 @@ onMounted(() => {
         <!-- Plan Header -->
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
-              {{ plan.name }}
-            </h3>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+                {{ plan.name }}
+              </h3>
+              <BaseBadge v-if="plan.is_active" variant="success" size="sm">Active</BaseBadge>
+            </div>
           </div>
         </div>
 
@@ -213,6 +216,9 @@ onMounted(() => {
 
         <!-- Metadata -->
         <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <BaseBadge variant="gray">
+            {{ plan.workout_count }} {{ plan.workout_count === 1 ? 'workout' : 'workouts' }}
+          </BaseBadge>
           <BaseBadge variant="gray">
             {{ plan.exercise_count }} {{ plan.exercise_count === 1 ? 'exercise' : 'exercises' }}
           </BaseBadge>

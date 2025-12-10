@@ -324,7 +324,7 @@ onMounted(() => {
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {{ session.workout_name }}
+                    {{ session.workout.name }}
                   </h3>
                   <BaseBadge :variant="getStatusVariant(session.status)" size="sm">
                     {{ getStatusLabel(session.status) }}
@@ -332,7 +332,7 @@ onMounted(() => {
                 </div>
 
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  {{ session.workout_plan_name }}
+                  {{ session.workout_plan.name }}
                 </p>
 
                 <div

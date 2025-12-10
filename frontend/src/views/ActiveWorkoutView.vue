@@ -362,8 +362,8 @@ onUnmounted(() => {
     <div class="fixed top-0 left-0 right-0 z-40 bg-gray-800 border-b border-gray-700 shadow-lg">
       <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
         <div>
-          <h1 class="text-lg font-bold text-white">{{ session?.workout_plan.name }}</h1>
-          <p class="text-sm text-gray-400">{{ formattedElapsedTime }}</p>
+          <h1 class="text-lg font-bold text-white">{{ session?.workout.name }}</h1>
+          <p class="text-sm text-gray-400">{{ session?.workout_plan.name }} - {{ formattedElapsedTime }}</p>
         </div>
         <BaseButton variant="outline" size="sm" @click="exitWorkout"> Exit </BaseButton>
       </div>
