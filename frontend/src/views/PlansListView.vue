@@ -29,6 +29,14 @@ const deleteDialog = ref({
   isDeleting: false,
 })
 
+// Set active dialog state
+const activeDialog = ref({
+  isOpen: false,
+  planId: null as string | null,
+  planName: '',
+  isLoading: false,
+})
+
 // Computed
 const hasPlans = computed(() => plans.value.length > 0)
 
@@ -87,6 +95,51 @@ const confirmDelete = async (): Promise<void> => {
     uiStore.error(errorMessage)
 
     deleteDialog.value.isDeleting = false
+  }
+}
+
+const openActiveDialog = (plan: WorkoutPlanListItem): void => {
+  activeDialog.value = {
+    isOpen: true,
+    planId: plan.id,
+    planName: plan.name,
+    isLoading: false,
+  }
+}
+
+const closeActiveDialog = (): void => {
+  activeDialog.value = {
+    isOpen: false,
+    planId: null,
+    planName: '',
+    isLoading: false,
+  }
+}
+
+const confirmSetActive = async (): Promise<void> => {
+  if (!activeDialog.value.planId) return
+
+  activeDialog.value.isLoading = true
+
+  try {
+    await workoutPlanService.setActive(activeDialog.value.planId, { is_active: true })
+
+    // Update local list - set this plan as active, deactivate others
+    plans.value = plans.value.map((p) => ({
+      ...p,
+      is_active: p.id === activeDialog.value.planId,
+    }))
+
+    uiStore.success(`${activeDialog.value.planName} is now your active plan`)
+
+    closeActiveDialog()
+  } catch (err: any) {
+    const errorMessage =
+      err.response?.data?.error?.message || 'Failed to set active plan. Please try again.'
+
+    uiStore.error(errorMessage)
+
+    activeDialog.value.isLoading = false
   }
 }
 
@@ -238,6 +291,16 @@ onMounted(() => {
             Edit
           </BaseButton>
           <BaseButton
+            v-if="!plan.is_active"
+            type="button"
+            variant="outline"
+            size="sm"
+            class="text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30"
+            @click="openActiveDialog(plan)"
+          >
+            Set Active
+          </BaseButton>
+          <BaseButton
             type="button"
             variant="ghost"
             size="sm"
@@ -260,6 +323,18 @@ onMounted(() => {
       :is-loading="deleteDialog.isDeleting"
       @confirm="confirmDelete"
       @cancel="closeDeleteDialog"
+    />
+
+    <!-- Set Active Confirmation Dialog -->
+    <ConfirmationDialog
+      v-model="activeDialog.isOpen"
+      title="Set Active Plan"
+      :message="`Set '${activeDialog.planName}' as your active workout plan? This will deactivate any currently active plan.`"
+      confirm-text="Set Active"
+      confirm-variant="primary"
+      :is-loading="activeDialog.isLoading"
+      @confirm="confirmSetActive"
+      @cancel="closeActiveDialog"
     />
   </div>
 </template>
