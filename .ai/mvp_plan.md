@@ -38,19 +38,19 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [x] Update tests
 
 ### 1.3 Frontend: Complete OnboardingView with equipment selection
-**Estimated: 3-4 hours**
+**Estimated: 3-4 hours** ✓ COMPLETED
 
-- [ ] Convert to 2-step wizard with StepIndicator component
-- [ ] Step 1: Unit selection (update existing)
-- [ ] Step 2: Equipment selection by category
-  - [ ] Fetch equipment list from API
-  - [ ] Group equipment by category
-  - [ ] Checkbox grid for each category
-  - [ ] Select all/none per category
-- [ ] Navigation: Next/Back/Complete buttons
-- [ ] Call equipment ownership API on completion
-- [ ] Redirect to dashboard after completion
-- [ ] Add onboarding_completed flag check to auth flow
+- [x] Convert to 2-step wizard with StepIndicator component
+- [x] Step 1: Unit selection (update existing)
+- [x] Step 2: Equipment selection by category
+  - [x] Fetch equipment list from API
+  - [x] Group equipment by category
+  - [x] Checkbox grid for each category
+  - [x] Select all/none per category
+- [x] Navigation: Next/Back/Complete buttons
+- [x] Call equipment ownership API on completion
+- [x] Redirect to dashboard after completion
+- [ ] Add onboarding_completed flag check to auth flow (deferred)
 
 ### 1.4 Frontend: Implement StatsView with real data
 **Estimated: 4-6 hours**
@@ -276,3 +276,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 2.1 Backend name field | ✓ Completed | User name with auth support |
 | 2025-01-10 | 2.5 Backend custom exercises | ✓ Completed | CRUD with user ownership |
 | 2025-01-10 | 3.5 Frontend update for new structure | ✓ Completed | Nested workouts in all views |
+| 2025-01-10 | 1.3 Frontend onboarding | ✓ Completed | 2-step wizard with equipment selection |
