@@ -70,20 +70,20 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [x] Error state handling
 
 ### 1.5 Frontend: Add localStorage persistence for active workout
-**Estimated: 2-3 hours**
+**Estimated: 2-3 hours** ✓ COMPLETED
 
-- [ ] Create workout session storage utilities in workout store
-- [ ] Save to localStorage on:
-  - [ ] Session start
-  - [ ] Each set log
-  - [ ] Exercise navigation
-- [ ] Restore session state on app initialization
-- [ ] Update dashboard recovery banner to use stored data
-- [ ] Clear localStorage on:
-  - [ ] Session complete
-  - [ ] Session skip/abandon
-  - [ ] Explicit abandon from recovery banner
-- [ ] Handle stale session detection (>24 hours old)
+- [x] Create workout session storage utilities in workout store
+- [x] Save to localStorage on:
+  - [x] Session start
+  - [x] Each set log
+  - [x] Exercise navigation
+- [x] Restore session state on app initialization
+- [x] Update dashboard recovery banner to use stored data
+- [x] Clear localStorage on:
+  - [x] Session complete
+  - [x] Session skip/abandon
+  - [x] Explicit abandon from recovery banner
+- [x] Handle stale session detection (>24 hours old)
 
 ---
 
@@ -278,3 +278,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 3.5 Frontend update for new structure | ✓ Completed | Nested workouts in all views |
 | 2025-01-10 | 1.3 Frontend onboarding | ✓ Completed | 2-step wizard with equipment selection |
 | 2025-01-10 | 1.4 Frontend StatsView | ✓ Completed | Real data with CSS-based charts |
+| 2025-01-10 | 1.5 Frontend localStorage | ✓ Completed | Session persistence with 24h stale detection |
