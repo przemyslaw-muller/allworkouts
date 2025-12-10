@@ -106,13 +106,13 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [x] Update register API call
 
 ### 2.3 Frontend: Add active plan indicator and toggle
-**Estimated: 1-2 hours**
+**Estimated: 1-2 hours** ✓ COMPLETED
 
-- [ ] Show active badge on PlansListView cards
-- [ ] Add "Set Active" action to plan options menu
-- [ ] Create setActive() in workoutPlanService
-- [ ] Call API and refresh list on activation
-- [ ] Show confirmation when switching active plans
+- [x] Show active badge on PlansListView cards
+- [x] Add "Set Active" action to plan options menu
+- [x] Create setActive() in workoutPlanService (already existed)
+- [x] Call API and refresh list on activation
+- [x] Show confirmation when switching active plans
 
 ### 2.4 Frontend: Add PR indicators to SessionDetailView
 **Estimated: 2 hours**
@@ -280,3 +280,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 1.4 Frontend StatsView | ✓ Completed | Real data with CSS-based charts |
 | 2025-01-10 | 1.5 Frontend localStorage | ✓ Completed | Session persistence with 24h stale detection |
 | 2025-01-10 | 2.2 Frontend registration name | ✓ Completed | Optional name field with validation |
+| 2025-01-10 | 2.3 Frontend active plan toggle | ✓ Completed | Set Active button with confirmation |
