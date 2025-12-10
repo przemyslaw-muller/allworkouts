@@ -1,7 +1,6 @@
 <script setup lang="ts">
 /**
  * Registration page view.
- * TODO: Implement full registration form with validation.
  */
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
@@ -12,6 +11,7 @@ import BaseInput from '@/components/common/BaseInput.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
+const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -21,6 +21,12 @@ const isLoading = ref(false)
 const handleSubmit = async () => {
   error.value = ''
 
+  // Validate name length
+  if (name.value && name.value.length > 100) {
+    error.value = 'Name must be 100 characters or less'
+    return
+  }
+
   if (password.value !== confirmPassword.value) {
     error.value = 'Passwords do not match'
     return
@@ -29,7 +35,11 @@ const handleSubmit = async () => {
   isLoading.value = true
 
   try {
-    const result = await authStore.register({ email: email.value, password: password.value })
+    const result = await authStore.register({
+      email: email.value,
+      password: password.value,
+      name: name.value || undefined,
+    })
     if (result.success) {
       router.push('/onboarding')
     } else {
@@ -54,6 +64,14 @@ const handleSubmit = async () => {
       >
         {{ error }}
       </div>
+
+      <BaseInput
+        v-model="name"
+        type="text"
+        label="Name"
+        placeholder="Your name (optional)"
+        maxlength="100"
+      />
 
       <BaseInput
         v-model="email"
