@@ -4,7 +4,6 @@ LLM service for AI-powered workout plan parsing using LiteLLM.
 
 import json
 import logging
-from typing import Optional
 
 import litellm
 from litellm import completion

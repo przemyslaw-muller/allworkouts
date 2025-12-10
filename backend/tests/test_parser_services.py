@@ -1,8 +1,9 @@
 '''Unit tests for parser services'''
 
-import pytest
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
+
+import pytest
 
 from app.enums import ConfidenceLevelEnum, MuscleGroupEnum
 from app.models import Exercise

@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.auth import create_access_token, hash_password
 from app.config import settings
-from app.database import Base, get_db
+from app.database import get_db
 from app.enums import ConfidenceLevelEnum, MuscleGroupEnum, RecordTypeEnum, SessionStatusEnum
 from app.main import app
 from app.models import (
@@ -29,7 +29,6 @@ from app.models import (
     WorkoutPlan,
     WorkoutSession,
 )
-
 
 # Test database engine - uses the same database as the app (Docker PostgreSQL)
 engine = create_engine(settings.database_url, pool_pre_ping=True)

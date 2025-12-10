@@ -6,12 +6,11 @@ import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.enums import SessionStatusEnum
-from app.models import Exercise, ExerciseSession, PersonalRecord, User, WorkoutPlan, WorkoutSession
+from app.models import Exercise, ExerciseSession, User, WorkoutPlan, WorkoutSession
 
 
 class TestStatsOverview:

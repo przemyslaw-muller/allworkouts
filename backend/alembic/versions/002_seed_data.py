@@ -5,14 +5,15 @@ Revises: 001_initial
 Create Date: 2024-01-01 00:01:00
 
 """
-from alembic import op
-import sqlalchemy as sa
-from sqlalchemy.sql import table, column
-from sqlalchemy.dialects import postgresql
-import uuid
 import json
-import os
+import uuid
 from pathlib import Path
+
+import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql import column, table
+
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '002_seed_data'
@@ -25,7 +26,6 @@ def _format_array_for_postgres(values: list) -> str:
     """Format a list as a PostgreSQL array literal with proper enum casting."""
     if not values:
         return "'{}'::muscle_group_enum[]"
-    formatted = ','.join(values)
     return f"ARRAY[{','.join(repr(v) for v in values)}]::muscle_group_enum[]"
 
 

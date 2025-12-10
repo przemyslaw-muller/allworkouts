@@ -3,7 +3,7 @@ Statistics API routes.
 '''
 
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 from uuid import UUID

@@ -4,9 +4,7 @@ Tests for workout sessions API endpoints.
 
 import uuid
 from datetime import datetime, timedelta
-from decimal import Decimal
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 

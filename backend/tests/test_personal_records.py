@@ -6,12 +6,11 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.enums import RecordTypeEnum
-from app.models import Exercise, ExerciseSession, PersonalRecord, User, WorkoutSession
+from app.models import Exercise, PersonalRecord, User
 
 
 class TestListPersonalRecords:

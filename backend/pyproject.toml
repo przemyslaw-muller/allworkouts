@@ -21,6 +21,7 @@ dependencies = [
     "litellm>=1.17.0",
     "rapidfuzz>=3.5.0",
     "python-dotenv>=1.0.0",
+    "ruff>=0.14.8",
 ]
 
 [project.optional-dependencies]

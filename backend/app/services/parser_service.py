@@ -4,12 +4,11 @@ Main workout plan parser service orchestrating LLM and exercise matching.
 
 import logging
 from datetime import datetime
-from typing import Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.models import Exercise, WorkoutImportLog
+from app.models import WorkoutImportLog
 from app.schemas.workout_plans import (
     ParsedExerciseItem,
     ParsedExerciseMatch,

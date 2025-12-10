@@ -15,14 +15,6 @@ This package contains Pydantic schemas organized by domain:
 '''
 
 # Base schemas
-from .base import (
-    APIResponse,
-    ErrorDetail,
-    HealthResponse,
-    PaginationInfo,
-    TimestampSchema,
-)
-
 # Auth schemas
 from .auth import (
     AuthResponse,
@@ -33,13 +25,12 @@ from .auth import (
     RefreshTokenRequest,
     RegisterRequest,
 )
-
-# User schemas
-from .user import (
-    UserBase,
-    UserCreate,
-    UserResponse,
-    UserUpdateRequest,
+from .base import (
+    APIResponse,
+    ErrorDetail,
+    HealthResponse,
+    PaginationInfo,
+    TimestampSchema,
 )
 
 # Equipment schemas
@@ -64,6 +55,42 @@ from .exercises import (
     ExerciseResponse,
     ExerciseSubstituteItem,
     PersonalRecordBrief,
+)
+
+# Import log schemas
+from .import_logs import (
+    WorkoutImportLogBase,
+    WorkoutImportLogCreate,
+    WorkoutImportLogResponse,
+)
+
+# Personal record schemas
+from .personal_records import (
+    PersonalRecordBase,
+    PersonalRecordCreateRequest,
+    PersonalRecordCreateResponse,
+    PersonalRecordExerciseInfo,
+    PersonalRecordListItem,
+    PersonalRecordListResponse,
+    PersonalRecordResponse,
+)
+
+# Stats schemas
+from .stats import (
+    ExerciseHistoryResponse,
+    ExerciseHistorySession,
+    ExerciseHistorySet,
+    MonthlyWorkoutCount,
+    MuscleGroupTrainingCount,
+    StatsOverviewResponse,
+)
+
+# User schemas
+from .user import (
+    UserBase,
+    UserCreate,
+    UserResponse,
+    UserUpdateRequest,
 )
 
 # Workout plan schemas
@@ -120,35 +147,6 @@ from .workout_sessions import (
     WorkoutSessionStartRequest,
     WorkoutSessionStartResponse,
 )
-
-# Personal record schemas
-from .personal_records import (
-    PersonalRecordBase,
-    PersonalRecordCreateRequest,
-    PersonalRecordCreateResponse,
-    PersonalRecordExerciseInfo,
-    PersonalRecordListItem,
-    PersonalRecordListResponse,
-    PersonalRecordResponse,
-)
-
-# Stats schemas
-from .stats import (
-    ExerciseHistoryResponse,
-    ExerciseHistorySession,
-    ExerciseHistorySet,
-    MonthlyWorkoutCount,
-    MuscleGroupTrainingCount,
-    StatsOverviewResponse,
-)
-
-# Import log schemas
-from .import_logs import (
-    WorkoutImportLogBase,
-    WorkoutImportLogCreate,
-    WorkoutImportLogResponse,
-)
-
 
 __all__ = [
     # Base

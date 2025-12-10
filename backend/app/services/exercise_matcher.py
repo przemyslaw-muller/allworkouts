@@ -4,7 +4,6 @@ Exercise matching service using fuzzy string matching.
 
 import logging
 from typing import Optional
-from uuid import UUID
 
 from rapidfuzz import fuzz, process
 from sqlalchemy.orm import Session

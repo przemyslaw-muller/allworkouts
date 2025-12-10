@@ -6,8 +6,9 @@ Create Date: 2024-01-01 00:02:00
 
 This allows manual personal record entries that are not linked to a workout session.
 """
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '003_nullable_exercise_session_id'

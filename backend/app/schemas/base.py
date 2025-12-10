@@ -3,7 +3,6 @@ from typing import Any, Generic, Optional, TypeVar
 
 from pydantic import BaseModel
 
-
 # Generic type for API response data
 T = TypeVar('T')
 
