@@ -12,7 +12,12 @@ import BaseSpinner from '@/components/common/BaseSpinner.vue'
 import { workoutSessionService } from '@/services/workoutSessionService'
 import { useUiStore } from '@/stores/ui'
 import { useAuthStore } from '@/stores/auth'
-import type { WorkoutSessionDetailResponse, SessionStatus, ExerciseSetDetail } from '@/types'
+import type {
+  WorkoutSessionDetailResponse,
+  SessionStatus,
+  ExerciseSessionFlatDetail,
+  ExerciseBrief,
+} from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -26,32 +31,57 @@ const session = ref<WorkoutSessionDetailResponse | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
+// Types for grouped exercises
+interface GroupedExercise {
+  exercise: ExerciseBrief
+  sets: ExerciseSessionFlatDetail[]
+}
+
+// Computed: Group flat exercise sessions by exercise
+const groupedExercises = computed<GroupedExercise[]>(() => {
+  if (!session.value) return []
+
+  const groups = new Map<string, GroupedExercise>()
+
+  for (const es of session.value.exercise_sessions) {
+    const exerciseId = es.exercise.id
+    if (!groups.has(exerciseId)) {
+      groups.set(exerciseId, {
+        exercise: es.exercise,
+        sets: [],
+      })
+    }
+    groups.get(exerciseId)!.sets.push(es)
+  }
+
+  // Sort sets within each group by set_number
+  for (const group of groups.values()) {
+    group.sets.sort((a, b) => a.set_number - b.set_number)
+  }
+
+  return Array.from(groups.values())
+})
+
 // Computed
 const totalVolume = computed(() => {
   if (!session.value) return 0
 
-  let volume = 0
-  for (const exerciseSession of session.value.exercise_sessions) {
-    for (const set of exerciseSession.sets) {
-      if (!set.is_warmup) {
-        volume += set.weight * set.reps_completed
-      }
-    }
-  }
-  return volume
+  return session.value.exercise_sessions.reduce((sum, es) => sum + es.weight * es.reps, 0)
 })
 
 const totalSets = computed(() => {
-  if (!session.value) return 0
-
-  let count = 0
-  for (const exerciseSession of session.value.exercise_sessions) {
-    count += exerciseSession.sets.filter((s) => !s.is_warmup).length
-  }
-  return count
+  return session.value?.exercise_sessions.length || 0
 })
 
-const exerciseCount = computed(() => session.value?.exercise_sessions.length || 0)
+const exerciseCount = computed(() => groupedExercises.value.length)
+
+const hasPRs = computed(() => {
+  return session.value?.personal_records && session.value.personal_records.length > 0
+})
+
+const weightUnit = computed(() => {
+  return authStore.user?.unit_system === 'metric' ? 'kg' : 'lbs'
+})
 
 // Methods
 const fetchSession = async (): Promise<void> => {
@@ -102,10 +132,6 @@ const formatTime = (isoString: string): string => {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-const formatWeight = (weight: number, unit: string): string => {
-  return `${weight} ${unit}`
-}
-
 const getStatusVariant = (status: SessionStatus): 'success' | 'danger' | 'warning' => {
   if (status === 'completed') return 'success'
   if (status === 'abandoned') return 'danger'
@@ -118,16 +144,12 @@ const getStatusLabel = (status: SessionStatus): string => {
   return 'In Progress'
 }
 
-const getSetVolume = (set: ExerciseSetDetail): number => {
-  return set.weight * set.reps_completed
+const getExerciseTotalVolume = (sets: ExerciseSessionFlatDetail[]): number => {
+  return sets.reduce((sum, set) => sum + set.weight * set.reps, 0)
 }
 
-const getExerciseTotalVolume = (sets: ExerciseSetDetail[]): number => {
-  return sets.filter((s) => !s.is_warmup).reduce((sum, set) => sum + getSetVolume(set), 0)
-}
-
-const getExerciseTotalReps = (sets: ExerciseSetDetail[]): number => {
-  return sets.filter((s) => !s.is_warmup).reduce((sum, set) => sum + set.reps_completed, 0)
+const getExerciseTotalReps = (sets: ExerciseSessionFlatDetail[]): number => {
+  return sets.reduce((sum, set) => sum + set.reps, 0)
 }
 
 // Lifecycle
@@ -182,6 +204,37 @@ onMounted(() => {
 
     <!-- Session Content -->
     <template v-else-if="session">
+      <!-- PRs Summary Card -->
+      <BaseCard v-if="hasPRs" class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-700">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 dark:bg-yellow-800 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-yellow-800 dark:text-yellow-200">
+              New Personal Records!
+            </h2>
+            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+              You set {{ session.personal_records.length }} new PR{{ session.personal_records.length > 1 ? 's' : '' }} in this session
+            </p>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div
+            v-for="(pr, index) in session.personal_records"
+            :key="index"
+            class="flex items-center justify-between py-2 px-3 bg-white/50 dark:bg-gray-800/50 rounded-lg"
+          >
+            <span class="font-medium text-gray-900 dark:text-gray-100">{{ pr.exercise_name }}</span>
+            <span class="text-yellow-700 dark:text-yellow-300 font-bold">
+              {{ pr.value.toFixed(1) }} {{ pr.unit }} (est. 1RM)
+            </span>
+          </div>
+        </div>
+      </BaseCard>
+
       <!-- Session Header -->
       <BaseCard>
         <div class="flex items-start justify-between mb-4">
@@ -198,9 +251,9 @@ onMounted(() => {
               {{ session.workout_plan.name }}
             </p>
             <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <span>{{ formatDate(session.started_at) }}</span>
+              <span>{{ formatDate(session.created_at) }}</span>
               <span>·</span>
-              <span>{{ formatTime(session.started_at) }}</span>
+              <span>{{ formatTime(session.created_at) }}</span>
             </div>
           </div>
           <BaseButton
@@ -220,9 +273,9 @@ onMounted(() => {
             <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {{
                 formatDuration(
-                  session.completed_at
-                    ? (new Date(session.completed_at).getTime() -
-                        new Date(session.started_at).getTime()) /
+                  session.updated_at && session.status === 'completed'
+                    ? (new Date(session.updated_at).getTime() -
+                        new Date(session.created_at).getTime()) /
                         1000
                     : null,
                 )
@@ -240,8 +293,7 @@ onMounted(() => {
           </div>
           <div class="text-center">
             <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {{ totalVolume.toFixed(0) }}
-              {{ authStore.user?.unit_system === 'metric' ? 'kg' : 'lbs' }}
+              {{ totalVolume.toFixed(0) }} {{ weightUnit }}
             </p>
             <p class="text-sm text-gray-600 dark:text-gray-400">Total Volume</p>
           </div>
@@ -259,34 +311,28 @@ onMounted(() => {
         <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Exercises</h2>
 
         <BaseCard
-          v-for="(exerciseSession, index) in session.exercise_sessions"
-          :key="exerciseSession.id"
+          v-for="(group, index) in groupedExercises"
+          :key="group.exercise.id"
           class="space-y-4"
         >
           <!-- Exercise Header -->
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                {{ index + 1 }}. {{ exerciseSession.exercise.name }}
+                {{ index + 1 }}. {{ group.exercise.name }}
               </h3>
               <div
                 class="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
               >
-                <span>{{ exerciseSession.sets.filter((s) => !s.is_warmup).length }} sets</span>
+                <span>{{ group.sets.length }} sets</span>
                 <span>·</span>
-                <span>{{ getExerciseTotalReps(exerciseSession.sets) }} reps</span>
+                <span>{{ getExerciseTotalReps(group.sets) }} reps</span>
                 <span>·</span>
                 <span>
-                  {{ getExerciseTotalVolume(exerciseSession.sets).toFixed(0) }}
-                  {{ authStore.user?.unit_system === 'metric' ? 'kg' : 'lbs' }} volume
+                  {{ getExerciseTotalVolume(group.sets).toFixed(0) }} {{ weightUnit }} volume
                 </span>
               </div>
             </div>
-          </div>
-
-          <!-- Exercise Notes -->
-          <div v-if="exerciseSession.notes" class="text-sm text-gray-600 dark:text-gray-400 italic">
-            {{ exerciseSession.notes }}
           </div>
 
           <!-- Sets Table -->
@@ -322,48 +368,41 @@ onMounted(() => {
                     scope="col"
                     class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    RPE
+                    PR
                   </th>
                 </tr>
               </thead>
               <tbody
                 class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700"
               >
-                <tr
-                  v-for="set in exerciseSession.sets"
-                  :key="set.id"
-                  :class="{ 'opacity-60': set.is_warmup }"
-                >
+                <tr v-for="set in group.sets" :key="set.id">
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {{ set.set_number }}{{ set.is_warmup ? ' (W)' : '' }}
+                    {{ set.set_number }}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {{ formatWeight(set.weight, set.weight_unit) }}
+                    {{ set.weight }} {{ weightUnit }}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {{ set.reps_completed }}
+                    {{ set.reps }}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {{ getSetVolume(set).toFixed(0) }} {{ set.weight_unit }}
+                    {{ (set.weight * set.reps).toFixed(0) }} {{ weightUnit }}
                   </td>
-                  <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {{ set.rpe || '-' }}
+                  <td class="px-4 py-3 whitespace-nowrap">
+                    <span
+                      v-if="set.is_pr"
+                      class="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold text-yellow-800 bg-yellow-100 dark:text-yellow-200 dark:bg-yellow-800 rounded-full"
+                    >
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      PR
+                    </span>
+                    <span v-else class="text-sm text-gray-400 dark:text-gray-500">-</span>
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <!-- Set Notes -->
-          <div v-if="exerciseSession.sets.some((s) => s.notes)" class="space-y-1">
-            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Set Notes:</p>
-            <div
-              v-for="set in exerciseSession.sets.filter((s) => s.notes)"
-              :key="set.id"
-              class="text-sm text-gray-600 dark:text-gray-400"
-            >
-              <span class="font-medium">Set {{ set.set_number }}:</span> {{ set.notes }}
-            </div>
           </div>
         </BaseCard>
       </div>

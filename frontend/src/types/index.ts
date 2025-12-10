@@ -417,6 +417,7 @@ export interface ExerciseSetDetail {
   weight: number
   weight_unit: string
   is_warmup: boolean
+  is_pr: boolean
   rpe: number | null
   notes: string | null
   completed_at: string
@@ -430,15 +431,34 @@ export interface ExerciseSessionDetail {
   sets: ExerciseSetDetail[]
 }
 
+// Backend returns flat structure - each entry is a single set
+export interface ExerciseSessionFlatDetail {
+  id: string
+  exercise: ExerciseBrief
+  set_number: number
+  weight: number
+  reps: number
+  rest_time_seconds: number | null
+  is_pr: boolean
+  created_at: string
+}
+
+export interface PersonalRecordSummary {
+  exercise_name: string
+  value: number
+  unit: string
+}
+
 export interface WorkoutSessionDetailResponse {
   id: string
   workout: WorkoutBrief
   workout_plan: WorkoutPlanBrief
   status: SessionStatus
-  started_at: string
-  completed_at: string | null
+  created_at: string
+  updated_at: string
   notes: string | null
-  exercise_sessions: ExerciseSessionDetail[]
+  exercise_sessions: ExerciseSessionFlatDetail[]
+  personal_records: PersonalRecordSummary[]
 }
 
 // ============================================================================

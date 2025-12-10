@@ -33,6 +33,7 @@ from app.schemas import (
     NewPersonalRecordInfo,
     PaginationInfo,
     PersonalRecordBrief,
+    PersonalRecordSummary,
     PlannedExerciseWithContext,
     RecentSessionInfo,
     RecentSetInfo,
@@ -333,9 +334,35 @@ async def get_workout_session(
         .all()
     )
 
+    # Get all personal records linked to exercise sessions in this workout
+    pr_exercise_session_ids = set()
+    personal_records_list = []
+
+    prs = (
+        db.query(PersonalRecord)
+        .filter(
+            PersonalRecord.user_id == user_id,
+            PersonalRecord.exercise_session_id.in_([es.id for es in exercise_sessions]),
+        )
+        .all()
+    )
+
+    for pr in prs:
+        pr_exercise_session_ids.add(pr.exercise_session_id)
+        exercise = db.query(Exercise).filter(Exercise.id == pr.exercise_id).first()
+        if exercise:
+            personal_records_list.append(
+                PersonalRecordSummary(
+                    exercise_name=exercise.name,
+                    value=pr.value,
+                    unit=pr.unit or "kg",
+                )
+            )
+
     exercise_session_details = []
     for es in exercise_sessions:
         exercise = es.exercise
+        is_pr = es.id in pr_exercise_session_ids
         exercise_session_details.append(
             ExerciseSessionDetail(
                 id=es.id,
@@ -349,6 +376,7 @@ async def get_workout_session(
                 weight=es.weight,
                 reps=es.reps,
                 rest_time_seconds=es.rest_time_seconds,
+                is_pr=is_pr,
                 created_at=es.created_at,
             )
         )
@@ -370,6 +398,7 @@ async def get_workout_session(
             ),
             status=session.status,
             exercise_sessions=exercise_session_details,
+            personal_records=personal_records_list,
             created_at=session.created_at,
             updated_at=session.updated_at,
         )

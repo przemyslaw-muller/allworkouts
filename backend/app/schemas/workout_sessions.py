@@ -112,10 +112,19 @@ class ExerciseSessionDetail(BaseModel):
     weight: Decimal
     reps: int
     rest_time_seconds: Optional[int] = None
+    is_pr: bool = False
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class PersonalRecordSummary(BaseModel):
+    """Summary of a personal record achieved in a session"""
+
+    exercise_name: str
+    value: Decimal
+    unit: str
 
 
 class WorkoutSessionDetailResponse(BaseModel):
@@ -126,6 +135,7 @@ class WorkoutSessionDetailResponse(BaseModel):
     workout: WorkoutBrief
     status: SessionStatusEnum
     exercise_sessions: list[ExerciseSessionDetail] = []
+    personal_records: list[PersonalRecordSummary] = []
     created_at: datetime
     updated_at: datetime
 

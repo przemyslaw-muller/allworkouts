@@ -115,12 +115,12 @@ This document tracks the remaining work needed to complete the MVP based on gap 
 - [x] Show confirmation when switching active plans
 
 ### 2.4 Frontend: Add PR indicators to SessionDetailView
-**Estimated: 2 hours**
+**Estimated: 2 hours** ✓ COMPLETED
 
-- [ ] Fetch PRs achieved in session (may need new API or include in session detail)
-- [ ] Show PR badge/icon on relevant sets
-- [ ] Add "New PRs" summary section at top if any achieved
-- [ ] Style PR highlights consistently with WorkoutCompleteView
+- [x] Fetch PRs achieved in session (added to session detail API response)
+- [x] Show PR badge/icon on relevant sets
+- [x] Add "New PRs" summary section at top if any achieved
+- [x] Style PR highlights consistently with WorkoutCompleteView
 
 ### 2.5 Backend: Add custom exercise CRUD
 **Estimated: 3-4 hours** ✓ COMPLETED
@@ -281,3 +281,4 @@ After backend restructure (1.1), update frontend:
 | 2025-01-10 | 1.5 Frontend localStorage | ✓ Completed | Session persistence with 24h stale detection |
 | 2025-01-10 | 2.2 Frontend registration name | ✓ Completed | Optional name field with validation |
 | 2025-01-10 | 2.3 Frontend active plan toggle | ✓ Completed | Set Active button with confirmation |
+| 2025-12-10 | 2.4 Frontend session detail PRs | ✓ Completed | Backend returns is_pr and personal_records |
