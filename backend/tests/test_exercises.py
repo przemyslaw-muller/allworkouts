@@ -148,7 +148,7 @@ class TestListExercises:
         '''Test listing exercises without authentication.'''
         response = client.get('/api/v1/exercises')
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestGetExercise:
@@ -225,7 +225,7 @@ class TestGetExercise:
         '''Test getting exercise without authentication.'''
         response = client.get(f'/api/v1/exercises/{test_exercise.id}')
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestGetExerciseSubstitutes:
@@ -315,7 +315,7 @@ class TestGetExerciseSubstitutes:
         '''Test getting substitutes without authentication.'''
         response = client.get(f'/api/v1/exercises/{test_exercise.id}/substitutes')
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_get_substitutes_sorted_by_match_score(
         self, client: TestClient, auth_headers: dict, test_exercise: Exercise

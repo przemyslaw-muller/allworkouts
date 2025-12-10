@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.enums import ConfidenceLevelEnum
-from app.models import Exercise, User, WorkoutExercise, WorkoutPlan
+from app.models import Exercise, User, Workout, WorkoutExercise, WorkoutPlan
 
 
 class TestListWorkoutPlans:
@@ -74,7 +74,7 @@ class TestListWorkoutPlans:
         """Test listing workout plans without authentication."""
         response = client.get("/api/v1/workout-plans")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestGetWorkoutPlan:
@@ -91,7 +91,7 @@ class TestGetWorkoutPlan:
         assert data["success"] is True
         assert data["data"]["id"] == str(test_workout_plan.id)
         assert data["data"]["name"] == test_workout_plan.name
-        assert "exercises" in data["data"]
+        assert "workouts" in data["data"]
         assert "created_at" in data["data"]
         assert "updated_at" in data["data"]
 
@@ -101,7 +101,7 @@ class TestGetWorkoutPlan:
         auth_headers: dict,
         test_workout_plan_with_exercises: WorkoutPlan,
     ):
-        """Test getting workout plan details includes exercises."""
+        """Test getting workout plan details includes workouts and exercises."""
         response = client.get(
             f"/api/v1/workout-plans/{test_workout_plan_with_exercises.id}",
             headers=auth_headers,
@@ -110,10 +110,17 @@ class TestGetWorkoutPlan:
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert len(data["data"]["exercises"]) >= 2
+        assert len(data["data"]["workouts"]) >= 1
 
-        # Check exercise details
-        for exercise in data["data"]["exercises"]:
+        # Check workout details
+        workout = data["data"]["workouts"][0]
+        assert "id" in workout
+        assert "name" in workout
+        assert "exercises" in workout
+        assert len(workout["exercises"]) >= 2
+
+        # Check exercise details within workout
+        for exercise in workout["exercises"]:
             assert "id" in exercise
             assert "exercise" in exercise
             assert "sequence" in exercise
@@ -148,7 +155,7 @@ class TestGetWorkoutPlan:
         """Test getting workout plan without authentication."""
         response = client.get(f"/api/v1/workout-plans/{test_workout_plan.id}")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestCreateWorkoutPlan:
@@ -162,30 +169,37 @@ class TestCreateWorkoutPlan:
         test_exercise: Exercise,
         test_exercise_2: Exercise,
     ):
-        """Test creating a new workout plan."""
+        """Test creating a new workout plan with nested workouts."""
         response = client.post(
             "/api/v1/workout-plans",
             json={
                 "name": "Test Created Plan",
                 "description": "A test workout plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 1,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
-                    },
-                    {
-                        "exercise_id": str(test_exercise_2.id),
-                        "sequence": 2,
-                        "sets": 4,
-                        "reps_min": 6,
-                        "reps_max": 10,
-                        "rest_time_seconds": 120,
-                        "confidence_level": ConfidenceLevelEnum.HIGH.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 1,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                            {
+                                "exercise_id": str(test_exercise_2.id),
+                                "sequence": 2,
+                                "sets": 4,
+                                "reps_min": 6,
+                                "reps_max": 10,
+                                "rest_time_seconds": 120,
+                                "confidence_level": ConfidenceLevelEnum.HIGH.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -200,7 +214,10 @@ class TestCreateWorkoutPlan:
 
         # Cleanup
         plan_id = data["data"]["id"]
-        db.query(WorkoutExercise).filter(WorkoutExercise.workout_plan_id == plan_id).delete()
+        workouts = db.query(Workout).filter(Workout.workout_plan_id == plan_id).all()
+        for workout in workouts:
+            db.query(WorkoutExercise).filter(WorkoutExercise.workout_id == workout.id).delete()
+        db.query(Workout).filter(Workout.workout_plan_id == plan_id).delete()
         db.query(WorkoutPlan).filter(WorkoutPlan.id == plan_id).delete()
         db.commit()
 
@@ -211,15 +228,22 @@ class TestCreateWorkoutPlan:
             "/api/v1/workout-plans",
             json={
                 "name": "Invalid Plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(fake_id),
-                        "sequence": 1,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(fake_id),
+                                "sequence": 1,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -234,21 +258,28 @@ class TestCreateWorkoutPlan:
             "/api/v1/workout-plans",
             json={
                 "name": "Test Plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 1,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 1,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                        ],
                     },
                 ],
             },
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestUpdateWorkoutPlan:
@@ -290,19 +321,26 @@ class TestUpdateWorkoutPlan:
         test_workout_plan: WorkoutPlan,
         test_exercise: Exercise,
     ):
-        """Test updating workout plan exercises."""
+        """Test updating workout plan with new workouts structure."""
         response = client.put(
             f"/api/v1/workout-plans/{test_workout_plan.id}",
             json={
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 1,
-                        "sets": 5,
-                        "reps_min": 5,
-                        "reps_max": 5,
-                        "rest_time_seconds": 180,
-                        "confidence_level": ConfidenceLevelEnum.HIGH.value,
+                        "name": "New Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 1,
+                                "sets": 5,
+                                "reps_min": 5,
+                                "reps_max": 5,
+                                "rest_time_seconds": 180,
+                                "confidence_level": ConfidenceLevelEnum.HIGH.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -348,7 +386,7 @@ class TestUpdateWorkoutPlan:
             json={"name": "Updated Name"},
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestDeleteWorkoutPlan:
@@ -412,7 +450,7 @@ class TestDeleteWorkoutPlan:
         """Test deleting workout plan without authentication."""
         response = client.delete(f"/api/v1/workout-plans/{test_workout_plan.id}")
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestParseWorkoutPlan:
@@ -422,28 +460,35 @@ class TestParseWorkoutPlan:
         """Test parsing workout plan text with mocked LLM."""
         from unittest.mock import AsyncMock, patch
 
-        # Mock LLM response
+        # Mock LLM response - now using nested workouts structure
         mock_llm_response = {
             "name": "Test 5x5 Program",
             "description": "Strength training program",
-            "exercises": [
+            "workouts": [
                 {
-                    "original_text": "Squat",
-                    "sets": 5,
-                    "reps_min": 5,
-                    "reps_max": 5,
-                    "rest_seconds": 180,
-                    "notes": None,
-                    "sequence": 0,
-                },
-                {
-                    "original_text": "Bench Press",
-                    "sets": 5,
-                    "reps_min": 5,
-                    "reps_max": 5,
-                    "rest_seconds": 180,
-                    "notes": None,
-                    "sequence": 1,
+                    "name": "Day 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "original_text": "Squat",
+                            "sets": 5,
+                            "reps_min": 5,
+                            "reps_max": 5,
+                            "rest_seconds": 180,
+                            "notes": None,
+                            "sequence": 0,
+                        },
+                        {
+                            "original_text": "Bench Press",
+                            "sets": 5,
+                            "reps_min": 5,
+                            "reps_max": 5,
+                            "rest_seconds": 180,
+                            "notes": None,
+                            "sequence": 1,
+                        },
+                    ],
                 },
             ],
         }
@@ -465,6 +510,7 @@ class TestParseWorkoutPlan:
         assert data["data"]["parsed_plan"]["name"] == "Test 5x5 Program"
         assert data["data"]["total_exercises"] == 2
         assert "import_log_id" in data["data"]["parsed_plan"]
+        assert "workouts" in data["data"]["parsed_plan"]
 
         # Cleanup import log
         from app.models import WorkoutImportLog
@@ -482,15 +528,22 @@ class TestParseWorkoutPlan:
         mock_llm_response = {
             "name": "Workout",
             "description": None,
-            "exercises": [
+            "workouts": [
                 {
-                    "original_text": "Unknown Exercise XYZ",
-                    "sets": 3,
-                    "reps_min": 8,
-                    "reps_max": 12,
-                    "rest_seconds": 90,
-                    "notes": None,
-                    "sequence": 0,
+                    "name": "Workout 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "original_text": "Unknown Exercise XYZ",
+                            "sets": 3,
+                            "reps_min": 8,
+                            "reps_max": 12,
+                            "rest_seconds": 90,
+                            "notes": None,
+                            "sequence": 0,
+                        },
+                    ],
                 },
             ],
         }
@@ -559,15 +612,22 @@ class TestCreateWorkoutPlanFromParsed:
         mock_llm_response = {
             "name": "Parsed Program",
             "description": "From parsed data",
-            "exercises": [
+            "workouts": [
                 {
-                    "original_text": "Exercise 1",
-                    "sets": 3,
-                    "reps_min": 8,
-                    "reps_max": 12,
-                    "rest_seconds": 90,
-                    "notes": None,
-                    "sequence": 0,
+                    "name": "Workout 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "original_text": "Exercise 1",
+                            "sets": 3,
+                            "reps_min": 8,
+                            "reps_max": 12,
+                            "rest_seconds": 90,
+                            "notes": None,
+                            "sequence": 0,
+                        },
+                    ],
                 },
             ],
         }
@@ -585,31 +645,38 @@ class TestCreateWorkoutPlanFromParsed:
         assert parse_response.status_code == 200
         import_log_id = parse_response.json()["data"]["parsed_plan"]["import_log_id"]
 
-        # Now create workout plan from parsed data
+        # Now create workout plan from parsed data with nested workouts
         response = client.post(
             "/api/v1/workout-plans/from-parsed",
             json={
                 "import_log_id": import_log_id,
                 "name": "My Workout Plan",
                 "description": "Created from parsed text",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 0,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
-                    },
-                    {
-                        "exercise_id": str(test_exercise_2.id),
-                        "sequence": 1,
-                        "sets": 4,
-                        "reps_min": 6,
-                        "reps_max": 10,
-                        "rest_time_seconds": 120,
-                        "confidence_level": ConfidenceLevelEnum.HIGH.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 0,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                            {
+                                "exercise_id": str(test_exercise_2.id),
+                                "sequence": 1,
+                                "sets": 4,
+                                "reps_min": 6,
+                                "reps_max": 10,
+                                "rest_time_seconds": 120,
+                                "confidence_level": ConfidenceLevelEnum.HIGH.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -630,7 +697,10 @@ class TestCreateWorkoutPlanFromParsed:
 
         # Cleanup
         plan_id = data["data"]["id"]
-        db.query(WorkoutExercise).filter(WorkoutExercise.workout_plan_id == plan_id).delete()
+        workouts = db.query(Workout).filter(Workout.workout_plan_id == plan_id).all()
+        for workout in workouts:
+            db.query(WorkoutExercise).filter(WorkoutExercise.workout_id == workout.id).delete()
+        db.query(Workout).filter(Workout.workout_plan_id == plan_id).delete()
         db.query(WorkoutImportLog).filter(WorkoutImportLog.id == import_log_id).delete()
         db.query(WorkoutPlan).filter(WorkoutPlan.id == plan_id).delete()
         db.commit()
@@ -648,15 +718,22 @@ class TestCreateWorkoutPlanFromParsed:
             json={
                 "import_log_id": str(fake_id),
                 "name": "Test Plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 0,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 0,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -680,15 +757,22 @@ class TestCreateWorkoutPlanFromParsed:
         mock_llm_response = {
             "name": "Program",
             "description": None,
-            "exercises": [
+            "workouts": [
                 {
-                    "original_text": "Exercise",
-                    "sets": 3,
-                    "reps_min": 8,
-                    "reps_max": 12,
-                    "rest_seconds": 90,
-                    "notes": None,
-                    "sequence": 0,
+                    "name": "Workout 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "original_text": "Exercise",
+                            "sets": 3,
+                            "reps_min": 8,
+                            "reps_max": 12,
+                            "rest_seconds": 90,
+                            "notes": None,
+                            "sequence": 0,
+                        },
+                    ],
                 },
             ],
         }
@@ -709,15 +793,22 @@ class TestCreateWorkoutPlanFromParsed:
         create_request = {
             "import_log_id": import_log_id,
             "name": "First Plan",
-            "exercises": [
+            "workouts": [
                 {
-                    "exercise_id": str(test_exercise.id),
-                    "sequence": 0,
-                    "sets": 3,
-                    "reps_min": 8,
-                    "reps_max": 12,
-                    "rest_time_seconds": 90,
-                    "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                    "name": "Day 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "exercise_id": str(test_exercise.id),
+                            "sequence": 0,
+                            "sets": 3,
+                            "reps_min": 8,
+                            "reps_max": 12,
+                            "rest_time_seconds": 90,
+                            "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        },
+                    ],
                 },
             ],
         }
@@ -744,7 +835,10 @@ class TestCreateWorkoutPlanFromParsed:
         # Cleanup
         from app.models import WorkoutImportLog
 
-        db.query(WorkoutExercise).filter(WorkoutExercise.workout_plan_id == first_plan_id).delete()
+        workouts = db.query(Workout).filter(Workout.workout_plan_id == first_plan_id).all()
+        for workout in workouts:
+            db.query(WorkoutExercise).filter(WorkoutExercise.workout_id == workout.id).delete()
+        db.query(Workout).filter(Workout.workout_plan_id == first_plan_id).delete()
         db.query(WorkoutImportLog).filter(WorkoutImportLog.id == import_log_id).delete()
         db.query(WorkoutPlan).filter(WorkoutPlan.id == first_plan_id).delete()
         db.commit()
@@ -762,15 +856,22 @@ class TestCreateWorkoutPlanFromParsed:
         mock_llm_response = {
             "name": "Program",
             "description": None,
-            "exercises": [
+            "workouts": [
                 {
-                    "original_text": "Exercise",
-                    "sets": 3,
-                    "reps_min": 8,
-                    "reps_max": 12,
-                    "rest_seconds": 90,
-                    "notes": None,
-                    "sequence": 0,
+                    "name": "Workout 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "original_text": "Exercise",
+                            "sets": 3,
+                            "reps_min": 8,
+                            "reps_max": 12,
+                            "rest_seconds": 90,
+                            "notes": None,
+                            "sequence": 0,
+                        },
+                    ],
                 },
             ],
         }
@@ -793,15 +894,22 @@ class TestCreateWorkoutPlanFromParsed:
             json={
                 "import_log_id": import_log_id,
                 "name": "Test Plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(fake_exercise_id),
-                        "sequence": 0,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(fake_exercise_id),
+                                "sequence": 0,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -825,15 +933,22 @@ class TestCreateWorkoutPlanFromParsed:
             json={
                 "import_log_id": str(fake_id),
                 "name": "Test Plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 0,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 0,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                        ],
                     },
                 ],
             },
@@ -856,15 +971,22 @@ class TestCreateWorkoutPlanFromParsed:
         mock_llm_response = {
             "name": "Program",
             "description": None,
-            "exercises": [
+            "workouts": [
                 {
-                    "original_text": "Exercise",
-                    "sets": 3,
-                    "reps_min": 8,
-                    "reps_max": 12,
-                    "rest_seconds": 90,
-                    "notes": None,
-                    "sequence": 0,
+                    "name": "Workout 1",
+                    "day_number": 1,
+                    "order_index": 0,
+                    "exercises": [
+                        {
+                            "original_text": "Exercise",
+                            "sets": 3,
+                            "reps_min": 8,
+                            "reps_max": 12,
+                            "rest_seconds": 90,
+                            "notes": None,
+                            "sequence": 0,
+                        },
+                    ],
                 },
             ],
         }
@@ -888,15 +1010,22 @@ class TestCreateWorkoutPlanFromParsed:
             json={
                 "import_log_id": import_log_id,
                 "name": "Stolen Plan",
-                "exercises": [
+                "workouts": [
                     {
-                        "exercise_id": str(test_exercise.id),
-                        "sequence": 0,
-                        "sets": 3,
-                        "reps_min": 8,
-                        "reps_max": 12,
-                        "rest_time_seconds": 90,
-                        "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                        "name": "Day 1",
+                        "day_number": 1,
+                        "order_index": 0,
+                        "exercises": [
+                            {
+                                "exercise_id": str(test_exercise.id),
+                                "sequence": 0,
+                                "sets": 3,
+                                "reps_min": 8,
+                                "reps_max": 12,
+                                "rest_time_seconds": 90,
+                                "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
+                            },
+                        ],
                     },
                 ],
             },

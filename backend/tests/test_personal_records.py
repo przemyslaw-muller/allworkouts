@@ -93,7 +93,7 @@ class TestListPersonalRecords:
         '''Test listing personal records without authentication.'''
         response = client.get('/api/v1/personal-records')
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestCreatePersonalRecord:
@@ -209,7 +209,7 @@ class TestCreatePersonalRecord:
             },
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestDeletePersonalRecord:
@@ -281,4 +281,4 @@ class TestDeletePersonalRecord:
             f'/api/v1/personal-records/{test_personal_record.id}'
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 401

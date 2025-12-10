@@ -25,6 +25,7 @@ from app.models import (
     PersonalRecord,
     User,
     UserEquipment,
+    Workout,
     WorkoutExercise,
     WorkoutPlan,
     WorkoutSession,
@@ -258,13 +259,42 @@ def test_workout_plan(db: Session, test_user: User) -> WorkoutPlan:
 
 
 @pytest.fixture
+def test_workout(db: Session, test_workout_plan: WorkoutPlan) -> Workout:
+    """Create a test workout within a plan."""
+    workout = Workout(
+        id=uuid.uuid4(),
+        workout_plan_id=test_workout_plan.id,
+        name="Workout 1",
+        day_number=1,
+        order_index=0,
+    )
+    db.add(workout)
+    db.commit()
+    db.refresh(workout)
+    return workout
+
+
+@pytest.fixture
 def test_workout_plan_with_exercises(
     db: Session, test_workout_plan: WorkoutPlan, test_exercise: Exercise, test_exercise_2: Exercise
 ) -> WorkoutPlan:
-    """Create a workout plan with exercises."""
-    we1 = WorkoutExercise(
+    """Create a workout plan with a workout and exercises."""
+    # Create a workout first
+    workout = Workout(
         id=uuid.uuid4(),
         workout_plan_id=test_workout_plan.id,
+        name="Day 1",
+        day_number=1,
+        order_index=0,
+    )
+    db.add(workout)
+    db.commit()
+    db.refresh(workout)
+
+    # Add exercises to the workout
+    we1 = WorkoutExercise(
+        id=uuid.uuid4(),
+        workout_id=workout.id,
         exercise_id=test_exercise.id,
         sequence=1,
         sets=3,
@@ -275,7 +305,7 @@ def test_workout_plan_with_exercises(
     )
     we2 = WorkoutExercise(
         id=uuid.uuid4(),
-        workout_plan_id=test_workout_plan.id,
+        workout_id=workout.id,
         exercise_id=test_exercise_2.id,
         sequence=2,
         sets=4,
@@ -293,13 +323,14 @@ def test_workout_plan_with_exercises(
 
 @pytest.fixture
 def test_workout_session(
-    db: Session, test_user: User, test_workout_plan: WorkoutPlan
+    db: Session, test_user: User, test_workout_plan: WorkoutPlan, test_workout: Workout
 ) -> WorkoutSession:
     """Create a test workout session."""
     session = WorkoutSession(
         id=uuid.uuid4(),
         user_id=test_user.id,
         workout_plan_id=test_workout_plan.id,
+        workout_id=test_workout.id,
         status=SessionStatusEnum.IN_PROGRESS,
     )
     db.add(session)
@@ -310,13 +341,14 @@ def test_workout_session(
 
 @pytest.fixture
 def test_completed_workout_session(
-    db: Session, test_user: User, test_workout_plan: WorkoutPlan
+    db: Session, test_user: User, test_workout_plan: WorkoutPlan, test_workout: Workout
 ) -> WorkoutSession:
     """Create a completed workout session."""
     session = WorkoutSession(
         id=uuid.uuid4(),
         user_id=test_user.id,
         workout_plan_id=test_workout_plan.id,
+        workout_id=test_workout.id,
         status=SessionStatusEnum.COMPLETED,
     )
     db.add(session)

@@ -109,7 +109,7 @@ class TestListEquipment:
         '''Test listing equipment without authentication.'''
         response = client.get('/api/v1/equipment')
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 class TestUpdateEquipmentOwnership:
@@ -201,7 +201,7 @@ class TestUpdateEquipmentOwnership:
             json={'is_owned': True},
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_ownership_isolation_between_users(
         self,
