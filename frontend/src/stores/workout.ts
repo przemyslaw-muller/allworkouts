@@ -1,5 +1,6 @@
 /**
  * Workout store - manages active workout session and plans cache.
+ * Includes localStorage persistence for active session recovery.
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -14,6 +15,18 @@ import type {
 } from '@/types'
 import { workoutPlanService, workoutSessionService } from '@/services'
 import { getErrorMessage } from '@/services/api'
+
+// localStorage key for session persistence
+const ACTIVE_SESSION_KEY = 'allworkouts_active_session'
+const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
+
+// Persisted session data structure
+interface PersistedSessionData {
+  activeSession: WorkoutSessionStartResponse
+  loggedExercises: [string, LoggedExercise][]
+  currentExerciseIndex: number
+  savedAt: number // timestamp for stale detection
+}
 
 // Local state for tracking logged exercises during a session
 export interface LoggedExercise {
@@ -40,6 +53,77 @@ export const useWorkoutStore = defineStore('workout', () => {
 
   // Session completion state
   const completionResult = ref<CompleteSessionResponse | null>(null)
+
+  // --- localStorage Persistence Functions ---
+
+  function saveSessionToLocalStorage() {
+    if (!activeSession.value) return
+
+    const data: PersistedSessionData = {
+      activeSession: activeSession.value,
+      loggedExercises: Array.from(loggedExercises.value.entries()),
+      currentExerciseIndex: currentExerciseIndex.value,
+      savedAt: Date.now(),
+    }
+
+    try {
+      localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error('Failed to save session to localStorage:', error)
+    }
+  }
+
+  function loadSessionFromLocalStorage(): PersistedSessionData | null {
+    try {
+      const data = localStorage.getItem(ACTIVE_SESSION_KEY)
+      if (!data) return null
+
+      const parsed: PersistedSessionData = JSON.parse(data)
+      return parsed
+    } catch (error) {
+      console.error('Failed to load session from localStorage:', error)
+      clearSessionFromLocalStorage()
+      return null
+    }
+  }
+
+  function clearSessionFromLocalStorage() {
+    try {
+      localStorage.removeItem(ACTIVE_SESSION_KEY)
+    } catch (error) {
+      console.error('Failed to clear session from localStorage:', error)
+    }
+  }
+
+  function isSessionStale(savedAt: number): boolean {
+    return Date.now() - savedAt > SESSION_MAX_AGE_MS
+  }
+
+  /**
+   * Restores an active session from localStorage on app init.
+   * Returns true if a session was restored, false otherwise.
+   */
+  function restoreSessionFromLocalStorage(): boolean {
+    const data = loadSessionFromLocalStorage()
+
+    if (!data) return false
+
+    // Check if session is stale (>24 hours)
+    if (isSessionStale(data.savedAt)) {
+      console.log('Stored session is stale (>24 hours), clearing')
+      clearSessionFromLocalStorage()
+      return false
+    }
+
+    // Restore the session state
+    activeSession.value = data.activeSession
+    loggedExercises.value = new Map(data.loggedExercises)
+    currentExerciseIndex.value = data.currentExerciseIndex
+
+    return true
+  }
+
+  // --- End localStorage Persistence Functions ---
 
   // Plans getters
   const hasPlans = computed(() => plans.value.length > 0)
@@ -125,6 +209,10 @@ export const useWorkoutStore = defineStore('workout', () => {
       loggedExercises.value = new Map()
       currentExerciseIndex.value = 0
       completionResult.value = null
+
+      // Persist to localStorage
+      saveSessionToLocalStorage()
+
       return { success: true, data }
     } catch (err) {
       sessionError.value = getErrorMessage(err)
@@ -158,6 +246,9 @@ export const useWorkoutStore = defineStore('workout', () => {
         isCompleted: true,
       })
 
+      // Persist to localStorage
+      saveSessionToLocalStorage()
+
       return { success: true }
     } catch (err) {
       sessionError.value = getErrorMessage(err)
@@ -182,6 +273,10 @@ export const useWorkoutStore = defineStore('workout', () => {
       activeSession.value = null
       loggedExercises.value = new Map()
       currentExerciseIndex.value = 0
+
+      // Clear localStorage
+      clearSessionFromLocalStorage()
+
       return { success: true, data }
     } catch (err) {
       sessionError.value = getErrorMessage(err)
@@ -204,6 +299,10 @@ export const useWorkoutStore = defineStore('workout', () => {
       loggedExercises.value = new Map()
       currentExerciseIndex.value = 0
       completionResult.value = null
+
+      // Clear localStorage
+      clearSessionFromLocalStorage()
+
       return { success: true }
     } catch (err) {
       sessionError.value = getErrorMessage(err)
@@ -216,6 +315,7 @@ export const useWorkoutStore = defineStore('workout', () => {
   function goToExercise(index: number) {
     if (index >= 0 && activeSession.value && index < activeSession.value.exercises.length) {
       currentExerciseIndex.value = index
+      saveSessionToLocalStorage()
     }
   }
 
@@ -225,12 +325,14 @@ export const useWorkoutStore = defineStore('workout', () => {
       currentExerciseIndex.value < activeSession.value.exercises.length - 1
     ) {
       currentExerciseIndex.value++
+      saveSessionToLocalStorage()
     }
   }
 
   function goToPreviousExercise() {
     if (currentExerciseIndex.value > 0) {
       currentExerciseIndex.value--
+      saveSessionToLocalStorage()
     }
   }
 
@@ -293,5 +395,8 @@ export const useWorkoutStore = defineStore('workout', () => {
     clearCompletionResult,
     clearPlansError,
     clearSessionError,
+    // Session persistence
+    restoreSessionFromLocalStorage,
+    clearSessionFromLocalStorage,
   }
 })

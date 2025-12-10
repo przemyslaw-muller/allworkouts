@@ -162,6 +162,11 @@ export const useUiStore = defineStore('ui', () => {
     return notify('info', message, options)
   }
 
+  // Convenience alias for showToast(message, type) pattern
+  function showToast(message: string, type: NotificationType = 'info') {
+    return notify(type, message)
+  }
+
   function removeNotification(id: string) {
     notifications.value = notifications.value.filter((n) => n.id !== id)
   }
@@ -287,6 +292,7 @@ export const useUiStore = defineStore('ui', () => {
     error,
     warning,
     info,
+    showToast,
     removeNotification,
     clearAllNotifications,
     // Modal actions

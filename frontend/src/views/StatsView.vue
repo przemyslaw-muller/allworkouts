@@ -88,8 +88,8 @@ const muscleGroupLabels: Record<MuscleGroup, string> = {
   legs: 'Legs',
   glutes: 'Glutes',
   core: 'Core',
-  full_body: 'Full Body',
-  cardio: 'Cardio',
+  traps: 'Traps',
+  lats: 'Lats',
 }
 
 const muscleGroupColors: Record<MuscleGroup, string> = {
@@ -102,8 +102,8 @@ const muscleGroupColors: Record<MuscleGroup, string> = {
   legs: 'bg-green-500',
   glutes: 'bg-teal-500',
   core: 'bg-indigo-500',
-  full_body: 'bg-gray-500',
-  cardio: 'bg-cyan-500',
+  traps: 'bg-gray-500',
+  lats: 'bg-cyan-500',
 }
 
 const hasAnyData = computed(() => {

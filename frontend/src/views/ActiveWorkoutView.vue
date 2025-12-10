@@ -133,7 +133,7 @@ async function logSet(setIndex: number) {
     loggedSets.value.set(exerciseId, current)
 
     // Save to localStorage
-    saveSessionToLocalStorage()
+    saveViewStateToLocalStorage()
 
     uiStore.showToast(`Set ${setIndex + 1} logged`, 'success')
 
@@ -202,8 +202,8 @@ async function completeWorkout() {
     const result = await workoutStore.completeSession()
 
     if (result.success) {
-      // Clear localStorage
-      clearSessionFromLocalStorage()
+      // Clear localStorage (view state)
+      clearViewStateFromLocalStorage()
 
       uiStore.showToast('Workout completed!', 'success')
       router.push('/workout/complete')
@@ -231,7 +231,7 @@ async function confirmExit() {
     const result = await workoutStore.skipSession('User exited workout')
 
     if (result.success) {
-      clearSessionFromLocalStorage()
+      clearViewStateFromLocalStorage()
       uiStore.showToast('Workout abandoned', 'info')
       router.push('/dashboard')
     } else {
@@ -269,36 +269,47 @@ function goToExercise(index: number) {
   initializeSetInputs()
 }
 
-// LocalStorage helpers
-function saveSessionToLocalStorage() {
+// LocalStorage helpers for view-specific state (elapsed time, uncommitted sets)
+const VIEW_SESSION_KEY = 'activeWorkoutSession_view'
+
+function saveViewStateToLocalStorage() {
   if (!session.value) return
 
   const data = {
     sessionId: session.value.session_id,
-    startedAt: session.value.started_at,
     loggedSets: Array.from(loggedSets.value.entries()),
-    currentExerciseIndex: currentExerciseIndex.value,
     elapsedTime: elapsedTime.value,
   }
 
-  localStorage.setItem('activeWorkoutSession', JSON.stringify(data))
-}
-
-function loadSessionFromLocalStorage() {
   try {
-    const data = localStorage.getItem('activeWorkoutSession')
-    if (data) {
-      const parsed = JSON.parse(data)
-      loggedSets.value = new Map(parsed.loggedSets)
-      elapsedTime.value = parsed.elapsedTime || 0
-    }
+    localStorage.setItem(VIEW_SESSION_KEY, JSON.stringify(data))
   } catch (error) {
-    console.error('Error loading session from localStorage:', error)
+    console.error('Error saving view state to localStorage:', error)
   }
 }
 
-function clearSessionFromLocalStorage() {
-  localStorage.removeItem('activeWorkoutSession')
+function loadViewStateFromLocalStorage() {
+  try {
+    const data = localStorage.getItem(VIEW_SESSION_KEY)
+    if (data) {
+      const parsed = JSON.parse(data)
+      // Only load if it matches the current session
+      if (session.value && parsed.sessionId === session.value.session_id) {
+        loggedSets.value = new Map(parsed.loggedSets)
+        elapsedTime.value = parsed.elapsedTime || 0
+      }
+    }
+  } catch (error) {
+    console.error('Error loading view state from localStorage:', error)
+  }
+}
+
+function clearViewStateFromLocalStorage() {
+  try {
+    localStorage.removeItem(VIEW_SESSION_KEY)
+  } catch (error) {
+    console.error('Error clearing view state from localStorage:', error)
+  }
 }
 
 // Start elapsed timer
@@ -310,7 +321,7 @@ function startElapsedTimer() {
 
     // Save to localStorage every 10 seconds
     if (elapsedTime.value % 10 === 0) {
-      saveSessionToLocalStorage()
+      saveViewStateToLocalStorage()
     }
   }, 1000)
 }
@@ -327,8 +338,8 @@ onMounted(async () => {
   // Check if session ID in route params
   sessionId.value = route.params.sessionId as string
 
-  // Load from localStorage
-  loadSessionFromLocalStorage()
+  // Load view state from localStorage (elapsed time, uncommitted sets)
+  loadViewStateFromLocalStorage()
 
   // Check if session is active
   if (!session.value) {
@@ -352,7 +363,7 @@ watch(currentExerciseIndex, () => {
 // Cleanup on unmount
 onUnmounted(() => {
   stopElapsedTimer()
-  saveSessionToLocalStorage()
+  saveViewStateToLocalStorage()
 })
 </script>
 

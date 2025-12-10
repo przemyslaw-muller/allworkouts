@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useUiStore, useAuthStore } from '@/stores'
+import { useUiStore, useAuthStore, useWorkoutStore } from '@/stores'
 import AppLayout from '@/components/common/AppLayout.vue'
 import AuthLayout from '@/components/common/AuthLayout.vue'
 import MinimalLayout from '@/components/common/MinimalLayout.vue'
@@ -13,6 +13,12 @@ import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
 const route = useRoute()
 const uiStore = useUiStore()
 const authStore = useAuthStore()
+const workoutStore = useWorkoutStore()
+
+// Restore any persisted workout session on app init
+onMounted(() => {
+  workoutStore.restoreSessionFromLocalStorage()
+})
 
 // Determine which layout to use based on route meta
 const currentLayout = computed(() => {

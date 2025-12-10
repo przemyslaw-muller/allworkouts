@@ -37,7 +37,7 @@ const muscleGroupLabel = computed(() => {
 </script>
 
 <template>
-  <BaseModal :is-open="isOpen" size="sm" @close="emit('close')">
+  <BaseModal :model-value="isOpen" size="sm" @close="emit('close')">
     <template #header>
       <h3 class="text-lg font-semibold text-white">
         {{ exercise?.name || 'Exercise Details' }}
@@ -60,7 +60,7 @@ const muscleGroupLabel = computed(() => {
         <div v-if="exercise.secondary_muscle_groups.length > 0">
           <h4 class="text-sm font-medium text-gray-400 mb-2">Secondary Muscles</h4>
           <div class="flex flex-wrap gap-2">
-            <BaseBadge v-for="mg in exercise.secondary_muscle_groups" :key="mg" variant="secondary">
+            <BaseBadge v-for="mg in exercise.secondary_muscle_groups" :key="mg" variant="gray">
               {{ muscleGroupLabel(mg) }}
             </BaseBadge>
           </div>
