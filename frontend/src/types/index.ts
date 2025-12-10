@@ -350,11 +350,14 @@ export interface SkipSessionResponse {
 
 export interface WorkoutSessionListItem {
   id: string
-  workout_plan: WorkoutPlanBrief
+  workout_name: string
+  workout_plan_name: string
   status: SessionStatus
+  started_at: string
+  completed_at: string | null
+  duration_seconds: number | null
   exercise_count: number
-  created_at: string
-  updated_at: string
+  notes: string | null
 }
 
 export interface WorkoutSessionListResponse {
@@ -362,23 +365,40 @@ export interface WorkoutSessionListResponse {
   pagination: PaginationInfo
 }
 
+export interface ExerciseSetDetail {
+  id: string
+  set_number: number
+  reps_completed: number
+  weight: number
+  weight_unit: string
+  is_warmup: boolean
+  rpe: number | null
+  notes: string | null
+  completed_at: string
+}
+
 export interface ExerciseSessionDetail {
   id: string
   exercise: ExerciseBrief
-  set_number: number
-  weight: number
-  reps: number
-  rest_time_seconds: number | null
-  created_at: string
+  order_index: number
+  notes: string | null
+  sets: ExerciseSetDetail[]
+}
+
+export interface WorkoutBrief {
+  id: string
+  name: string
 }
 
 export interface WorkoutSessionDetailResponse {
   id: string
+  workout: WorkoutBrief
   workout_plan: WorkoutPlanBrief
   status: SessionStatus
+  started_at: string
+  completed_at: string | null
+  notes: string | null
   exercise_sessions: ExerciseSessionDetail[]
-  created_at: string
-  updated_at: string
 }
 
 // ============================================================================

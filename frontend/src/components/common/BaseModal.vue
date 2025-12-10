@@ -85,21 +85,15 @@ onUnmounted(() => {
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div
-        v-if="modelValue"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      >
+      <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <!-- Backdrop -->
-        <div
-          class="absolute inset-0 bg-black/50"
-          @click="handleBackdropClick"
-        />
+        <div class="absolute inset-0 bg-black/50" @click="handleBackdropClick" />
 
         <!-- Modal content -->
         <div
           :class="[
             'relative w-full bg-white rounded-lg shadow-xl animate-slide-up dark:bg-gray-800',
-            sizeClasses
+            sizeClasses,
           ]"
           role="dialog"
           aria-modal="true"
@@ -119,7 +113,12 @@ onUnmounted(() => {
               @click="close"
             >
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>

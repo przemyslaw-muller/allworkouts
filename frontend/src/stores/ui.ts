@@ -92,7 +92,9 @@ export const useUiStore = defineStore('ui', () => {
 
   // Getters
   const hasNotifications = computed(() => notifications.value.length > 0)
-  const latestNotification = computed(() => notifications.value[notifications.value.length - 1] ?? null)
+  const latestNotification = computed(
+    () => notifications.value[notifications.value.length - 1] ?? null,
+  )
 
   // Loading actions
   function startLoading(message?: string) {

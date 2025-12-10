@@ -11,7 +11,11 @@
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
     @apply dark:bg-gray-900 dark:text-gray-100;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
   /* Remove default focus outline, custom focus styles will be added */

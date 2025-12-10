@@ -23,7 +23,7 @@ const router = useRouter()
 
 const planId = computed(() => route.params.id as string | undefined)
 const isEditing = computed(() => !!planId.value)
-const pageTitle = computed(() => isEditing.value ? 'Edit Plan' : 'Create Plan')
+const pageTitle = computed(() => (isEditing.value ? 'Edit Plan' : 'Create Plan'))
 
 const {
   formData,
@@ -50,11 +50,11 @@ const currentExerciseForSubstitute = ref<string | null>(null)
 const showUnsavedDialog = ref(false)
 const pendingNavigation = ref<string | null>(null)
 
-const existingExerciseIds = computed(() => formData.value.exercises.map(ex => ex.exerciseId))
+const existingExerciseIds = computed(() => formData.value.exercises.map((ex) => ex.exerciseId))
 
 const currentExercise = computed(() => {
   if (!currentExerciseForSubstitute.value) return null
-  return formData.value.exercises.find(ex => ex.id === currentExerciseForSubstitute.value) || null
+  return formData.value.exercises.find((ex) => ex.id === currentExerciseForSubstitute.value) || null
 })
 
 onMounted(async () => {
@@ -103,14 +103,14 @@ const handleRemove = (exerciseId: string) => {
 }
 
 const handleMoveUp = (exerciseId: string) => {
-  const index = formData.value.exercises.findIndex(ex => ex.id === exerciseId)
+  const index = formData.value.exercises.findIndex((ex) => ex.id === exerciseId)
   if (index > 0) {
     reorderExercises(index, index - 1)
   }
 }
 
 const handleMoveDown = (exerciseId: string) => {
-  const index = formData.value.exercises.findIndex(ex => ex.id === exerciseId)
+  const index = formData.value.exercises.findIndex((ex) => ex.id === exerciseId)
   if (index < formData.value.exercises.length - 1) {
     reorderExercises(index, index + 1)
   }
@@ -160,7 +160,10 @@ onBeforeUnmount(() => {
   <div class="space-y-6">
     <!-- Header -->
     <div>
-      <RouterLink to="/plans" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-1 inline-block">
+      <RouterLink
+        to="/plans"
+        class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mb-1 inline-block"
+      >
         &larr; Back to Plans
       </RouterLink>
       <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ pageTitle }}</h1>
@@ -228,7 +231,10 @@ onBeforeUnmount(() => {
               :can-remove="formData.exercises.length > 1"
               :can-reorder="formData.exercises.length > 1"
               :errors="validationErrors.exerciseErrors.get(exercise.id)"
-              @on-update-field="(field: string, value: any) => updateExerciseField(exercise.id, field as keyof EditableExercise, value)"
+              @on-update-field="
+                (field: string, value: any) =>
+                  updateExerciseField(exercise.id, field as keyof EditableExercise, value)
+              "
               @on-substitute="handleSubstitute(exercise.id)"
               @on-remove="handleRemove(exercise.id)"
               @on-move-up="handleMoveUp(exercise.id)"
@@ -237,13 +243,12 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Empty State -->
-          <div v-else class="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+          <div
+            v-else
+            class="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg"
+          >
             <p class="text-gray-500 dark:text-gray-400 mb-4">No exercises added yet</p>
-            <BaseButton
-              type="button"
-              variant="primary"
-              @click="showAddExerciseModal = true"
-            >
+            <BaseButton type="button" variant="primary" @click="showAddExerciseModal = true">
               + Add First Exercise
             </BaseButton>
           </div>
@@ -254,20 +259,16 @@ onBeforeUnmount(() => {
           <div v-if="isDirty" class="text-sm text-amber-600 dark:text-amber-400">
             You have unsaved changes
           </div>
-          <div v-else class="text-sm text-gray-500 dark:text-gray-400">
-            No changes
-          </div>
+          <div v-else class="text-sm text-gray-500 dark:text-gray-400">No changes</div>
           <div class="flex gap-3">
-            <BaseButton type="button" variant="ghost" @click="handleCancel">
-              Cancel
-            </BaseButton>
+            <BaseButton type="button" variant="ghost" @click="handleCancel"> Cancel </BaseButton>
             <BaseButton
               type="submit"
               variant="primary"
               :disabled="!canSave || isSaving"
               :loading="isSaving"
             >
-              {{ isSaving ? 'Saving...' : (isEditing ? 'Save Changes' : 'Create Plan') }}
+              {{ isSaving ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Plan' }}
             </BaseButton>
           </div>
         </div>

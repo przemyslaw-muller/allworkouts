@@ -55,20 +55,22 @@ const {
 // Navigation guard - warn before leaving with unsaved data
 onBeforeRouteLeave((_to, _from, next) => {
   if (hasData.value && !isCreating.value) {
-    uiStore.confirm({
-      title: 'Leave Import Wizard?',
-      message: 'You have unsaved data. Are you sure you want to leave?',
-      confirmText: 'Leave',
-      cancelText: 'Stay',
-      confirmVariant: 'danger',
-    }).then((confirmed) => {
-      if (confirmed) {
-        reset()
-        next()
-      } else {
-        next(false)
-      }
-    })
+    uiStore
+      .confirm({
+        title: 'Leave Import Wizard?',
+        message: 'You have unsaved data. Are you sure you want to leave?',
+        confirmText: 'Leave',
+        cancelText: 'Stay',
+        confirmVariant: 'danger',
+      })
+      .then((confirmed) => {
+        if (confirmed) {
+          reset()
+          next()
+        } else {
+          next(false)
+        }
+      })
   } else {
     next()
   }
@@ -158,9 +160,7 @@ const stepTitle = computed(() => {
         >
           &larr; Back to Plans
         </RouterLink>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Import Workout Plan
-        </h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Import Workout Plan</h1>
         <p class="text-gray-600 dark:text-gray-400 mt-1">
           {{ stepTitle }}
         </p>
@@ -168,19 +168,13 @@ const stepTitle = computed(() => {
 
       <!-- Step Indicator -->
       <div class="hidden sm:block w-64">
-        <StepIndicator
-          :current-step="currentStep"
-          @step-click="handleStepClick"
-        />
+        <StepIndicator :current-step="currentStep" @step-click="handleStepClick" />
       </div>
     </div>
 
     <!-- Mobile Step Indicator -->
     <div class="sm:hidden">
-      <StepIndicator
-        :current-step="currentStep"
-        @step-click="handleStepClick"
-      />
+      <StepIndicator :current-step="currentStep" @step-click="handleStepClick" />
     </div>
 
     <!-- Step Content -->
@@ -230,12 +224,7 @@ const stepTitle = computed(() => {
       v-if="currentStep < 3"
       class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700"
     >
-      <BaseButton
-        type="button"
-        variant="outline"
-        :disabled="isParsing"
-        @click="handleBack"
-      >
+      <BaseButton type="button" variant="outline" :disabled="isParsing" @click="handleBack">
         {{ currentStep === 1 ? 'Cancel' : 'Back' }}
       </BaseButton>
 
@@ -251,9 +240,6 @@ const stepTitle = computed(() => {
     </div>
 
     <!-- Loading Overlay for Parsing -->
-    <LoadingOverlay
-      v-if="isParsing"
-      message="Analyzing your workout plan..."
-    />
+    <LoadingOverlay v-if="isParsing" message="Analyzing your workout plan..." />
   </div>
 </template>

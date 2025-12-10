@@ -55,7 +55,10 @@ export const workoutSessionService = {
   /**
    * Complete a workout session.
    */
-  async complete(sessionId: string, data?: CompleteSessionRequest): Promise<CompleteSessionResponse> {
+  async complete(
+    sessionId: string,
+    data?: CompleteSessionRequest,
+  ): Promise<CompleteSessionResponse> {
     const response = await api.post<CompleteSessionResponse>(
       `/workout-sessions/${sessionId}/complete`,
       data || {},

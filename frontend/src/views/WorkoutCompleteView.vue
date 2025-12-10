@@ -14,18 +14,18 @@ const router = useRouter()
 const workoutStore = useWorkoutStore()
 
 const completionResult = computed(() => workoutStore.completionResult)
-const hasNewPRs = computed(() => 
-  completionResult.value && completionResult.value.new_personal_records.length > 0
+const hasNewPRs = computed(
+  () => completionResult.value && completionResult.value.new_personal_records.length > 0,
 )
 
 // Format duration
 const formattedDuration = computed(() => {
   if (!completionResult.value) return ''
-  
+
   const seconds = completionResult.value.duration_seconds
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`
   }
@@ -36,8 +36,8 @@ const formattedDuration = computed(() => {
 const recordTypeLabel = (type: string): string => {
   const labels: Record<string, string> = {
     '1rm': 'One Rep Max',
-    'set_volume': 'Set Volume',
-    'total_volume': 'Total Volume',
+    set_volume: 'Set Volume',
+    total_volume: 'Total Volume',
   }
   return labels[type] || type
 }
@@ -71,7 +71,12 @@ onMounted(() => {
         <div class="mb-4 flex justify-center">
           <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
         </div>
@@ -90,7 +95,9 @@ onMounted(() => {
 
           <!-- Exercises -->
           <div class="text-center">
-            <div class="text-3xl font-bold text-white mb-1">{{ completionResult.new_personal_records.length }}</div>
+            <div class="text-3xl font-bold text-white mb-1">
+              {{ completionResult.new_personal_records.length }}
+            </div>
             <div class="text-sm text-gray-400">New PRs</div>
           </div>
         </div>
@@ -99,7 +106,12 @@ onMounted(() => {
       <!-- Personal Records -->
       <BaseCard v-if="hasNewPRs" class="!bg-gray-800 !border-primary-500">
         <div class="flex items-center gap-2 mb-4">
-          <svg class="w-6 h-6 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="w-6 h-6 text-primary-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"

@@ -79,7 +79,9 @@ const memberSince = computed(() => {
       <div class="space-y-3">
         <div>
           <label class="text-sm text-gray-600 dark:text-gray-400">Email</label>
-          <p class="font-medium text-gray-900 dark:text-gray-100">{{ authStore.user?.email || 'Not available' }}</p>
+          <p class="font-medium text-gray-900 dark:text-gray-100">
+            {{ authStore.user?.email || 'Not available' }}
+          </p>
         </div>
         <div v-if="memberSince">
           <label class="text-sm text-gray-600 dark:text-gray-400">Member since</label>
@@ -95,7 +97,9 @@ const memberSince = computed(() => {
         <div class="flex items-center justify-between">
           <div>
             <p class="font-medium text-gray-900 dark:text-gray-100">Metric Units</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Use kg and km instead of lbs and miles</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Use kg and km instead of lbs and miles
+            </p>
           </div>
           <BaseToggle v-model="isMetric" :disabled="profileStore.isUpdating" />
         </div>
@@ -148,7 +152,8 @@ const memberSince = computed(() => {
         <!-- Equipment count -->
         <div class="text-sm text-gray-600 dark:text-gray-400">
           <span class="font-medium text-gray-900 dark:text-gray-100">{{ ownedCount }}</span> of
-          <span class="font-medium text-gray-900 dark:text-gray-100">{{ totalCount }}</span> equipment owned
+          <span class="font-medium text-gray-900 dark:text-gray-100">{{ totalCount }}</span>
+          equipment owned
         </div>
 
         <!-- Equipment list -->
@@ -170,7 +175,10 @@ const memberSince = computed(() => {
                 <p class="font-medium text-gray-900 dark:text-gray-100">{{ equipment.name }}</p>
                 <BaseSpinner v-if="isEquipmentUpdating(equipment.id)" size="sm" />
               </div>
-              <p v-if="equipment.description" class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+              <p
+                v-if="equipment.description"
+                class="text-sm text-gray-600 dark:text-gray-400 mt-0.5"
+              >
                 {{ equipment.description }}
               </p>
             </div>
@@ -184,7 +192,10 @@ const memberSince = computed(() => {
 
         <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
           <p>No equipment found matching "{{ searchQuery }}"</p>
-          <button class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mt-2" @click="clearSearch">
+          <button
+            class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 mt-2"
+            @click="clearSearch"
+          >
             Clear search
           </button>
         </div>
@@ -194,9 +205,7 @@ const memberSince = computed(() => {
     <!-- Logout -->
     <BaseCard>
       <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Account Actions</h2>
-      <BaseButton variant="danger" @click="handleLogout">
-        Sign Out
-      </BaseButton>
+      <BaseButton variant="danger" @click="handleLogout"> Sign Out </BaseButton>
     </BaseCard>
   </div>
 </template>

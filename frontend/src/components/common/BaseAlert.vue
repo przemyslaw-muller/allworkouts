@@ -48,11 +48,7 @@ const iconColor = computed(() => {
 <template>
   <div :class="alertClasses" role="alert">
     <!-- Icon -->
-    <svg
-      :class="['h-5 w-5 flex-shrink-0', iconColor]"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
+    <svg :class="['h-5 w-5 flex-shrink-0', iconColor]" fill="currentColor" viewBox="0 0 20 20">
       <!-- Success icon -->
       <path
         v-if="type === 'success'"

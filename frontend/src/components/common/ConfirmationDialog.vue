@@ -42,14 +42,13 @@ function handleCancel() {
             </p>
           </div>
 
-          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 dark:border-gray-700">
+          <div
+            class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 dark:border-gray-700"
+          >
             <BaseButton variant="secondary" @click="handleCancel">
               {{ uiStore.confirmation.cancelText }}
             </BaseButton>
-            <BaseButton
-              :variant="uiStore.confirmation.confirmVariant"
-              @click="handleConfirm"
-            >
+            <BaseButton :variant="uiStore.confirmation.confirmVariant" @click="handleConfirm">
               {{ uiStore.confirmation.confirmText }}
             </BaseButton>
           </div>

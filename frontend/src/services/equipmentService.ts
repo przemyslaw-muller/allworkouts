@@ -2,7 +2,11 @@
  * Equipment service for managing equipment and user ownership.
  */
 import api from './api'
-import type { EquipmentListItem, EquipmentOwnershipRequest, EquipmentOwnershipResponse } from '@/types'
+import type {
+  EquipmentListItem,
+  EquipmentOwnershipRequest,
+  EquipmentOwnershipResponse,
+} from '@/types'
 
 export const equipmentService = {
   /**

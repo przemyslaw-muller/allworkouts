@@ -24,7 +24,8 @@ const emit = defineEmits<{
 const toggleId = computed(() => props.id || `toggle-${Math.random().toString(36).slice(2)}`)
 
 const toggleClasses = computed(() => {
-  const base = 'relative inline-flex flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
+  const base =
+    'relative inline-flex flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900'
   const sizeClasses = props.size === 'sm' ? 'h-5 w-9' : 'h-6 w-11'
   const colorClasses = props.modelValue ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-600'
   const disabledClasses = props.disabled ? 'opacity-50 cursor-not-allowed' : ''
@@ -32,10 +33,13 @@ const toggleClasses = computed(() => {
 })
 
 const knobClasses = computed(() => {
-  const base = 'pointer-events-none inline-block transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+  const base =
+    'pointer-events-none inline-block transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
   const sizeClasses = props.size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'
   const translateClasses = props.modelValue
-    ? (props.size === 'sm' ? 'translate-x-4' : 'translate-x-5')
+    ? props.size === 'sm'
+      ? 'translate-x-4'
+      : 'translate-x-5'
     : 'translate-x-0'
   return [base, sizeClasses, translateClasses].join(' ')
 })

@@ -25,9 +25,12 @@ export const statsService = {
     exerciseId: string,
     params?: ExerciseHistoryParams,
   ): Promise<ExerciseHistoryResponse> {
-    const response = await api.get<ExerciseHistoryResponse>(`/stats/exercise/${exerciseId}/history`, {
-      params,
-    })
+    const response = await api.get<ExerciseHistoryResponse>(
+      `/stats/exercise/${exerciseId}/history`,
+      {
+        params,
+      },
+    )
     return response.data
   },
 }

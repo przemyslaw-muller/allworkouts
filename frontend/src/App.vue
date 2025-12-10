@@ -53,10 +53,7 @@ const showInitLoading = computed(() => {
     <NotificationContainer />
 
     <!-- Global loading overlay (for async operations) -->
-    <LoadingOverlay
-      v-if="uiStore.isLoading"
-      :message="uiStore.loadingMessage ?? undefined"
-    />
+    <LoadingOverlay v-if="uiStore.isLoading" :message="uiStore.loadingMessage ?? undefined" />
 
     <!-- Confirmation dialog -->
     <ConfirmationDialog />

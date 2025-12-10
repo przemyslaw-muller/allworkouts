@@ -103,15 +103,14 @@ const handleUpdateRest = (value: number | null) => {
 
       <!-- Action buttons -->
       <div class="flex items-center gap-2 flex-shrink-0">
-        <BaseButton
-          type="button"
-          variant="ghost"
-          size="sm"
-          title="Move up"
-          @click="emit('moveUp')"
-        >
+        <BaseButton type="button" variant="ghost" size="sm" title="Move up" @click="emit('moveUp')">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 15l7-7 7 7"
+            />
           </svg>
         </BaseButton>
         <BaseButton
@@ -122,15 +121,15 @@ const handleUpdateRest = (value: number | null) => {
           @click="emit('moveDown')"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </BaseButton>
-        <BaseButton
-          type="button"
-          variant="outline"
-          size="sm"
-          @click="emit('fixMatch')"
-        >
+        <BaseButton type="button" variant="outline" size="sm" @click="emit('fixMatch')">
           {{ exercise.matchedExercise ? 'Change' : 'Select' }} Exercise
         </BaseButton>
         <BaseButton
@@ -143,14 +142,22 @@ const handleUpdateRest = (value: number | null) => {
           @click="emit('remove')"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </BaseButton>
       </div>
     </div>
 
     <!-- Alternative matches (shown if low confidence or unmatched) -->
-    <div v-if="showAlternatives" class="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600">
+    <div
+      v-if="showAlternatives"
+      class="bg-white dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-600"
+    >
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         Did you mean one of these?
       </p>

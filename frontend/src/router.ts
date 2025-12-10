@@ -168,7 +168,11 @@ router.beforeEach(async (to, _from, next) => {
   if (requiresAuth && !authStore.isAuthenticated) {
     // Redirect to login with return URL
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (!requiresAuth && authStore.isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+  } else if (
+    !requiresAuth &&
+    authStore.isAuthenticated &&
+    (to.name === 'login' || to.name === 'register')
+  ) {
     // Already authenticated, redirect to dashboard
     next({ name: 'dashboard' })
   } else {

@@ -27,7 +27,11 @@ const props = withDefaults(defineProps<Props>(), {
   required: false,
 })
 
-const inputId = computed(() => props.id || (props.label ? `input-${props.label.toLowerCase().replace(/\s+/g, '-')}` : undefined))
+const inputId = computed(
+  () =>
+    props.id ||
+    (props.label ? `input-${props.label.toLowerCase().replace(/\s+/g, '-')}` : undefined),
+)
 
 const emit = defineEmits<{
   'update:modelValue': [value: string | number]

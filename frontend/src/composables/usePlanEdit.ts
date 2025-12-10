@@ -53,8 +53,7 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
           ex.repsMax >= 1 &&
           ex.repsMax <= 200 &&
           ex.repsMin <= ex.repsMax &&
-          (ex.restTimeSeconds === null ||
-            (ex.restTimeSeconds >= 0 && ex.restTimeSeconds <= 3600)),
+          (ex.restTimeSeconds === null || (ex.restTimeSeconds >= 0 && ex.restTimeSeconds <= 3600)),
       )
     )
   })

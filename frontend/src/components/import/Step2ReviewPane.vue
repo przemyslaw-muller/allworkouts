@@ -37,9 +37,7 @@ const showAddModal = ref(false)
 const exerciseToReplace = ref<string | null>(null)
 
 const hasWarnings = computed(() => {
-  return props.exercises.some(
-    (ex) => !ex.matchedExercise || ex.confidenceLevel === 'low',
-  )
+  return props.exercises.some((ex) => !ex.matchedExercise || ex.confidenceLevel === 'low')
 })
 
 const unmatchedCount = computed(() => {
@@ -47,9 +45,7 @@ const unmatchedCount = computed(() => {
 })
 
 const lowConfidenceCount = computed(() => {
-  return props.exercises.filter(
-    (ex) => ex.matchedExercise && ex.confidenceLevel === 'low',
-  ).length
+  return props.exercises.filter((ex) => ex.matchedExercise && ex.confidenceLevel === 'low').length
 })
 
 const existingExerciseIds = computed(() => {
@@ -113,11 +109,15 @@ const handleSelectExercise = (exercise: ExerciseListItem) => {
         </span>
         <span v-if="parseStats.highConfidence > 0" class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-green-500" />
-          <span class="text-gray-600 dark:text-gray-400">{{ parseStats.highConfidence }} high confidence</span>
+          <span class="text-gray-600 dark:text-gray-400"
+            >{{ parseStats.highConfidence }} high confidence</span
+          >
         </span>
         <span v-if="parseStats.mediumConfidence > 0" class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-yellow-500" />
-          <span class="text-gray-600 dark:text-gray-400">{{ parseStats.mediumConfidence }} medium</span>
+          <span class="text-gray-600 dark:text-gray-400"
+            >{{ parseStats.mediumConfidence }} medium</span
+          >
         </span>
         <span v-if="parseStats.lowConfidence > 0" class="flex items-center gap-1">
           <span class="w-2 h-2 rounded-full bg-red-500" />
@@ -139,7 +139,8 @@ const handleSelectExercise = (exercise: ExerciseListItem) => {
         </span>
         <span v-if="unmatchedCount > 0 && lowConfidenceCount > 0"> Also, </span>
         <span v-if="lowConfidenceCount > 0">
-          {{ lowConfidenceCount }} exercise{{ lowConfidenceCount !== 1 ? 's have' : ' has' }} low confidence matches.
+          {{ lowConfidenceCount }} exercise{{ lowConfidenceCount !== 1 ? 's have' : ' has' }} low
+          confidence matches.
         </span>
         Please review and fix before continuing.
       </template>
@@ -171,12 +172,7 @@ const handleSelectExercise = (exercise: ExerciseListItem) => {
         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
           Exercises ({{ exercises.length }})
         </h3>
-        <BaseButton
-          type="button"
-          variant="outline"
-          size="sm"
-          @click="handleAddExercise"
-        >
+        <BaseButton type="button" variant="outline" size="sm" @click="handleAddExercise">
           + Add Exercise
         </BaseButton>
       </div>
@@ -192,12 +188,7 @@ const handleSelectExercise = (exercise: ExerciseListItem) => {
       </div>
 
       <!-- Exercise cards -->
-      <TransitionGroup
-        v-else
-        name="list"
-        tag="div"
-        class="space-y-4"
-      >
+      <TransitionGroup v-else name="list" tag="div" class="space-y-4">
         <ParsedExerciseCard
           v-for="(exercise, index) in exercises"
           :key="exercise.id"

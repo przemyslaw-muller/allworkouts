@@ -70,9 +70,7 @@ export function useImportWizard() {
 
   const isStep2Valid = computed(() => {
     return (
-      exercises.value.length > 0 &&
-      planName.value.trim().length > 0 &&
-      planName.value.length <= 200
+      exercises.value.length > 0 && planName.value.trim().length > 0 && planName.value.length <= 200
     )
   })
 
@@ -86,7 +84,9 @@ export function useImportWizard() {
   })
 
   // Methods
-  const mapParsedResponseToViewModels = (parsedPlan: ParsedWorkoutPlan): ParsedExerciseViewModel[] => {
+  const mapParsedResponseToViewModels = (
+    parsedPlan: ParsedWorkoutPlan,
+  ): ParsedExerciseViewModel[] => {
     return parsedPlan.exercises.map((item, index) => ({
       id: `parsed-${index}-${Date.now()}`,
       originalText: item.original_text,

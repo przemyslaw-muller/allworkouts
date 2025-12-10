@@ -64,7 +64,8 @@ const formatReps = (min: number, max: number) => {
     <BaseAlert v-if="!allExercisesMatched" variant="warning">
       <template #title>Cannot Create Plan</template>
       <template #default>
-        Some exercises are not matched. Please go back and fix all unmatched exercises before creating the plan.
+        Some exercises are not matched. Please go back and fix all unmatched exercises before
+        creating the plan.
       </template>
     </BaseAlert>
 
@@ -80,10 +81,16 @@ const formatReps = (min: number, max: number) => {
           </p>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 dark:border-gray-700">
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 dark:border-gray-700"
+        >
           <div>
-            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ exercises.length }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Exercise{{ exercises.length !== 1 ? 's' : '' }}</p>
+            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+              {{ exercises.length }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Exercise{{ exercises.length !== 1 ? 's' : '' }}
+            </p>
           </div>
           <div>
             <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ totalSets }}</p>
@@ -91,7 +98,9 @@ const formatReps = (min: number, max: number) => {
           </div>
           <div class="col-span-2">
             <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Muscle Groups</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ muscleGroupsSummary || 'None' }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ muscleGroupsSummary || 'None' }}
+            </p>
           </div>
         </div>
       </div>
@@ -99,9 +108,7 @@ const formatReps = (min: number, max: number) => {
 
     <!-- Exercise Preview List -->
     <BaseCard>
-      <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-        Exercise Summary
-      </h4>
+      <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Exercise Summary</h4>
 
       <div class="divide-y divide-gray-200 dark:divide-gray-700">
         <div
@@ -111,7 +118,9 @@ const formatReps = (min: number, max: number) => {
         >
           <div class="flex items-start justify-between gap-4">
             <div class="flex items-start gap-3">
-              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400">
+              <span
+                class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400"
+              >
                 {{ index + 1 }}
               </span>
               <div>
@@ -122,12 +131,18 @@ const formatReps = (min: number, max: number) => {
                   <ConfidenceBadge :level="exercise.confidenceLevel" :show-label="false" />
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                  {{ exercise.matchedExercise?.primary_muscle_groups.map(mg => mg.charAt(0).toUpperCase() + mg.slice(1)).join(', ') }}
+                  {{
+                    exercise.matchedExercise?.primary_muscle_groups
+                      .map((mg) => mg.charAt(0).toUpperCase() + mg.slice(1))
+                      .join(', ')
+                  }}
                 </p>
               </div>
             </div>
             <div class="text-right text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
-              <span class="font-medium">{{ exercise.sets }} x {{ formatReps(exercise.repsMin, exercise.repsMax) }}</span>
+              <span class="font-medium"
+                >{{ exercise.sets }} x {{ formatReps(exercise.repsMin, exercise.repsMax) }}</span
+              >
               <span v-if="exercise.restSeconds" class="block text-xs text-gray-400">
                 {{ exercise.restSeconds }}s rest
               </span>
@@ -139,12 +154,7 @@ const formatReps = (min: number, max: number) => {
 
     <!-- Action Buttons -->
     <div class="flex justify-between items-center pt-4">
-      <BaseButton
-        type="button"
-        variant="outline"
-        :disabled="isCreating"
-        @click="emit('back')"
-      >
+      <BaseButton type="button" variant="outline" :disabled="isCreating" @click="emit('back')">
         Back to Edit
       </BaseButton>
       <BaseButton

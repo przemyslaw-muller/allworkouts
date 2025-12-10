@@ -42,16 +42,14 @@ const handleLogout = async () => {
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 dark:bg-gray-800 dark:border-gray-700">
+    <header
+      class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 dark:bg-gray-800 dark:border-gray-700"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <RouterLink to="/" class="flex items-center space-x-2">
-            <img
-              src="/allworkouts_logo.png"
-              alt="AllWorkouts"
-              class="h-8 w-auto"
-            />
+            <img src="/allworkouts_logo.png" alt="AllWorkouts" class="h-8 w-auto" />
           </RouterLink>
 
           <!-- Desktop Navigation -->
@@ -64,7 +62,7 @@ const handleLogout = async () => {
               :class="[
                 route.path === item.to || (item.to !== '/' && route.path.startsWith(item.to))
                   ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100',
               ]"
             >
               {{ item.name }}
@@ -87,17 +85,21 @@ const handleLogout = async () => {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
               </svg>
               <!-- Moon icon (shown in light mode) -->
-              <svg
-                v-else
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                />
               </svg>
             </button>
 
@@ -132,16 +134,20 @@ const handleLogout = async () => {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
-              <svg
-                v-else
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -157,7 +163,10 @@ const handleLogout = async () => {
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-1"
       >
-        <div v-if="isMobileMenuOpen" class="md:hidden border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
+        <div
+          v-if="isMobileMenuOpen"
+          class="md:hidden border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700"
+        >
           <div class="px-2 pt-2 pb-3 space-y-1">
             <!-- Active workout link (mobile) -->
             <RouterLink
@@ -178,7 +187,7 @@ const handleLogout = async () => {
               :class="[
                 route.path === item.to || (item.to !== '/' && route.path.startsWith(item.to))
                   ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100',
               ]"
               @click="closeMobileMenu"
             >

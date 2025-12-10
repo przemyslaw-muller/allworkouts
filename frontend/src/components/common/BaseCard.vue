@@ -11,13 +11,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <div
-    :class="[
-      'card',
-      padding ? 'p-4 sm:p-6' : '',
-      hover ? 'card-hover' : ''
-    ]"
-  >
+  <div :class="['card', padding ? 'p-4 sm:p-6' : '', hover ? 'card-hover' : '']">
     <slot />
   </div>
 </template>

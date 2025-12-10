@@ -126,9 +126,7 @@ onMounted(() => {
         <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Workout Plans</h1>
         <p class="text-gray-600 dark:text-gray-400">Manage your workout routines</p>
       </div>
-      <RouterLink to="/plans/import" class="btn btn-md btn-primary">
-        Import Plan
-      </RouterLink>
+      <RouterLink to="/plans/import" class="btn btn-md btn-primary"> Import Plan </RouterLink>
     </div>
 
     <!-- Loading State -->
@@ -152,7 +150,9 @@ onMounted(() => {
           />
         </svg>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Failed to load plans</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        Failed to load plans
+      </h3>
       <p class="text-gray-600 dark:text-gray-400 mb-4">{{ error }}</p>
       <BaseButton @click="fetchPlans">Try Again</BaseButton>
     </BaseCard>
@@ -172,8 +172,12 @@ onMounted(() => {
           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
         />
       </svg>
-      <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">No workout plans yet</h3>
-      <p class="mt-2 text-gray-500 dark:text-gray-400">Get started by importing your first workout plan.</p>
+      <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+        No workout plans yet
+      </h3>
+      <p class="mt-2 text-gray-500 dark:text-gray-400">
+        Get started by importing your first workout plan.
+      </p>
       <div class="mt-6">
         <RouterLink to="/plans/import" class="btn btn-md btn-primary">
           Import Your First Plan
@@ -192,7 +196,9 @@ onMounted(() => {
         <!-- Plan Header -->
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">{{ plan.name }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
+              {{ plan.name }}
+            </h3>
           </div>
         </div>
 
@@ -215,7 +221,10 @@ onMounted(() => {
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700" @click.stop>
+        <div
+          class="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700"
+          @click.stop
+        >
           <BaseButton type="button" variant="outline" size="sm" @click="navigateToPlan(plan.id)">
             View
           </BaseButton>

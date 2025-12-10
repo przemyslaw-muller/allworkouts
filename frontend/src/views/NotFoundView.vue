@@ -13,9 +13,7 @@ import { RouterLink } from 'vue-router'
       The page you're looking for doesn't exist or has been moved.
     </p>
     <div class="mt-8">
-      <RouterLink to="/" class="btn btn-md btn-primary">
-        Go to Dashboard
-      </RouterLink>
+      <RouterLink to="/" class="btn btn-md btn-primary"> Go to Dashboard </RouterLink>
     </div>
   </div>
 </template>

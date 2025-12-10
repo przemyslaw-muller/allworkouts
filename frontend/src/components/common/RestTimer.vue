@@ -41,16 +41,16 @@ const progressPercentage = computed(() => {
 function startTimer() {
   if (intervalId.value) return
   isRunning.value = true
-  
+
   intervalId.value = window.setInterval(() => {
     if (remainingSeconds.value > 0) {
       remainingSeconds.value--
-      
+
       // Play sound on last 3 seconds if audio enabled
       if (audioEnabled.value && remainingSeconds.value <= 3 && remainingSeconds.value > 0) {
         playBeep()
       }
-      
+
       // Complete when time is up
       if (remainingSeconds.value === 0) {
         stopTimer()
@@ -100,11 +100,15 @@ function playCompletionSound() {
 }
 
 // Auto-start on mount if enabled
-watch(() => props.autoStart, (autoStart) => {
-  if (autoStart && !intervalId.value) {
-    startTimer()
-  }
-}, { immediate: true })
+watch(
+  () => props.autoStart,
+  (autoStart) => {
+    if (autoStart && !intervalId.value) {
+      startTimer()
+    }
+  },
+  { immediate: true },
+)
 
 // Cleanup on unmount
 onUnmounted(() => {
@@ -119,7 +123,9 @@ defineExpose({
 </script>
 
 <template>
-  <div class="fixed bottom-24 right-4 z-50 bg-gray-800 border-2 border-primary-500 rounded-lg shadow-2xl p-4 min-w-[200px]">
+  <div
+    class="fixed bottom-24 right-4 z-50 bg-gray-800 border-2 border-primary-500 rounded-lg shadow-2xl p-4 min-w-[200px]"
+  >
     <!-- Progress Ring -->
     <div class="flex justify-center mb-3">
       <div class="relative w-32 h-32">
@@ -161,27 +167,20 @@ defineExpose({
         variant="outline"
         size="sm"
         class="flex-1"
-        @click="add30Seconds"
         aria-label="Add 30 seconds"
+        @click="add30Seconds"
       >
         +30s
       </BaseButton>
-      <BaseButton
-        variant="outline"
-        size="sm"
-        class="flex-1"
-        @click="skipRest"
-      >
-        Skip
-      </BaseButton>
+      <BaseButton variant="outline" size="sm" class="flex-1" @click="skipRest"> Skip </BaseButton>
     </div>
 
     <!-- Audio toggle -->
     <button
       type="button"
       class="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
-      @click="toggleAudio"
       :aria-label="audioEnabled ? 'Disable audio' : 'Enable audio'"
+      @click="toggleAudio"
     >
       <svg
         v-if="audioEnabled"
@@ -197,13 +196,7 @@ defineExpose({
           d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
         />
       </svg>
-      <svg
-        v-else
-        class="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
+      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"

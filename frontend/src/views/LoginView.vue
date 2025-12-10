@@ -25,7 +25,7 @@ const handleSubmit = async () => {
   try {
     const result = await authStore.login({ email: email.value, password: password.value })
     if (result.success) {
-      const redirect = route.query.redirect as string || '/'
+      const redirect = (route.query.redirect as string) || '/'
       router.push(redirect)
     } else {
       error.value = result.error || 'Login failed'
@@ -40,10 +40,15 @@ const handleSubmit = async () => {
 
 <template>
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Sign in to your account</h2>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      Sign in to your account
+    </h2>
 
     <form class="space-y-4" @submit.prevent="handleSubmit">
-      <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-md text-sm">
+      <div
+        v-if="error"
+        class="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-md text-sm"
+      >
         {{ error }}
       </div>
 
@@ -63,19 +68,17 @@ const handleSubmit = async () => {
         required
       />
 
-      <BaseButton
-        type="submit"
-        variant="primary"
-        :loading="isLoading"
-        class="w-full"
-      >
+      <BaseButton type="submit" variant="primary" :loading="isLoading" class="w-full">
         Sign in
       </BaseButton>
     </form>
 
     <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
       Don't have an account?
-      <RouterLink to="/register" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
+      <RouterLink
+        to="/register"
+        class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
+      >
         Sign up
       </RouterLink>
     </p>

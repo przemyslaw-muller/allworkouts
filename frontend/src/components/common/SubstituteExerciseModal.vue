@@ -97,13 +97,16 @@ const resetModal = () => {
 }
 
 // Load substitutes when modal opens
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen && props.currentExercise) {
-    loadSubstitutes()
-  } else {
-    resetModal()
-  }
-})
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen && props.currentExercise) {
+      loadSubstitutes()
+    } else {
+      resetModal()
+    }
+  },
+)
 
 // Debounced search
 let searchTimeout: number | null = null
@@ -132,9 +135,15 @@ watch(searchQuery, () => {
       <!-- Current Exercise Info -->
       <div v-if="currentExercise" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current exercise:</p>
-        <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ currentExercise.exerciseName }}</h4>
+        <h4 class="font-medium text-gray-900 dark:text-gray-100">
+          {{ currentExercise.exerciseName }}
+        </h4>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {{ currentExercise.primaryMuscleGroups.map(mg => mg.charAt(0).toUpperCase() + mg.slice(1)).join(', ') }}
+          {{
+            currentExercise.primaryMuscleGroups
+              .map((mg) => mg.charAt(0).toUpperCase() + mg.slice(1))
+              .join(', ')
+          }}
         </p>
       </div>
 
@@ -176,7 +185,10 @@ watch(searchQuery, () => {
       <!-- Exercise List -->
       <div class="border border-gray-200 dark:border-gray-700 rounded-lg max-h-96 overflow-y-auto">
         <!-- Loading State -->
-        <div v-if="isLoadingSubstitutes || isSearching" class="flex items-center justify-center py-12">
+        <div
+          v-if="isLoadingSubstitutes || isSearching"
+          class="flex items-center justify-center py-12"
+        >
           <BaseSpinner size="lg" />
         </div>
 
@@ -186,7 +198,10 @@ watch(searchQuery, () => {
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="displayedExercises.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+        <div
+          v-else-if="displayedExercises.length === 0"
+          class="p-8 text-center text-gray-500 dark:text-gray-400"
+        >
           <p v-if="showAllExercises">No exercises found. Try adjusting your search.</p>
           <p v-else>No similar exercises found for this exercise.</p>
           <BaseButton
@@ -215,14 +230,22 @@ watch(searchQuery, () => {
                 <div class="flex items-center gap-2">
                   <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ exercise.name }}</h4>
                   <span
-                    v-if="'match_score' in exercise && typeof exercise.match_score === 'number' && exercise.match_score >= 0.8"
+                    v-if="
+                      'match_score' in exercise &&
+                      typeof exercise.match_score === 'number' &&
+                      exercise.match_score >= 0.8
+                    "
                     class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-400"
                   >
                     High Match
                   </span>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {{ exercise.primary_muscle_groups.map(mg => mg.charAt(0).toUpperCase() + mg.slice(1)).join(', ') }}
+                  {{
+                    exercise.primary_muscle_groups
+                      .map((mg) => mg.charAt(0).toUpperCase() + mg.slice(1))
+                      .join(', ')
+                  }}
                 </p>
                 <div v-if="exercise.equipment.length > 0" class="flex items-center gap-1 mt-1">
                   <span
@@ -244,19 +267,16 @@ watch(searchQuery, () => {
 
       <!-- Help Text -->
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        {{ showAllExercises 
-          ? 'Click on an exercise to replace the current one.' 
-          : 'These exercises work similar muscle groups and use compatible equipment.' 
+        {{
+          showAllExercises
+            ? 'Click on an exercise to replace the current one.'
+            : 'These exercises work similar muscle groups and use compatible equipment.'
         }}
       </p>
     </div>
 
     <template #footer>
-      <BaseButton
-        type="button"
-        variant="outline"
-        @click="emit('update:modelValue', false)"
-      >
+      <BaseButton type="button" variant="outline" @click="emit('update:modelValue', false)">
         Cancel
       </BaseButton>
     </template>

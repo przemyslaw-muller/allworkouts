@@ -45,7 +45,7 @@ const muscleGroupOptions = [
 ]
 
 const filteredExercises = computed(() => {
-  return exercises.value.filter(ex => !props.existingExerciseIds.includes(ex.id))
+  return exercises.value.filter((ex) => !props.existingExerciseIds.includes(ex.id))
 })
 
 const searchExercises = async () => {
@@ -89,13 +89,16 @@ const resetModal = () => {
 }
 
 // Load exercises when modal opens
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    searchExercises()
-  } else {
-    resetModal()
-  }
-})
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen) {
+      searchExercises()
+    } else {
+      resetModal()
+    }
+  },
+)
 
 // Debounced search
 let searchTimeout: number | null = null
@@ -147,7 +150,10 @@ watch([searchQuery, muscleGroupFilter], () => {
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="filteredExercises.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+        <div
+          v-else-if="filteredExercises.length === 0"
+          class="p-8 text-center text-gray-500 dark:text-gray-400"
+        >
           <p v-if="exercises.length === 0">No exercises found. Try adjusting your search.</p>
           <p v-else>All matching exercises are already in your plan.</p>
         </div>
@@ -165,7 +171,11 @@ watch([searchQuery, muscleGroupFilter], () => {
               <div class="flex-1">
                 <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ exercise.name }}</h4>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {{ exercise.primary_muscle_groups.map(mg => mg.charAt(0).toUpperCase() + mg.slice(1)).join(', ') }}
+                  {{
+                    exercise.primary_muscle_groups
+                      .map((mg) => mg.charAt(0).toUpperCase() + mg.slice(1))
+                      .join(', ')
+                  }}
                 </p>
                 <div v-if="exercise.equipment.length > 0" class="flex items-center gap-1 mt-1">
                   <span
@@ -192,11 +202,7 @@ watch([searchQuery, muscleGroupFilter], () => {
     </div>
 
     <template #footer>
-      <BaseButton
-        type="button"
-        variant="outline"
-        @click="emit('update:modelValue', false)"
-      >
+      <BaseButton type="button" variant="outline" @click="emit('update:modelValue', false)">
         Cancel
       </BaseButton>
     </template>

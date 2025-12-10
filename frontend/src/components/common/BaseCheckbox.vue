@@ -36,10 +36,7 @@ function handleChange(event: Event) {
       :checked="modelValue"
       :disabled="disabled"
       :name="name"
-      class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 
-             bg-white dark:bg-gray-800
-             focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
-             disabled:opacity-50 disabled:cursor-not-allowed"
+      class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
       @change="handleChange"
     />
     <label

@@ -37,7 +37,7 @@ const muscleGroupLabel = computed(() => {
 </script>
 
 <template>
-  <BaseModal :isOpen="isOpen" @close="emit('close')" size="sm">
+  <BaseModal :is-open="isOpen" size="sm" @close="emit('close')">
     <template #header>
       <h3 class="text-lg font-semibold text-white">
         {{ exercise?.name || 'Exercise Details' }}
@@ -50,11 +50,7 @@ const muscleGroupLabel = computed(() => {
         <div>
           <h4 class="text-sm font-medium text-gray-400 mb-2">Primary Muscles</h4>
           <div class="flex flex-wrap gap-2">
-            <BaseBadge
-              v-for="mg in exercise.primary_muscle_groups"
-              :key="mg"
-              variant="primary"
-            >
+            <BaseBadge v-for="mg in exercise.primary_muscle_groups" :key="mg" variant="primary">
               {{ muscleGroupLabel(mg) }}
             </BaseBadge>
           </div>
@@ -64,20 +60,14 @@ const muscleGroupLabel = computed(() => {
         <div v-if="exercise.secondary_muscle_groups.length > 0">
           <h4 class="text-sm font-medium text-gray-400 mb-2">Secondary Muscles</h4>
           <div class="flex flex-wrap gap-2">
-            <BaseBadge
-              v-for="mg in exercise.secondary_muscle_groups"
-              :key="mg"
-              variant="secondary"
-            >
+            <BaseBadge v-for="mg in exercise.secondary_muscle_groups" :key="mg" variant="secondary">
               {{ muscleGroupLabel(mg) }}
             </BaseBadge>
           </div>
         </div>
 
         <!-- Placeholder for future features -->
-        <div class="text-sm text-gray-500 italic">
-          Exercise instructions and video coming soon
-        </div>
+        <div class="text-sm text-gray-500 italic">Exercise instructions and video coming soon</div>
       </div>
     </template>
 

@@ -33,7 +33,7 @@ const hasFilters = computed(() => statusFilter.value !== null)
 
 // Group sessions by date
 const groupedSessions = computed(() => {
-  const groups: Array<{ label: string; date: string; sessions: WorkoutSessionListItem[]  }> = []
+  const groups: Array<{ label: string; date: string; sessions: WorkoutSessionListItem[] }> = []
   const dateMap = new Map<string, WorkoutSessionListItem[]>()
 
   for (const session of sessions.value) {
@@ -70,7 +70,7 @@ const fetchSessions = async (page = 1): Promise<void> => {
     }
 
     const response = await workoutSessionService.getAll(params)
-    
+
     if (page === 1) {
       sessions.value = response.sessions
     } else {
@@ -98,7 +98,7 @@ const navigateToSession = (sessionId: string): void => {
 
 const filterByStatus = (status: SessionStatus | null): void => {
   statusFilter.value = status
-  
+
   // Update URL query
   const query: any = { ...route.query }
   if (status) {
@@ -133,10 +133,10 @@ const formatDateLabel = (dateStr: string): string => {
   if (date.getTime() === yesterday.getTime()) return 'Yesterday'
 
   // Format as "January 15, 2025"
-  return date.toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric', 
-    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined 
+  return date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
   })
 }
 
@@ -260,7 +260,9 @@ onMounted(() => {
           />
         </svg>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Failed to load history</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        Failed to load history
+      </h3>
       <p class="text-gray-600 dark:text-gray-400 mb-4">{{ error }}</p>
       <BaseButton @click="fetchSessions(1)">Try Again</BaseButton>
     </BaseCard>
@@ -291,7 +293,9 @@ onMounted(() => {
         }}
       </p>
       <div class="mt-6 flex gap-3 justify-center">
-        <BaseButton v-if="hasFilters" variant="outline" @click="clearFilters">Clear Filters</BaseButton>
+        <BaseButton v-if="hasFilters" variant="outline" @click="clearFilters"
+          >Clear Filters</BaseButton
+        >
         <RouterLink v-else to="/plans" class="btn btn-md btn-primary">View Plans</RouterLink>
       </div>
     </BaseCard>
@@ -301,7 +305,9 @@ onMounted(() => {
       <div v-for="group in groupedSessions" :key="group.date" class="space-y-3">
         <!-- Date Header -->
         <div class="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 py-2">
-          <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <h2
+            class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+          >
             {{ group.label }}
           </h2>
         </div>
@@ -318,14 +324,20 @@ onMounted(() => {
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {{ session.workout_plan.name }}
+                    {{ session.workout_name }}
                   </h3>
                   <BaseBadge :variant="getStatusVariant(session.status)" size="sm">
                     {{ getStatusLabel(session.status) }}
                   </BaseBadge>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {{ session.workout_plan_name }}
+                </p>
+
+                <div
+                  class="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
+                >
                   <span>{{ formatTime(session.started_at) }}</span>
                   <span>·</span>
                   <span>{{ formatDuration(session.duration_seconds) }}</span>
@@ -341,7 +353,12 @@ onMounted(() => {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </div>
           </BaseCard>

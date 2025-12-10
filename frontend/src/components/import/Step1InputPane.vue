@@ -55,8 +55,8 @@ const toggleExamples = () => {
             Paste Your Workout Plan
           </h3>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Copy and paste your workout plan from any source - a website, PDF, notes app, or even just typed text.
-            Our AI will parse it and match exercises from our database.
+            Copy and paste your workout plan from any source - a website, PDF, notes app, or even
+            just typed text. Our AI will parse it and match exercises from our database.
           </p>
         </div>
 
@@ -119,41 +119,63 @@ Face Pulls 3x15..."
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
       <div v-if="showExamples" class="mt-4 space-y-4">
         <div>
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Simple List</h4>
-          <pre class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto">Bench Press 4x8-12
+          <pre
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto"
+          >
+Bench Press 4x8-12
 Overhead Press 3x10
-Dips 3x12</pre>
+Dips 3x12</pre
+          >
         </div>
 
         <div>
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">With Day Labels</h4>
-          <pre class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto">Day 1 - Push
+          <pre
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto"
+          >
+Day 1 - Push
 - Bench Press: 4 sets, 8-12 reps
 - Shoulder Press: 3 sets, 10 reps
-- Tricep Dips: 3 sets, 12 reps</pre>
+- Tricep Dips: 3 sets, 12 reps</pre
+          >
         </div>
 
         <div>
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Detailed Format</h4>
-          <pre class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto">1. Barbell Bench Press
+          <pre
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto"
+          >
+1. Barbell Bench Press
    4 sets x 8-12 reps, 90 seconds rest
 2. Dumbbell Shoulder Press
-   3 sets x 10 reps, 60 seconds rest</pre>
+   3 sets x 10 reps, 60 seconds rest</pre
+          >
         </div>
 
         <div>
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Compact</h4>
-          <pre class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto">BP 4x8, OHP 3x10, Dips 3x12</pre>
+          <pre
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto"
+          >
+BP 4x8, OHP 3x10, Dips 3x12</pre
+          >
         </div>
 
         <p class="text-xs text-gray-500 dark:text-gray-400">
-          Don't worry about the exact format - our AI is flexible and can understand most workout plan formats.
+          Don't worry about the exact format - our AI is flexible and can understand most workout
+          plan formats.
         </p>
       </div>
     </BaseCard>

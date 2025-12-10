@@ -54,7 +54,7 @@ const formattedElapsedTime = computed(() => {
   const hours = Math.floor(elapsedTime.value / 3600)
   const minutes = Math.floor((elapsedTime.value % 3600) / 60)
   const seconds = elapsedTime.value % 60
-  
+
   if (hours > 0) {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }
@@ -75,10 +75,10 @@ function getExerciseStatus(exerciseId: string): 'completed' | 'current' | 'pendi
 // Initialize set inputs for current exercise
 function initializeSetInputs() {
   if (!currentExercise.value) return
-  
+
   const plannedSets = currentExercise.value.planned_sets
   const logged = loggedSets.value.get(currentExercise.value.exercise.id) || []
-  
+
   // Pre-fill from previous session or defaults
   currentExerciseSetInputs.value = Array.from({ length: plannedSets }, (_, i) => {
     if (i < logged.length) {
@@ -88,11 +88,11 @@ function initializeSetInputs() {
         reps: logged[i].reps.toString(),
       }
     }
-    
+
     // Pre-fill from context (recent session or defaults)
     const recentSession = currentExercise.value?.context.recent_sessions[0]
     const recentSet = recentSession?.sets[i]
-    
+
     return {
       weight: recentSet?.weight?.toString() || '',
       reps: recentSet?.reps?.toString() || currentExercise.value?.planned_reps_min.toString() || '',
@@ -103,24 +103,24 @@ function initializeSetInputs() {
 // Log a single set
 async function logSet(setIndex: number) {
   if (!currentExercise.value) return
-  
+
   const input = currentExerciseSetInputs.value[setIndex]
   if (!input.weight || !input.reps) {
     uiStore.showToast('Please enter both weight and reps', 'error')
     return
   }
-  
+
   isSubmitting.value = true
-  
+
   try {
     const weight = parseFloat(input.weight)
     const reps = parseInt(input.reps, 10)
-    
+
     if (isNaN(weight) || isNaN(reps) || weight <= 0 || reps <= 0) {
       uiStore.showToast('Please enter valid weight and reps', 'error')
       return
     }
-    
+
     // Add to logged sets
     const exerciseId = currentExercise.value.exercise.id
     const current = loggedSets.value.get(exerciseId) || []
@@ -131,14 +131,17 @@ async function logSet(setIndex: number) {
       rest_time_seconds: currentExercise.value.rest_seconds,
     })
     loggedSets.value.set(exerciseId, current)
-    
+
     // Save to localStorage
     saveSessionToLocalStorage()
-    
+
     uiStore.showToast(`Set ${setIndex + 1} logged`, 'success')
-    
+
     // Show rest timer if not last set and rest time is configured
-    if (setIndex < currentExerciseSetInputs.value.length - 1 && currentExercise.value.rest_seconds) {
+    if (
+      setIndex < currentExerciseSetInputs.value.length - 1 &&
+      currentExercise.value.rest_seconds
+    ) {
       restTimerSeconds.value = currentExercise.value.rest_seconds
       showRestTimer.value = true
     }
@@ -153,23 +156,23 @@ async function logSet(setIndex: number) {
 // Complete current exercise
 async function completeCurrentExercise() {
   if (!currentExercise.value) return
-  
+
   const exerciseId = currentExercise.value.exercise.id
   const sets = loggedSets.value.get(exerciseId)
-  
+
   if (!sets || sets.length === 0) {
     uiStore.showToast('Please log at least one set', 'error')
     return
   }
-  
+
   isSubmitting.value = true
-  
+
   try {
     const result = await workoutStore.logExercise(exerciseId, sets)
-    
+
     if (result.success) {
       uiStore.showToast(`${currentExercise.value.exercise.name} completed!`, 'success')
-      
+
       // Move to next exercise if available
       if (currentExerciseIndex.value < exercises.value.length - 1) {
         workoutStore.goToNextExercise()
@@ -192,16 +195,16 @@ async function completeWorkout() {
     uiStore.showToast('Please complete all exercises first', 'warning')
     return
   }
-  
+
   isSubmitting.value = true
-  
+
   try {
     const result = await workoutStore.completeSession()
-    
+
     if (result.success) {
       // Clear localStorage
       clearSessionFromLocalStorage()
-      
+
       uiStore.showToast('Workout completed!', 'success')
       router.push('/workout/complete')
     } else {
@@ -223,10 +226,10 @@ async function exitWorkout() {
 // Confirm exit
 async function confirmExit() {
   isSubmitting.value = true
-  
+
   try {
     const result = await workoutStore.skipSession('User exited workout')
-    
+
     if (result.success) {
       clearSessionFromLocalStorage()
       uiStore.showToast('Workout abandoned', 'info')
@@ -269,7 +272,7 @@ function goToExercise(index: number) {
 // LocalStorage helpers
 function saveSessionToLocalStorage() {
   if (!session.value) return
-  
+
   const data = {
     sessionId: session.value.session_id,
     startedAt: session.value.started_at,
@@ -277,7 +280,7 @@ function saveSessionToLocalStorage() {
     currentExerciseIndex: currentExerciseIndex.value,
     elapsedTime: elapsedTime.value,
   }
-  
+
   localStorage.setItem('activeWorkoutSession', JSON.stringify(data))
 }
 
@@ -301,10 +304,10 @@ function clearSessionFromLocalStorage() {
 // Start elapsed timer
 function startElapsedTimer() {
   if (elapsedInterval.value) return
-  
+
   elapsedInterval.value = window.setInterval(() => {
     elapsedTime.value++
-    
+
     // Save to localStorage every 10 seconds
     if (elapsedTime.value % 10 === 0) {
       saveSessionToLocalStorage()
@@ -323,20 +326,20 @@ function stopElapsedTimer() {
 onMounted(async () => {
   // Check if session ID in route params
   sessionId.value = route.params.sessionId as string
-  
+
   // Load from localStorage
   loadSessionFromLocalStorage()
-  
+
   // Check if session is active
   if (!session.value) {
     uiStore.showToast('No active workout session', 'error')
     router.push('/dashboard')
     return
   }
-  
+
   // Initialize set inputs for current exercise
   initializeSetInputs()
-  
+
   // Start elapsed timer
   startElapsedTimer()
 })
@@ -362,9 +365,7 @@ onUnmounted(() => {
           <h1 class="text-lg font-bold text-white">{{ session?.workout_plan.name }}</h1>
           <p class="text-sm text-gray-400">{{ formattedElapsedTime }}</p>
         </div>
-        <BaseButton variant="outline" size="sm" @click="exitWorkout">
-          Exit
-        </BaseButton>
+        <BaseButton variant="outline" size="sm" @click="exitWorkout"> Exit </BaseButton>
       </div>
     </div>
 
@@ -377,11 +378,7 @@ onUnmounted(() => {
     <div v-else class="pt-20 max-w-2xl mx-auto px-4 py-4 space-y-4">
       <!-- Exercise List -->
       <div class="space-y-3">
-        <div
-          v-for="(exercise, index) in exercises"
-          :key="exercise.exercise.id"
-          class="relative"
-        >
+        <div v-for="(exercise, index) in exercises" :key="exercise.exercise.id" class="relative">
           <!-- Exercise Card -->
           <BaseCard
             :class="[
@@ -389,8 +386,8 @@ onUnmounted(() => {
               getExerciseStatus(exercise.exercise.id) === 'completed'
                 ? '!bg-gray-800 !border-green-500/30 opacity-75'
                 : getExerciseStatus(exercise.exercise.id) === 'current'
-                ? '!bg-gray-800 !border-primary-500'
-                : '!bg-gray-800 !border-gray-700 opacity-60',
+                  ? '!bg-gray-800 !border-primary-500'
+                  : '!bg-gray-800 !border-gray-700 opacity-60',
             ]"
             @click="goToExercise(index)"
           >
@@ -402,8 +399,18 @@ onUnmounted(() => {
                     v-if="getExerciseStatus(exercise.exercise.id) === 'completed'"
                     class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center"
                   >
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    <svg
+                      class="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   </span>
                   <span
@@ -413,13 +420,13 @@ onUnmounted(() => {
                   <span v-else class="w-6 h-6 rounded-full bg-gray-600" />
 
                   <h3 class="text-base font-semibold text-white">{{ exercise.exercise.name }}</h3>
-                  
+
                   <!-- Info Button -->
                   <button
                     type="button"
                     class="text-gray-400 hover:text-white transition-colors"
-                    @click.stop="showExerciseInfo(exercise)"
                     aria-label="Exercise info"
+                    @click.stop="showExerciseInfo(exercise)"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -433,29 +440,48 @@ onUnmounted(() => {
                 </div>
 
                 <p class="text-sm text-gray-400">
-                  {{ exercise.planned_sets }} sets × {{ exercise.planned_reps_min }}{{ exercise.planned_reps_max !== exercise.planned_reps_min ? `-${exercise.planned_reps_max}` : '' }} reps
-                  <span v-if="exercise.rest_seconds"> • {{ Math.floor(exercise.rest_seconds / 60) }}:{{ (exercise.rest_seconds % 60).toString().padStart(2, '0') }} rest</span>
+                  {{ exercise.planned_sets }} sets × {{ exercise.planned_reps_min
+                  }}{{
+                    exercise.planned_reps_max !== exercise.planned_reps_min
+                      ? `-${exercise.planned_reps_max}`
+                      : ''
+                  }}
+                  reps
+                  <span v-if="exercise.rest_seconds">
+                    • {{ Math.floor(exercise.rest_seconds / 60) }}:{{
+                      (exercise.rest_seconds % 60).toString().padStart(2, '0')
+                    }}
+                    rest</span
+                  >
                 </p>
 
                 <!-- Context info for current exercise -->
                 <div
-                  v-if="getExerciseStatus(exercise.exercise.id) === 'current' && exercise.context.recent_sessions.length > 0"
+                  v-if="
+                    getExerciseStatus(exercise.exercise.id) === 'current' &&
+                    exercise.context.recent_sessions.length > 0
+                  "
                   class="mt-2 text-xs text-gray-500"
                 >
-                  Last time: {{ exercise.context.recent_sessions[0].sets.length }} sets × {{ exercise.context.recent_sessions[0].sets[0]?.weight || '-' }} {{ exercise.context.recent_sessions[0].sets[0] ? 'kg' : '' }}
+                  Last time: {{ exercise.context.recent_sessions[0].sets.length }} sets ×
+                  {{ exercise.context.recent_sessions[0].sets[0]?.weight || '-' }}
+                  {{ exercise.context.recent_sessions[0].sets[0] ? 'kg' : '' }}
                 </div>
               </div>
             </div>
 
             <!-- Set Logging (only for current exercise) -->
-            <div v-if="getExerciseStatus(exercise.exercise.id) === 'current'" class="mt-4 space-y-3">
+            <div
+              v-if="getExerciseStatus(exercise.exercise.id) === 'current'"
+              class="mt-4 space-y-3"
+            >
               <div
                 v-for="(setInput, setIndex) in currentExerciseSetInputs"
                 :key="setIndex"
                 class="flex items-center gap-3"
               >
                 <span class="text-sm text-gray-400 w-12">Set {{ setIndex + 1 }}</span>
-                
+
                 <!-- Weight Input -->
                 <div class="flex-1">
                   <BaseInput
@@ -467,7 +493,7 @@ onUnmounted(() => {
                     :disabled="setIndex < (loggedSets.get(exercise.exercise.id)?.length || 0)"
                   />
                 </div>
-                
+
                 <!-- Reps Input -->
                 <div class="flex-1">
                   <BaseInput
@@ -478,14 +504,14 @@ onUnmounted(() => {
                     :disabled="setIndex < (loggedSets.get(exercise.exercise.id)?.length || 0)"
                   />
                 </div>
-                
+
                 <!-- Log Button -->
                 <BaseButton
                   v-if="setIndex >= (loggedSets.get(exercise.exercise.id)?.length || 0)"
                   variant="primary"
                   size="sm"
-                  @click.stop="logSet(setIndex)"
                   :disabled="isSubmitting"
+                  @click.stop="logSet(setIndex)"
                 >
                   Log
                 </BaseButton>
@@ -497,8 +523,8 @@ onUnmounted(() => {
                 v-if="(loggedSets.get(exercise.exercise.id)?.length || 0) >= exercise.planned_sets"
                 variant="primary"
                 class="w-full"
-                @click.stop="completeCurrentExercise"
                 :disabled="isSubmitting"
+                @click.stop="completeCurrentExercise"
               >
                 Complete Exercise
               </BaseButton>
@@ -529,10 +555,14 @@ onUnmounted(() => {
         <BaseButton
           variant="primary"
           class="w-full"
-          @click="completeWorkout"
           :disabled="!allCompleted || isSubmitting"
+          @click="completeWorkout"
         >
-          {{ allCompleted ? 'Complete Workout' : `${progress.total - progress.completed} exercises remaining` }}
+          {{
+            allCompleted
+              ? 'Complete Workout'
+              : `${progress.total - progress.completed} exercises remaining`
+          }}
         </BaseButton>
       </div>
     </div>
@@ -540,18 +570,18 @@ onUnmounted(() => {
     <!-- Rest Timer -->
     <RestTimer
       v-if="showRestTimer"
-      :initialSeconds="restTimerSeconds"
+      :initial-seconds="restTimerSeconds"
       @complete="onRestTimerComplete"
       @skip="onRestTimerSkip"
     />
 
     <!-- Exit Confirmation Dialog -->
     <ConfirmationDialog
-      :isOpen="showExitDialog"
+      :is-open="showExitDialog"
       title="Exit Workout?"
       message="Your progress will be saved, but the workout will be marked as incomplete. Are you sure you want to exit?"
-      confirmText="Exit Workout"
-      cancelText="Continue Workout"
+      confirm-text="Exit Workout"
+      cancel-text="Continue Workout"
       variant="danger"
       @confirm="confirmExit"
       @cancel="showExitDialog = false"
@@ -559,7 +589,7 @@ onUnmounted(() => {
 
     <!-- Exercise Detail Slide Over -->
     <ExerciseDetailSlideOver
-      :isOpen="showExerciseDetail"
+      :is-open="showExerciseDetail"
       :exercise="selectedExercise?.exercise || null"
       @close="showExerciseDetail = false"
     />

@@ -29,7 +29,8 @@ const getStepState = (stepNumber: number): 'completed' | 'current' | 'pending' =
 
 const getStepClasses = (stepNumber: number) => {
   const state = getStepState(stepNumber)
-  const base = 'flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors'
+  const base =
+    'flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-colors'
 
   if (state === 'completed') {
     return `${base} bg-green-600 text-white`
@@ -103,11 +104,7 @@ const handleStepClick = (stepNumber: number) => {
       </div>
 
       <!-- Connector line -->
-      <div
-        v-if="index < steps.length - 1"
-        :class="getConnectorClasses(step.number)"
-        class="mb-5"
-      />
+      <div v-if="index < steps.length - 1" :class="getConnectorClasses(step.number)" class="mb-5" />
     </template>
   </div>
 </template>

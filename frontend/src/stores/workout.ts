@@ -148,9 +148,7 @@ export const useWorkoutStore = defineStore('workout', () => {
       })
 
       // Find exercise name
-      const exercise = activeSession.value.exercises.find(
-        (e) => e.exercise.id === exerciseId,
-      )
+      const exercise = activeSession.value.exercises.find((e) => e.exercise.id === exerciseId)
 
       // Update local state
       loggedExercises.value.set(exerciseId, {
@@ -222,7 +220,10 @@ export const useWorkoutStore = defineStore('workout', () => {
   }
 
   function goToNextExercise() {
-    if (activeSession.value && currentExerciseIndex.value < activeSession.value.exercises.length - 1) {
+    if (
+      activeSession.value &&
+      currentExerciseIndex.value < activeSession.value.exercises.length - 1
+    ) {
       currentExerciseIndex.value++
     }
   }

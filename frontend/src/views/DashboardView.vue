@@ -41,7 +41,7 @@ const activePlan = computed(() => plans.value[0] || null)
 const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`
   }
@@ -54,25 +54,25 @@ const formatRelativeDate = (dateString: string): string => {
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) return `${diffDays} days ago`
-  
+
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 // Calculate elapsed time for active session
 const sessionElapsedTime = computed(() => {
   if (!activeSession.value) return ''
-  
+
   const startTime = new Date(activeSession.value.started_at).getTime()
   const now = Date.now()
   const elapsedMs = now - startTime
   const elapsedMinutes = Math.floor(elapsedMs / (1000 * 60))
-  
+
   if (elapsedMinutes < 60) return `${elapsedMinutes}m`
-  
+
   const hours = Math.floor(elapsedMinutes / 60)
   const minutes = elapsedMinutes % 60
   return `${hours}h ${minutes}m`
@@ -81,9 +81,9 @@ const sessionElapsedTime = computed(() => {
 // Get current month workouts count
 const currentMonthWorkouts = computed(() => {
   if (!stats.value) return 0
-  
+
   const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM format
-  const monthData = stats.value.workouts_by_month.find(m => m.month === currentMonth)
+  const monthData = stats.value.workouts_by_month.find((m) => m.month === currentMonth)
   return monthData?.count || 0
 })
 
@@ -110,10 +110,10 @@ async function startWorkout() {
     uiStore.showToast('No workout plan available', 'error')
     return
   }
-  
+
   try {
     const result = await workoutStore.startSession(activePlan.value.id)
-    
+
     if (result.success && result.data) {
       router.push(`/workout/${result.data.session_id}`)
     } else {
@@ -133,10 +133,10 @@ async function resumeSession() {
 
 async function abandonSession() {
   if (!activeSession.value) return
-  
+
   try {
     const result = await workoutStore.skipSession('Abandoned from dashboard')
-    
+
     if (result.success) {
       uiStore.showToast('Session abandoned', 'info')
     } else {
@@ -154,10 +154,7 @@ function goToImport() {
 
 // Initialize
 onMounted(async () => {
-  await Promise.all([
-    fetchStats(),
-    fetchPlans(),
-  ])
+  await Promise.all([fetchStats(), fetchPlans()])
 })
 </script>
 
@@ -187,12 +184,8 @@ onMounted(async () => {
           </p>
         </div>
         <div class="flex gap-2">
-          <BaseButton variant="outline" size="sm" @click="abandonSession">
-            Abandon
-          </BaseButton>
-          <BaseButton variant="primary" size="sm" @click="resumeSession">
-            Resume
-          </BaseButton>
+          <BaseButton variant="outline" size="sm" @click="abandonSession"> Abandon </BaseButton>
+          <BaseButton variant="primary" size="sm" @click="resumeSession"> Resume </BaseButton>
         </div>
       </div>
     </BaseAlert>
@@ -215,14 +208,21 @@ onMounted(async () => {
                 {{ activePlan.description || 'Your active workout plan' }}
               </p>
             </div>
-            <span class="px-3 py-1 bg-primary-500/20 text-primary-400 text-xs font-medium rounded-full">
+            <span
+              class="px-3 py-1 bg-primary-500/20 text-primary-400 text-xs font-medium rounded-full"
+            >
               Active
             </span>
           </div>
 
           <div class="flex items-center gap-2 text-gray-400 text-sm mb-4">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
             </svg>
             <span>{{ activePlan.exercise_count }} exercises</span>
           </div>
@@ -231,19 +231,26 @@ onMounted(async () => {
             <BaseButton
               variant="primary"
               class="flex-1"
-              @click="startWorkout"
               :disabled="hasActiveSession"
+              @click="startWorkout"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Start Workout
             </BaseButton>
-            <BaseButton
-              variant="outline"
-              @click="() => router.push(`/plans/${activePlan.id}`)"
-            >
+            <BaseButton variant="outline" @click="() => router.push(`/plans/${activePlan.id}`)">
               View Details
             </BaseButton>
           </div>
@@ -254,8 +261,18 @@ onMounted(async () => {
           <div class="max-w-sm mx-auto">
             <div class="mb-4 flex justify-center">
               <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
-                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  class="w-8 h-8 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
               </div>
             </div>
@@ -263,9 +280,7 @@ onMounted(async () => {
             <p class="text-gray-400 mb-6">
               Import your first workout plan to get started with your training journey
             </p>
-            <BaseButton variant="primary" @click="goToImport">
-              Import Workout Plan
-            </BaseButton>
+            <BaseButton variant="primary" @click="goToImport"> Import Workout Plan </BaseButton>
           </div>
         </BaseCard>
 
@@ -328,17 +343,39 @@ onMounted(async () => {
               class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-left"
               @click="() => router.push('/plans')"
             >
-              <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <div
+                class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  class="w-5 h-5 text-primary-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
               </div>
               <div class="flex-1">
                 <h3 class="font-medium text-white">View Plans</h3>
                 <p class="text-xs text-gray-400">Manage workout plans</p>
               </div>
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <svg
+                class="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
 
@@ -347,17 +384,39 @@ onMounted(async () => {
               class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-left"
               @click="() => router.push('/history')"
             >
-              <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div
+                class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  class="w-5 h-5 text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div class="flex-1">
                 <h3 class="font-medium text-white">View History</h3>
                 <p class="text-xs text-gray-400">Past workouts</p>
               </div>
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <svg
+                class="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
 
@@ -366,30 +425,53 @@ onMounted(async () => {
               class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-left"
               @click="() => router.push('/stats')"
             >
-              <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              <div
+                class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  class="w-5 h-5 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
                 </svg>
               </div>
               <div class="flex-1">
                 <h3 class="font-medium text-white">View Stats</h3>
                 <p class="text-xs text-gray-400">Progress analytics</p>
               </div>
-              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <svg
+                class="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
         </BaseCard>
 
         <!-- Import Plan Button -->
-        <BaseButton
-          variant="outline"
-          class="w-full"
-          @click="goToImport"
-        >
+        <BaseButton variant="outline" class="w-full" @click="goToImport">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
           </svg>
           Import Workout Plan
         </BaseButton>
@@ -404,7 +486,9 @@ onMounted(async () => {
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400 text-sm">Total Time</span>
-              <span class="text-white font-semibold">{{ formatDuration(stats.total_duration_seconds) }}</span>
+              <span class="text-white font-semibold">{{
+                formatDuration(stats.total_duration_seconds)
+              }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400 text-sm">Total Volume</span>
