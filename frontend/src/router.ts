@@ -89,10 +89,11 @@ const routes: RouteRecordRaw[] = [
 
   // Active Workout
   {
-    path: '/workout',
+    path: '/workout/:sessionId',
     name: 'active-workout',
     component: ActiveWorkoutView,
     meta: { requiresAuth: true, layout: 'workout' },
+    props: true,
   },
   {
     path: '/workout/complete',
