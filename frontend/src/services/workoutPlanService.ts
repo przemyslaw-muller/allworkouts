@@ -72,11 +72,30 @@ export const workoutPlanService = {
   },
 
   /**
-   * Parse workout plan text using AI.
-   * Returns parsed exercises with confidence scores.
+   * Parse workout plan text using AI (starts async processing).
+   * Returns import_log_id to poll for status.
    */
-  async parseWorkoutText(data: ParseWorkoutTextRequest): Promise<WorkoutPlanParseResponse> {
-    const response = await api.post<WorkoutPlanParseResponse>('/workout-plans/parse', data)
+  async parseWorkoutText(data: ParseWorkoutTextRequest): Promise<{ import_log_id: string; status: string; message: string }> {
+    const response = await api.post<{ import_log_id: string; status: string; message: string }>('/workout-plans/parse', data)
+    return response.data
+  },
+
+  /**
+   * Get the status of a workout plan parsing operation.
+   * Poll this endpoint until status is 'completed' or 'failed'.
+   */
+  async getParseStatus(importLogId: string): Promise<{
+    import_log_id: string
+    status: 'pending' | 'processing' | 'completed' | 'failed'
+    result?: WorkoutPlanParseResponse
+    error?: string
+  }> {
+    const response = await api.get<{
+      import_log_id: string
+      status: 'pending' | 'processing' | 'completed' | 'failed'
+      result?: WorkoutPlanParseResponse
+      error?: string
+    }>(`/workout-plans/parse/status/${importLogId}`)
     return response.data
   },
 

@@ -6,7 +6,7 @@ import json
 import logging
 
 import litellm
-from litellm import completion
+from litellm import acompletion
 
 from app.config import settings
 
@@ -26,12 +26,13 @@ class LLMService:
         self.max_tokens = settings.llm_max_tokens
         self.timeout = settings.llm_timeout
 
-    async def parse_workout_text(self, text: str) -> dict:
+    async def parse_workout_text(self, text: str, exercises: list[dict]) -> dict:
         """
         Parse workout plan text into structured format.
 
         Args:
             text: Raw workout plan text
+            exercises: List of exercise dicts with id, name, and muscle groups
 
         Returns:
             Structured workout plan data
@@ -39,10 +40,10 @@ class LLMService:
         Raises:
             Exception: If LLM request fails
         """
-        prompt = self._build_parsing_prompt(text)
+        prompt = self._build_parsing_prompt(text, exercises)
 
         try:
-            response = await completion(
+            response = await acompletion(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self._get_system_prompt()},
@@ -71,14 +72,14 @@ class LLMService:
 
     def _get_system_prompt(self) -> str:
         """System prompt for workout plan parsing"""
-        return """You are a workout plan parser that extracts structured information from text.
+        return """You are a workout plan parser that extracts structured information from text and matches exercises to a database.
 
 Your task is to:
 1. Identify the workout plan name and description
 2. Group exercises into workouts (days/sessions)
 3. Extract all exercises with their parameters
-4. Parse sets, reps (as min/max range), and rest times
-5. Preserve the original exercise names exactly as written
+4. Match each exercise name to the closest exercise from the provided exercise database
+5. Parse sets, reps (as min/max range), and rest times
 6. Extract any notes or special instructions
 
 Return ONLY valid JSON with this exact structure:
@@ -92,7 +93,9 @@ Return ONLY valid JSON with this exact structure:
       "order_index": 0,
       "exercises": [
         {
+          "exercise_id": "uuid-from-exercise-database",
           "original_text": "Exact exercise name from text",
+          "confidence": 0.95,
           "sets": 3,
           "reps_min": 8,
           "reps_max": 12,
@@ -113,19 +116,36 @@ Rules:
 - If reps is a range (e.g., "8-12"), parse as min and max
 - If rest time not specified, set to null
 - Exercise sequence starts at 0 and increments within each workout
-- Preserve original exercise name exactly (e.g., "Squat", "Back Squat", "Barbell Squat")
+- For exercise matching: find the best match from the provided exercise list based on name similarity
+- Use the exercise_id from the database for the matched exercise
+- Provide a confidence score (0.0-1.0) for each match:
+  * 0.90-1.0: Exact or very close match (e.g., "Squat" -> "Squat", "Bench Press" -> "Bench Press")
+  * 0.80-0.89: Good match with minor variations (e.g., "Back Squat" -> "Squat", "Barbell Bench" -> "Bench Press")
+  * 0.70-0.79: Reasonable match but notable differences (e.g., "Leg Press" -> "Squat", "DB Bench" -> "Bench Press")
+  * Below 0.70: Poor match - set exercise_id to null instead
+- If no good match exists (confidence < 0.70), set exercise_id to null and confidence to 0.0
+- Preserve original exercise name in original_text field
 - If no plan name found, use "Workout Plan"
 - Notes should capture tempo, RPE, special instructions, etc.
 
 Return ONLY the JSON object, no explanations."""
 
-    def _build_parsing_prompt(self, text: str) -> str:
-        """Build user prompt with workout text"""
-        return f"""Parse this workout plan:
+    def _build_parsing_prompt(self, text: str, exercises: list[dict]) -> str:
+        """Build user prompt with workout text and exercise database"""
+        # Format exercises for the prompt
+        exercise_list = "\n".join(
+            f"- {ex['name']} (ID: {ex['id']}) - Primary: {', '.join(ex['primary_muscle_groups'])}"
+            for ex in exercises
+        )
+        
+        return f"""Available exercises in database:
+{exercise_list}
+
+Parse this workout plan and match exercises to the database:
 
 {text}
 
-Return the structured JSON data."""
+Return the structured JSON data with exercise_id for each matched exercise."""
 
     def _extract_json(self, content: str) -> dict:
         """Extract JSON from LLM response"""

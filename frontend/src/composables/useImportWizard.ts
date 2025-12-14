@@ -123,32 +123,50 @@ export function useImportWizard() {
     parseError.value = null
 
     try {
-      const response = await workoutPlanService.parseWorkoutText({ text: inputText.value })
+      // Step 1: Start the parse operation
+      const startResponse = await workoutPlanService.parseWorkoutText({ text: inputText.value })
+      const logId = startResponse.import_log_id
 
-      // Store import log ID
-      importLogId.value = response.parsed_plan.import_log_id
-
-      // Set plan name and description
-      planName.value = response.parsed_plan.name
-      planDescription.value = response.parsed_plan.description
-
-      // Map exercises to view models
-      exercises.value = mapParsedResponseToViewModels(response.parsed_plan)
-
-      // Store stats
-      parseStats.value = {
-        total: response.total_exercises,
-        highConfidence: response.high_confidence_count,
-        mediumConfidence: response.medium_confidence_count,
-        lowConfidence: response.low_confidence_count,
-        unmatched: response.unmatched_count,
+      // Step 2: Poll for status until completed or failed
+      let statusResponse = await workoutPlanService.getParseStatus(logId)
+      
+      while (statusResponse.status === 'pending' || statusResponse.status === 'processing') {
+        // Wait 2 seconds before polling again
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        statusResponse = await workoutPlanService.getParseStatus(logId)
       }
 
-      // Move to step 2
-      currentStep.value = 2
+      // Step 3: Handle the result
+      if (statusResponse.status === 'completed' && statusResponse.result) {
+        const response = statusResponse.result
+
+        // Store import log ID
+        importLogId.value = response.parsed_plan.import_log_id
+
+        // Set plan name and description
+        planName.value = response.parsed_plan.name
+        planDescription.value = response.parsed_plan.description
+
+        // Map exercises to view models
+        exercises.value = mapParsedResponseToViewModels(response.parsed_plan)
+
+        // Store stats
+        parseStats.value = {
+          total: response.total_exercises,
+          highConfidence: response.high_confidence_count,
+          mediumConfidence: response.medium_confidence_count,
+          lowConfidence: response.low_confidence_count,
+          unmatched: response.unmatched_count,
+        }
+
+        // Move to step 2
+        currentStep.value = 2
+      } else if (statusResponse.status === 'failed') {
+        throw new Error(statusResponse.error || 'Parsing failed')
+      }
     } catch (err: any) {
       const errorCode = err.response?.data?.error?.code
-      const errorMessage = err.response?.data?.error?.message
+      const errorMessage = err.response?.data?.error?.message || err.message
 
       if (errorCode === 'VALIDATION_ERROR' || errorCode === 'TEXT_TOO_SHORT') {
         parseError.value = errorMessage || 'Please enter at least 10 characters'

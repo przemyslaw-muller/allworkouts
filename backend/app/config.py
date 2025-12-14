@@ -1,4 +1,8 @@
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+
+# Load .env file before creating Settings instance
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -21,8 +25,8 @@ class Settings(BaseSettings):
     llm_model: str = 'gpt-4-turbo-preview'
     llm_api_key: str = ''
     llm_temperature: float = 0.1
-    llm_max_tokens: int = 4000
-    llm_timeout: int = 60
+    llm_max_tokens: int = 16000
+    llm_timeout: int = 120
 
     # Parser Configuration
     exercise_match_threshold: float = 0.80

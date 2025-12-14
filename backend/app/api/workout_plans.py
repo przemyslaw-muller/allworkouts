@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -493,8 +493,8 @@ async def delete_workout_plan(
 
 @router.post(
     "/parse",
-    response_model=APIResponse[WorkoutPlanParseResponse],
-    status_code=status.HTTP_200_OK,
+    response_model=APIResponse[dict],
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def parse_workout_plan(
     request: WorkoutPlanParseRequest,
@@ -505,23 +505,128 @@ async def parse_workout_plan(
     Parse workout plan from text using AI (Step 1 of import).
 
     This endpoint:
-    1. Uses LLM to extract workout structure
-    2. Matches exercises to database with confidence scores
-    3. Returns parsed data for user review
-    4. Creates import log for audit trail
+    1. Creates an import log with 'pending' status
+    2. Starts background processing
+    3. Returns import_log_id immediately for polling
+
+    Client should poll /parse/status/{import_log_id} for results.
 
     Rate limit: 10 requests per hour per user
     """
-    try:
-        parser = ParserService(db, user_id)
-        result = await parser.parse_workout_plan(request.text)
-        return APIResponse.success_response(result)
-    except Exception as e:
-        logger.error(f"Parse failed for user {user_id}: {str(e)}")
+    # Create import log with pending status
+    import_log = WorkoutImportLog(
+        user_id=user_id,
+        raw_text=request.text,
+        status='pending',
+        created_at=datetime.utcnow(),
+    )
+    db.add(import_log)
+    db.commit()
+    db.refresh(import_log)
+
+    # Start background task
+    import asyncio
+    from app.database import SessionLocal
+    
+    async def process_parsing():
+        # Create new DB session for background task
+        bg_db = SessionLocal()
+        try:
+            # Update status to processing
+            bg_import_log = bg_db.query(WorkoutImportLog).filter(
+                WorkoutImportLog.id == import_log.id
+            ).first()
+            bg_import_log.status = 'processing'
+            bg_db.commit()
+            
+            # Parse the workout
+            parser = ParserService(bg_db, user_id)
+            result = await parser.parse_workout_plan(request.text)
+            
+            # Update import log with result
+            bg_import_log.status = 'completed'
+            bg_import_log.result = {
+                'parsed_plan': result.parsed_plan.model_dump(mode='json'),
+                'total_exercises': result.total_exercises,
+                'high_confidence_count': result.high_confidence_count,
+                'medium_confidence_count': result.medium_confidence_count,
+                'low_confidence_count': result.low_confidence_count,
+                'unmatched_count': result.unmatched_count,
+            }
+            bg_import_log.parsed_exercises = result.parsed_plan.model_dump(mode='json').get('workouts', [])
+            bg_import_log.confidence_scores = {
+                'high_confidence': result.high_confidence_count,
+                'medium_confidence': result.medium_confidence_count,
+                'low_confidence': result.low_confidence_count,
+                'unmatched': result.unmatched_count,
+            }
+            bg_db.commit()
+            logger.info(f"Parse completed for import_log {import_log.id}")
+        except Exception as e:
+            logger.error(f"Parse failed for import_log {import_log.id}: {str(e)}")
+            bg_import_log = bg_db.query(WorkoutImportLog).filter(
+                WorkoutImportLog.id == import_log.id
+            ).first()
+            if bg_import_log:
+                bg_import_log.status = 'failed'
+                bg_import_log.error = str(e)
+                bg_db.commit()
+        finally:
+            bg_db.close()
+    
+    # Fire and forget the background task
+    asyncio.create_task(process_parsing())
+    
+    return APIResponse.success_response({
+        'import_log_id': str(import_log.id),
+        'status': 'pending',
+        'message': 'Parsing started. Poll /parse/status/{import_log_id} for results.'
+    })
+
+
+@router.get(
+    "/parse/status/{import_log_id}",
+    response_model=APIResponse[dict],
+    status_code=status.HTTP_200_OK,
+)
+async def get_parse_status(
+    import_log_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """
+    Get the status of a workout plan parsing operation.
+
+    Poll this endpoint to check if parsing is complete.
+
+    Status values:
+    - pending: Queued for processing
+    - processing: Currently being parsed
+    - completed: Parsing finished successfully
+    - failed: Parsing failed with an error
+    """
+    import_log = db.query(WorkoutImportLog).filter(
+        WorkoutImportLog.id == import_log_id,
+        WorkoutImportLog.user_id == user_id,
+    ).first()
+
+    if not import_log:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to parse workout plan: {str(e)}",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Import log not found",
         )
+
+    response_data = {
+        'import_log_id': str(import_log.id),
+        'status': import_log.status,
+    }
+
+    if import_log.status == 'completed' and import_log.result:
+        response_data['result'] = import_log.result
+    elif import_log.status == 'failed' and import_log.error:
+        response_data['error'] = import_log.error
+
+    return APIResponse.success_response(response_data)
 
 
 @router.post(

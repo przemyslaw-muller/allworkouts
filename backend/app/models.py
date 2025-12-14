@@ -438,6 +438,9 @@ class WorkoutImportLog(Base):
     raw_text = Column(Text, nullable=False)
     parsed_exercises = Column(JSONB, nullable=True)
     confidence_scores = Column(JSONB, nullable=True)
+    status = Column(String(50), nullable=False, default='pending')  # pending, processing, completed, failed
+    result = Column(JSONB, nullable=True)  # Full parse result when completed
+    error = Column(Text, nullable=True)  # Error message if failed
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
     # Relationships
