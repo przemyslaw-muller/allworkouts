@@ -630,9 +630,11 @@ class TestDeleteCustomExercise:
             workout_id=workout.id,
             exercise_id=exercise.id,
             sequence=1,
-            sets=3,
-            reps_min=8,
-            reps_max=12,
+            set_configurations=[
+                {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                {"set_number": 3, "reps_min": 8, "reps_max": 12},
+            ],
         )
         db.add(workout_exercise)
         db.commit()

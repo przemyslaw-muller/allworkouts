@@ -124,9 +124,9 @@ class TestGetWorkoutPlan:
             assert "id" in exercise
             assert "exercise" in exercise
             assert "sequence" in exercise
-            assert "sets" in exercise
-            assert "reps_min" in exercise
-            assert "reps_max" in exercise
+            assert "set_configurations" in exercise
+            assert isinstance(exercise["set_configurations"], list)
+            assert len(exercise["set_configurations"]) > 0
 
     def test_get_workout_plan_not_found(self, client: TestClient, auth_headers: dict):
         """Test getting non-existent workout plan."""
@@ -184,18 +184,23 @@ class TestCreateWorkoutPlan:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 1,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
                             {
                                 "exercise_id": str(test_exercise_2.id),
                                 "sequence": 2,
-                                "sets": 4,
-                                "reps_min": 6,
-                                "reps_max": 10,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 6, "reps_max": 10},
+                                    {"set_number": 2, "reps_min": 6, "reps_max": 10},
+                                    {"set_number": 3, "reps_min": 6, "reps_max": 10},
+                                    {"set_number": 4, "reps_min": 6, "reps_max": 10}
+                                ],
                                 "rest_time_seconds": 120,
                                 "confidence_level": ConfidenceLevelEnum.HIGH.value,
                             },
@@ -237,9 +242,11 @@ class TestCreateWorkoutPlan:
                             {
                                 "exercise_id": str(fake_id),
                                 "sequence": 1,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
@@ -267,9 +274,11 @@ class TestCreateWorkoutPlan:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 1,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
@@ -334,9 +343,13 @@ class TestUpdateWorkoutPlan:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 1,
-                                "sets": 5,
-                                "reps_min": 5,
-                                "reps_max": 5,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 5, "reps_max": 5},
+                                    {"set_number": 2, "reps_min": 5, "reps_max": 5},
+                                    {"set_number": 3, "reps_min": 5, "reps_max": 5},
+                                    {"set_number": 4, "reps_min": 5, "reps_max": 5},
+                                    {"set_number": 5, "reps_min": 5, "reps_max": 5}
+                                ],
                                 "rest_time_seconds": 180,
                                 "confidence_level": ConfidenceLevelEnum.HIGH.value,
                             },
@@ -472,18 +485,26 @@ class TestParseWorkoutPlan:
                     "exercises": [
                         {
                             "original_text": "Squat",
-                            "sets": 5,
-                            "reps_min": 5,
-                            "reps_max": 5,
+                            "sets": [
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5}
+                            ],
                             "rest_seconds": 180,
                             "notes": None,
                             "sequence": 0,
                         },
                         {
                             "original_text": "Bench Press",
-                            "sets": 5,
-                            "reps_min": 5,
-                            "reps_max": 5,
+                            "sets": [
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5}
+                            ],
                             "rest_seconds": 180,
                             "notes": None,
                             "sequence": 1,
@@ -503,19 +524,27 @@ class TestParseWorkoutPlan:
                 headers=auth_headers,
             )
 
-        assert response.status_code == 200
+        # Now returns 202 with import_log_id for async processing
+        assert response.status_code == 202
         data = response.json()
         assert data["success"] is True
-        assert "parsed_plan" in data["data"]
-        assert data["data"]["parsed_plan"]["name"] == "Test 5x5 Program"
-        assert data["data"]["total_exercises"] == 2
-        assert "import_log_id" in data["data"]["parsed_plan"]
-        assert "workouts" in data["data"]["parsed_plan"]
+        assert "import_log_id" in data["data"]
+        import_log_id = data["data"]["import_log_id"]
 
-        # Cleanup import log
+        # Give async task time to complete and check the import log
+        import time
+        time.sleep(0.5)
+        
         from app.models import WorkoutImportLog
+        import_log = db.query(WorkoutImportLog).filter(WorkoutImportLog.id == import_log_id).first()
+        assert import_log is not None
+        assert import_log.status == "completed"
+        assert import_log.result is not None
+        result = import_log.result
+        assert result["parsed_plan"]["name"] == "Test 5x5 Program"
+        assert result["total_exercises"] == 2
 
-        import_log_id = data["data"]["parsed_plan"]["import_log_id"]
+        # Cleanup
         db.query(WorkoutImportLog).filter(WorkoutImportLog.id == import_log_id).delete()
         db.commit()
 
@@ -536,9 +565,11 @@ class TestParseWorkoutPlan:
                     "exercises": [
                         {
                             "original_text": "Unknown Exercise XYZ",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 12,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12}
+                            ],
                             "rest_seconds": 90,
                             "notes": None,
                             "sequence": 0,
@@ -558,18 +589,29 @@ class TestParseWorkoutPlan:
                 headers=auth_headers,
             )
 
-        assert response.status_code == 200
+        # Now returns 202 with import_log_id for async processing
+        assert response.status_code == 202
         data = response.json()
         assert data["success"] is True
-        assert "high_confidence_count" in data["data"]
-        assert "medium_confidence_count" in data["data"]
-        assert "low_confidence_count" in data["data"]
-        assert "unmatched_count" in data["data"]
+        assert "import_log_id" in data["data"]
+        import_log_id = data["data"]["import_log_id"]
 
-        # Cleanup import log
+        # Give async task time to complete and check the import log
+        import time
+        time.sleep(0.5)
+        
         from app.models import WorkoutImportLog
+        import_log = db.query(WorkoutImportLog).filter(WorkoutImportLog.id == import_log_id).first()
+        assert import_log is not None
+        assert import_log.status == "completed"
+        assert import_log.result is not None
+        result = import_log.result
+        assert "high_confidence_count" in result
+        assert "medium_confidence_count" in result
+        assert "low_confidence_count" in result
+        assert "unmatched_count" in result
 
-        import_log_id = data["data"]["parsed_plan"]["import_log_id"]
+        # Cleanup
         db.query(WorkoutImportLog).filter(WorkoutImportLog.id == import_log_id).delete()
         db.commit()
 
@@ -620,9 +662,11 @@ class TestCreateWorkoutPlanFromParsed:
                     "exercises": [
                         {
                             "original_text": "Exercise 1",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 12,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12}
+                            ],
                             "rest_seconds": 90,
                             "notes": None,
                             "sequence": 0,
@@ -642,8 +686,12 @@ class TestCreateWorkoutPlanFromParsed:
                 headers=auth_headers,
             )
 
-        assert parse_response.status_code == 200
-        import_log_id = parse_response.json()["data"]["parsed_plan"]["import_log_id"]
+        assert parse_response.status_code == 202
+        import_log_id = parse_response.json()["data"]["import_log_id"]
+        
+        # Wait for async processing
+        import time
+        time.sleep(0.5)
 
         # Now create workout plan from parsed data with nested workouts
         response = client.post(
@@ -661,18 +709,23 @@ class TestCreateWorkoutPlanFromParsed:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 0,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
                             {
                                 "exercise_id": str(test_exercise_2.id),
                                 "sequence": 1,
-                                "sets": 4,
-                                "reps_min": 6,
-                                "reps_max": 10,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 6, "reps_max": 10},
+                                    {"set_number": 2, "reps_min": 6, "reps_max": 10},
+                                    {"set_number": 3, "reps_min": 6, "reps_max": 10},
+                                    {"set_number": 4, "reps_min": 6, "reps_max": 10}
+                                ],
                                 "rest_time_seconds": 120,
                                 "confidence_level": ConfidenceLevelEnum.HIGH.value,
                             },
@@ -727,9 +780,11 @@ class TestCreateWorkoutPlanFromParsed:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 0,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
@@ -765,9 +820,11 @@ class TestCreateWorkoutPlanFromParsed:
                     "exercises": [
                         {
                             "original_text": "Exercise",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 12,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12}
+                            ],
                             "rest_seconds": 90,
                             "notes": None,
                             "sequence": 0,
@@ -787,7 +844,12 @@ class TestCreateWorkoutPlanFromParsed:
                 headers=auth_headers,
             )
 
-        import_log_id = parse_response.json()["data"]["parsed_plan"]["import_log_id"]
+        assert parse_response.status_code == 202
+        import_log_id = parse_response.json()["data"]["import_log_id"]
+        
+        # Wait for async processing
+        import time
+        time.sleep(0.5)
 
         # Create first plan
         create_request = {
@@ -802,9 +864,11 @@ class TestCreateWorkoutPlanFromParsed:
                         {
                             "exercise_id": str(test_exercise.id),
                             "sequence": 0,
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 12,
+                            "set_configurations": [
+                                {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                            ],
                             "rest_time_seconds": 90,
                             "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                         },
@@ -864,9 +928,11 @@ class TestCreateWorkoutPlanFromParsed:
                     "exercises": [
                         {
                             "original_text": "Exercise",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 12,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12}
+                            ],
                             "rest_seconds": 90,
                             "notes": None,
                             "sequence": 0,
@@ -886,7 +952,12 @@ class TestCreateWorkoutPlanFromParsed:
                 headers=auth_headers,
             )
 
-        import_log_id = parse_response.json()["data"]["parsed_plan"]["import_log_id"]
+        assert parse_response.status_code == 202
+        import_log_id = parse_response.json()["data"]["import_log_id"]
+        
+        # Wait for async processing
+        import time
+        time.sleep(0.5)
         fake_exercise_id = uuid.uuid4()
 
         response = client.post(
@@ -903,9 +974,11 @@ class TestCreateWorkoutPlanFromParsed:
                             {
                                 "exercise_id": str(fake_exercise_id),
                                 "sequence": 0,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
@@ -942,9 +1015,11 @@ class TestCreateWorkoutPlanFromParsed:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 0,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },
@@ -979,9 +1054,11 @@ class TestCreateWorkoutPlanFromParsed:
                     "exercises": [
                         {
                             "original_text": "Exercise",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 12,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12},
+                                {"reps_min": 8, "reps_max": 12}
+                            ],
                             "rest_seconds": 90,
                             "notes": None,
                             "sequence": 0,
@@ -1002,7 +1079,12 @@ class TestCreateWorkoutPlanFromParsed:
                 headers=auth_headers,
             )
 
-        import_log_id = parse_response.json()["data"]["parsed_plan"]["import_log_id"]
+        assert parse_response.status_code == 202
+        import_log_id = parse_response.json()["data"]["import_log_id"]
+        
+        # Wait for async processing
+        import time
+        time.sleep(0.5)
 
         # User 2 tries to use it
         response = client.post(
@@ -1019,9 +1101,11 @@ class TestCreateWorkoutPlanFromParsed:
                             {
                                 "exercise_id": str(test_exercise.id),
                                 "sequence": 0,
-                                "sets": 3,
-                                "reps_min": 8,
-                                "reps_max": 12,
+                                "set_configurations": [
+                                    {"set_number": 1, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 2, "reps_min": 8, "reps_max": 12},
+                                    {"set_number": 3, "reps_min": 8, "reps_max": 12}
+                                ],
                                 "rest_time_seconds": 90,
                                 "confidence_level": ConfidenceLevelEnum.MEDIUM.value,
                             },

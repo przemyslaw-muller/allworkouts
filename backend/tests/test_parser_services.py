@@ -123,9 +123,13 @@ class TestParserService:
                     "exercises": [
                         {
                             "original_text": "Squat",
-                            "sets": 5,
-                            "reps_min": 5,
-                            "reps_max": 5,
+                            "sets": [
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5},
+                                {"reps_min": 5, "reps_max": 5}
+                            ],
                             "rest_seconds": 180,
                             "notes": None,
                             "sequence": 0,
@@ -136,7 +140,7 @@ class TestParserService:
         }
 
         # Mock database queries
-        mock_db.query.return_value.all.return_value = sample_exercises
+        mock_db.query.return_value.filter.return_value.all.return_value = sample_exercises
         mock_db.add = Mock()
         mock_db.commit = Mock()
         mock_db.refresh = Mock(side_effect=lambda obj: setattr(obj, "id", uuid4()) or None)
@@ -170,18 +174,22 @@ class TestParserService:
                     "exercises": [
                         {
                             "original_text": "Bench Press",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 10,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 10},
+                                {"reps_min": 8, "reps_max": 10},
+                                {"reps_min": 8, "reps_max": 10}
+                            ],
                             "rest_seconds": 90,
                             "notes": None,
                             "sequence": 0,
                         },
                         {
                             "original_text": "Squat",
-                            "sets": 3,
-                            "reps_min": 10,
-                            "reps_max": 12,
+                            "sets": [
+                                {"reps_min": 10, "reps_max": 12},
+                                {"reps_min": 10, "reps_max": 12},
+                                {"reps_min": 10, "reps_max": 12}
+                            ],
                             "rest_seconds": 60,
                             "notes": None,
                             "sequence": 1,
@@ -191,7 +199,7 @@ class TestParserService:
             ],
         }
 
-        mock_db.query.return_value.all.return_value = sample_exercises
+        mock_db.query.return_value.filter.return_value.all.return_value = sample_exercises
         mock_db.add = Mock()
         mock_db.commit = Mock()
         mock_db.refresh = Mock(side_effect=lambda obj: setattr(obj, "id", uuid4()) or None)
@@ -222,9 +230,11 @@ class TestParserService:
                     "exercises": [
                         {
                             "original_text": "Unknown Exercise XYZ",
-                            "sets": 3,
-                            "reps_min": 8,
-                            "reps_max": 10,
+                            "sets": [
+                                {"reps_min": 8, "reps_max": 10},
+                                {"reps_min": 8, "reps_max": 10},
+                                {"reps_min": 8, "reps_max": 10}
+                            ],
                             "rest_seconds": None,
                             "notes": None,
                             "sequence": 0,
@@ -234,7 +244,7 @@ class TestParserService:
             ],
         }
 
-        mock_db.query.return_value.all.return_value = sample_exercises
+        mock_db.query.return_value.filter.return_value.all.return_value = sample_exercises
         mock_db.add = Mock()
         mock_db.commit = Mock()
         mock_db.refresh = Mock(side_effect=lambda obj: setattr(obj, "id", uuid4()) or None)
@@ -244,7 +254,7 @@ class TestParserService:
             new=AsyncMock(return_value=llm_response),
         ):
             parser = ParserService(mock_db, mock_user_id)
-            result = await parser.parse_workout_plan("Unknown Exercise XYZ 3x8-10")
+            result = await parser.parse_workout_plan("Unknown Exercise 3x8-10")
 
             assert result.total_exercises == 1
             assert result.unmatched_count >= 0

@@ -297,9 +297,11 @@ def test_workout_plan_with_exercises(
         workout_id=workout.id,
         exercise_id=test_exercise.id,
         sequence=1,
-        sets=3,
-        reps_min=8,
-        reps_max=12,
+        set_configurations=[
+            {"set_number": 1, "reps_min": 8, "reps_max": 12},
+            {"set_number": 2, "reps_min": 8, "reps_max": 12},
+            {"set_number": 3, "reps_min": 8, "reps_max": 12},
+        ],
         rest_time_seconds=90,
         confidence_level=ConfidenceLevelEnum.MEDIUM,
     )
@@ -308,9 +310,12 @@ def test_workout_plan_with_exercises(
         workout_id=workout.id,
         exercise_id=test_exercise_2.id,
         sequence=2,
-        sets=4,
-        reps_min=6,
-        reps_max=10,
+        set_configurations=[
+            {"set_number": 1, "reps_min": 6, "reps_max": 10},
+            {"set_number": 2, "reps_min": 6, "reps_max": 10},
+            {"set_number": 3, "reps_min": 6, "reps_max": 10},
+            {"set_number": 4, "reps_min": 6, "reps_max": 10},
+        ],
         rest_time_seconds=120,
         confidence_level=ConfidenceLevelEnum.HIGH,
     )
