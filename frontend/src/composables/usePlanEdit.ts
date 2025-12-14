@@ -69,6 +69,12 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
 
     for (const workout of response.workouts) {
       for (const ex of workout.exercises.sort((a, b) => a.sequence - b.sequence)) {
+        // Calculate sets and reps from set_configurations
+        const firstSet = ex.set_configurations[0]
+        const allSameReps = ex.set_configurations.every(
+          (s) => s.reps_min === firstSet?.reps_min && s.reps_max === firstSet?.reps_max,
+        )
+        
         allExercises.push({
           id: ex.id,
           exerciseId: ex.exercise.id,
@@ -77,9 +83,9 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
           secondaryMuscleGroups: ex.exercise.secondary_muscle_groups,
           equipment: [],
           sequence: ex.sequence,
-          sets: ex.sets,
-          repsMin: ex.reps_min,
-          repsMax: ex.reps_max,
+          sets: ex.set_configurations.length,
+          repsMin: allSameReps ? firstSet?.reps_min || 1 : Math.min(...ex.set_configurations.map(s => s.reps_min)),
+          repsMax: allSameReps ? firstSet?.reps_max || 1 : Math.max(...ex.set_configurations.map(s => s.reps_max)),
           restTimeSeconds: ex.rest_time_seconds,
           confidenceLevel: ex.confidence_level,
           isNew: false,
@@ -188,9 +194,11 @@ export function usePlanEdit(planId: Ref<string | undefined>) {
     const exercises: WorkoutExerciseCreateItem[] = data.exercises.map((ex, index) => ({
       exercise_id: ex.exerciseId,
       sequence: index,
-      sets: ex.sets,
-      reps_min: ex.repsMin,
-      reps_max: ex.repsMax,
+      set_configurations: Array.from({ length: ex.sets }, (_, i) => ({
+        set_number: i + 1,
+        reps_min: ex.repsMin,
+        reps_max: ex.repsMax,
+      })),
       rest_time_seconds: ex.restTimeSeconds,
       confidence_level: ex.confidenceLevel,
     }))
