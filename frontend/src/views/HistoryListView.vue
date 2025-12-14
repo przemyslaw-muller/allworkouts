@@ -140,18 +140,6 @@ const formatDateLabel = (dateStr: string): string => {
   })
 }
 
-const formatDuration = (seconds: number | null): string => {
-  if (!seconds) return 'N/A'
-
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  }
-  return `${minutes}m`
-}
-
 const formatTime = (isoString: string): string => {
   const date = new Date(isoString)
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })

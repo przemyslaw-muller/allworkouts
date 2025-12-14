@@ -61,7 +61,7 @@ const formatSetsReps = (exercise: ParsedExerciseViewModel) => {
   // Check if all sets have the same rep range
   const firstSet = configs[0]
   const allSame = configs.every(
-    (s) => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max
+    (s) => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max,
   )
   
   if (allSame) {

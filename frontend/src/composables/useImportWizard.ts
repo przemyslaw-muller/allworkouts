@@ -11,7 +11,6 @@ import type {
   ParsedExerciseViewModel,
   ParsedWorkoutViewModel,
   ParseStats,
-  WorkoutExerciseCreateItem,
   WorkoutCreateItem,
   ExerciseListItem,
   ParsedExerciseMatch,
@@ -284,29 +283,6 @@ export function useImportWizard() {
     }
     newExercise.sequence = workouts.value[0].exercises.length
     workouts.value[0].exercises.push(newExercise)
-  }
-
-  const manualMatchExercise = (exerciseId: string, exercise: ExerciseListItem): void => {
-    for (const workout of workouts.value) {
-      const index = workout.exercises.findIndex((ex) => ex.id === exerciseId)
-      if (index !== -1) {
-        workout.exercises[index] = {
-          ...workout.exercises[index],
-          matchedExercise: {
-            exercise_id: exercise.id,
-            exercise_name: exercise.name,
-            original_text: workout.exercises[index].originalText,
-          confidence: 1.0,
-          confidence_level: 'high',
-          primary_muscle_groups: exercise.primary_muscle_groups,
-          secondary_muscle_groups: exercise.secondary_muscle_groups,
-        },
-        confidenceLevel: 'high',
-        isModified: true,
-      }
-        break
-      }
-    }
   }
 
   const replaceExercise = (exerciseId: string, newExercise: ExerciseListItem): void => {

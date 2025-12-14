@@ -5,10 +5,10 @@ Revises: 005_add_user_name
 Create Date: 2025-12-10 18:08:41.043039
 
 """
-from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "cbdbb91967a7"

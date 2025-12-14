@@ -34,7 +34,6 @@ const {
   // Computed
   hasData,
   canParse,
-  allExercises,
   isStep2Valid,
 
   // Methods

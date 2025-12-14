@@ -12,7 +12,6 @@ This migration:
 5. Migrates existing data by creating default workouts for each plan
 """
 
-import uuid
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql

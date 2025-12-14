@@ -42,7 +42,7 @@ class ParserService:
         # Step 1: Load all exercises from database
         logger.info(f"Parsing workout plan for user {self.user_id}")
         exercises = self.db.query(Exercise).filter(
-            (Exercise.is_custom == False) | (Exercise.user_id == self.user_id)
+            (not Exercise.is_custom) | (Exercise.user_id == self.user_id)
         ).all()
         
         # Format exercises for LLM

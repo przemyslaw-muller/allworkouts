@@ -41,8 +41,6 @@ const showAlternatives = computed(() => {
   return props.exercise.alternativeMatches.length > 0 && needsAttention.value
 })
 
-const totalSets = computed(() => props.exercise.setConfigurations.length)
-
 const repsDisplay = computed(() => {
   const configs = props.exercise.setConfigurations
   if (configs.length === 0) return '0 sets'
@@ -50,7 +48,7 @@ const repsDisplay = computed(() => {
   // Check if all sets have the same rep range
   const firstSet = configs[0]
   const allSame = configs.every(
-    (s) => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max
+    (s) => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max,
   )
   
   if (allSame) {
@@ -221,12 +219,12 @@ const handleUpdateRest = (value: number | null) => {
       <!-- Per-set configuration -->
       <div class="space-y-2">
         <div
-          v-for="(setConfig, index) in exercise.setConfigurations"
-          :key="index"
+          v-for="(setConfig, setIndex) in exercise.setConfigurations"
+          :key="setIndex"
           class="grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 items-end"
         >
           <span class="text-sm font-medium text-gray-600 dark:text-gray-400 pb-2">
-            Set {{ index + 1 }}
+            Set {{ setIndex + 1 }}
           </span>
           <BaseInput
             :model-value="setConfig.reps_min"
@@ -235,7 +233,7 @@ const handleUpdateRest = (value: number | null) => {
             min="1"
             max="200"
             required
-            @update:model-value="handleUpdateSet(index, 'reps_min', Number($event))"
+            @update:model-value="handleUpdateSet(setIndex, 'reps_min', Number($event))"
           />
           <BaseInput
             :model-value="setConfig.reps_max"
@@ -244,10 +242,10 @@ const handleUpdateRest = (value: number | null) => {
             min="1"
             max="200"
             required
-            @update:model-value="handleUpdateSet(index, 'reps_max', Number($event))"
+            @update:model-value="handleUpdateSet(setIndex, 'reps_max', Number($event))"
           />
           <BaseInput
-            v-if="index === 0"
+            v-if="setIndex === 0"
             :model-value="exercise.restSeconds ?? ''"
             label="Rest (sec)"
             type="number"

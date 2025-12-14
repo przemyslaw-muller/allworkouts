@@ -5,9 +5,9 @@ Revises: 004_add_workout_hierarchy
 Create Date: 2025-01-10
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "005_add_user_name"

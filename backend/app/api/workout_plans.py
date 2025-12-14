@@ -6,8 +6,7 @@ import logging
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
-from sqlalchemy import func
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user_id
@@ -26,7 +25,6 @@ from app.schemas import (
     WorkoutPlanListItem,
     WorkoutPlanListResponse,
     WorkoutPlanParseRequest,
-    WorkoutPlanParseResponse,
     WorkoutPlanToggleActiveRequest,
     WorkoutPlanToggleActiveResponse,
     WorkoutPlanUpdateRequest,
@@ -529,6 +527,7 @@ async def parse_workout_plan(
 
     # Start background task
     import asyncio
+
     from app.database import SessionLocal
     
     async def process_parsing():

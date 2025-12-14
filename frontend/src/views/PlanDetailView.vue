@@ -169,7 +169,7 @@ const formatReps = (exercise: WorkoutExerciseDetail): string => {
   // Check if all sets have the same rep range
   const firstSet = exercise.set_configurations[0]
   const allSame = exercise.set_configurations.every(
-    s => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max
+    s => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max,
   )
   
   if (allSame) {

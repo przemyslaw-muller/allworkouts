@@ -165,7 +165,7 @@ class WorkoutExerciseCreateItem(BaseModel):
         # Validate set numbers are sequential
         for i, config in enumerate(v, start=1):
             if config.set_number != i:
-                raise ValueError(f'Set numbers must be sequential starting from 1')
+                raise ValueError('Set numbers must be sequential starting from 1')
         return v
 
     @field_validator("rest_time_seconds")
