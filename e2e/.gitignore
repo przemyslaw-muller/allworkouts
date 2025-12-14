@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+test-results/
+*.png
+*.mp4
+*.webm
+.pytest_cache/

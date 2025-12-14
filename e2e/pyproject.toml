@@ -1,0 +1,30 @@
+[project]
+name = "allworkouts-e2e"
+version = "0.1.0"
+description = "E2E tests for AllWorkouts application"
+requires-python = ">=3.9"
+dependencies = [
+    "pytest>=7.4.3",
+    "pytest-playwright>=0.4.3",
+    "playwright>=1.40.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+markers = [
+    "smoke: Quick smoke tests",
+    "full: Full E2E test suite",
+    "slow: Tests that take longer to run",
+]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--screenshot=on",
+    "--video=retain-on-failure",
+]
