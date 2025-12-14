@@ -8,9 +8,9 @@ import { useRouter } from 'vue-router'
 import { useWorkoutStore } from '@/stores/workout'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
-import { statsService } from '@/services'
+import { statsService, workoutPlanService } from '@/services'
 import { getErrorMessage } from '@/services/api'
-import type { StatsOverviewResponse } from '@/types'
+import type { StatsOverviewResponse, WorkoutPlanDetailResponse } from '@/types'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseSpinner from '@/components/common/BaseSpinner.vue'
@@ -25,6 +25,8 @@ const uiStore = useUiStore()
 const stats = ref<StatsOverviewResponse | null>(null)
 const isLoadingStats = ref(false)
 const statsError = ref<string | null>(null)
+const activePlanDetails = ref<WorkoutPlanDetailResponse | null>(null)
+const isLoadingPlanDetails = ref(false)
 
 // Computed
 const user = computed(() => authStore.user)
@@ -36,6 +38,7 @@ const isLoadingPlans = computed(() => workoutStore.isLoadingPlans)
 
 // Active plan (first plan for now, could be enhanced to track which is active)
 const activePlan = computed(() => plans.value[0] || null)
+const activeWorkouts = computed(() => activePlanDetails.value?.workouts || [])
 
 // Format duration helper
 const formatDuration = (seconds: number): string => {
@@ -89,16 +92,40 @@ async function fetchStats() {
 
 async function fetchPlans() {
   await workoutStore.fetchPlans()
+  
+  // If there's an active plan, fetch its details to get workouts
+  if (activePlan.value) {
+    await fetchActivePlanDetails(activePlan.value.id)
+  }
 }
 
-async function startWorkout() {
+async function fetchActivePlanDetails(planId: string) {
+  try {
+    isLoadingPlanDetails.value = true
+    activePlanDetails.value = await workoutPlanService.getById(planId)
+  } catch (err) {
+    console.error('Error fetching plan details:', err)
+  } finally {
+    isLoadingPlanDetails.value = false
+  }
+}
+
+async function startWorkout(workoutId?: string) {
   if (!activePlan.value) {
     uiStore.showToast('No workout plan available', 'error')
     return
   }
 
   try {
-    const result = await workoutStore.startSession(activePlan.value.id)
+    // Use provided workout ID, or fallback to first workout, or use plan ID
+    const targetWorkoutId = workoutId || activeWorkouts.value[0]?.id
+    
+    if (!targetWorkoutId) {
+      uiStore.showToast('No workouts found in this plan', 'error')
+      return
+    }
+
+    const result = await workoutStore.startSession(targetWorkoutId)
 
     if (result.success && result.data) {
       router.push(`/workout/${result.data.session_id}`)
@@ -210,17 +237,35 @@ onMounted(async () => {
                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
               />
             </svg>
+            <span>{{ activePlan.workout_count }} workouts</span>
+            <span class="text-gray-600">•</span>
             <span>{{ activePlan.exercise_count }} exercises</span>
           </div>
 
-          <div class="flex gap-3">
-            <BaseButton
-              variant="primary"
-              class="flex-1"
-              :disabled="hasActiveSession"
-              @click="startWorkout"
+          <!-- Workouts List -->
+          <div v-if="isLoadingPlanDetails" class="mb-4 flex justify-center py-4">
+            <BaseSpinner size="sm" />
+          </div>
+          <div v-else-if="activeWorkouts.length > 0" class="mb-4 space-y-2">
+            <p class="text-sm text-gray-400 mb-2">Select a workout to start:</p>
+            <div
+              v-for="workout in activeWorkouts"
+              :key="workout.id"
+              class="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer group"
+              @click="() => startWorkout(workout.id)"
             >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex-1">
+                <h4 class="text-white font-medium text-sm">{{ workout.name }}</h4>
+                <p class="text-gray-400 text-xs">
+                  {{ workout.exercises.length }} exercise{{ workout.exercises.length !== 1 ? 's' : '' }}
+                </p>
+              </div>
+              <svg
+                class="w-5 h-5 text-gray-400 group-hover:text-primary-400 transition-colors"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -234,10 +279,12 @@ onMounted(async () => {
                   d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Start Workout
-            </BaseButton>
-            <BaseButton variant="outline" @click="() => router.push(`/plans/${activePlan.id}`)">
-              View Details
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <BaseButton variant="outline" class="flex-1" @click="() => router.push(`/plans/${activePlan.id}`)">
+              View Full Plan
             </BaseButton>
           </div>
         </BaseCard>

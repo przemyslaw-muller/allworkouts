@@ -222,7 +222,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     }
   }
 
-  async function logExercise(exerciseId: string, sets: ExerciseSetLogItem[]) {
+  async function logExercise(plannedExerciseId: string, sets: ExerciseSetLogItem[]) {
     if (!activeSession.value) {
       return { success: false, error: 'No active session' }
     }
@@ -230,18 +230,22 @@ export const useWorkoutStore = defineStore('workout', () => {
     try {
       isSessionLoading.value = true
       sessionError.value = null
+      
+      // Find the planned exercise to get the actual exercise_id
+      const plannedExercise = activeSession.value.exercises.find((e) => e.planned_exercise_id === plannedExerciseId)
+      if (!plannedExercise) {
+        return { success: false, error: 'Exercise not found in session' }
+      }
+      
       await workoutSessionService.logExercise(activeSession.value.session_id, {
-        exercise_id: exerciseId,
+        exercise_id: plannedExercise.exercise.id,
         sets,
       })
 
-      // Find exercise name
-      const exercise = activeSession.value.exercises.find((e) => e.exercise.id === exerciseId)
-
-      // Update local state
-      loggedExercises.value.set(exerciseId, {
-        exerciseId,
-        exerciseName: exercise?.exercise.name ?? 'Unknown',
+      // Update local state using planned_exercise_id as key
+      loggedExercises.value.set(plannedExerciseId, {
+        exerciseId: plannedExerciseId,
+        exerciseName: plannedExercise.exercise.name,
         sets,
         isCompleted: true,
       })
@@ -336,12 +340,12 @@ export const useWorkoutStore = defineStore('workout', () => {
     }
   }
 
-  function getExerciseLogData(exerciseId: string): LoggedExercise | undefined {
-    return loggedExercises.value.get(exerciseId)
+  function getExerciseLogData(plannedExerciseId: string): LoggedExercise | undefined {
+    return loggedExercises.value.get(plannedExerciseId)
   }
 
-  function isExerciseCompleted(exerciseId: string): boolean {
-    return loggedExercises.value.get(exerciseId)?.isCompleted ?? false
+  function isExerciseCompleted(plannedExerciseId: string): boolean {
+    return loggedExercises.value.get(plannedExerciseId)?.isCompleted ?? false
   }
 
   function clearCompletionResult() {

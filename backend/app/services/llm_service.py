@@ -96,9 +96,11 @@ Return ONLY valid JSON with this exact structure:
           "exercise_id": "uuid-from-exercise-database",
           "original_text": "Exact exercise name from text",
           "confidence": 0.95,
-          "sets": 3,
-          "reps_min": 8,
-          "reps_max": 12,
+          "sets": [
+            {"reps_min": 10, "reps_max": 15},
+            {"reps_min": 8, "reps_max": 12},
+            {"reps_min": 6, "reps_max": 9}
+          ],
           "rest_seconds": 90,
           "notes": "Any special instructions",
           "sequence": 0
@@ -112,6 +114,9 @@ Rules:
 - Group exercises into workouts based on day labels, headers, or logical groupings
 - If no workout groupings are clear, create a single workout named "Workout 1"
 - Workout day_number starts at 1, order_index starts at 0
+- For sets: return an array with one object per set, each containing reps_min and reps_max
+- If text shows different reps per set (e.g., "Set 1: 10-15, Set 2: 6-9"), parse each set separately
+- If text shows same reps for all sets (e.g., "3x8-12"), create array with 3 identical objects: [{"reps_min": 8, "reps_max": 12}, ...]
 - If reps is a single number (e.g., "5"), set both min and max to that number
 - If reps is a range (e.g., "8-12"), parse as min and max
 - If rest time not specified, set to null

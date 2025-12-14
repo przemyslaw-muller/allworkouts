@@ -269,9 +269,7 @@ class WorkoutExercise(Base):
     workout_id = Column(UUID(as_uuid=True), ForeignKey("workout.id"), nullable=False)
     exercise_id = Column(UUID(as_uuid=True), ForeignKey("exercise.id"), nullable=False)
     sequence = Column(Integer, nullable=False)
-    sets = Column(Integer, nullable=False)
-    reps_min = Column(Integer, nullable=False)
-    reps_max = Column(Integer, nullable=False)
+    set_configurations = Column(JSONB, nullable=False)  # Array of {set_number, reps_min, reps_max}
     rest_time_seconds = Column(Integer, nullable=True)
     confidence_level = Column(
         Enum(

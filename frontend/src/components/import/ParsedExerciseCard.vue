@@ -41,16 +41,47 @@ const showAlternatives = computed(() => {
   return props.exercise.alternativeMatches.length > 0 && needsAttention.value
 })
 
-const handleUpdateSets = (value: number) => {
-  emit('update', { sets: value })
+const totalSets = computed(() => props.exercise.setConfigurations.length)
+
+const repsDisplay = computed(() => {
+  const configs = props.exercise.setConfigurations
+  if (configs.length === 0) return '0 sets'
+  
+  // Check if all sets have the same rep range
+  const firstSet = configs[0]
+  const allSame = configs.every(
+    (s) => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max
+  )
+  
+  if (allSame) {
+    return `${configs.length} sets × ${firstSet.reps_min}${firstSet.reps_min !== firstSet.reps_max ? `-${firstSet.reps_max}` : ''} reps`
+  }
+  
+  return `${configs.length} sets (varying reps)`
+})
+
+const handleUpdateSet = (setIndex: number, field: 'reps_min' | 'reps_max', value: number) => {
+  const newConfigs = [...props.exercise.setConfigurations]
+  newConfigs[setIndex] = { ...newConfigs[setIndex], [field]: value }
+  emit('update', { setConfigurations: newConfigs })
 }
 
-const handleUpdateRepsMin = (value: number) => {
-  emit('update', { repsMin: value })
+const handleAddSet = () => {
+  const lastSet = props.exercise.setConfigurations[props.exercise.setConfigurations.length - 1]
+  const newSet = {
+    set_number: props.exercise.setConfigurations.length + 1,
+    reps_min: lastSet?.reps_min || 8,
+    reps_max: lastSet?.reps_max || 12,
+  }
+  emit('update', { setConfigurations: [...props.exercise.setConfigurations, newSet] })
 }
 
-const handleUpdateRepsMax = (value: number) => {
-  emit('update', { repsMax: value })
+const handleRemoveSet = (setIndex: number) => {
+  if (props.exercise.setConfigurations.length <= 1) return
+  const newConfigs = props.exercise.setConfigurations
+    .filter((_, i) => i !== setIndex)
+    .map((config, i) => ({ ...config, set_number: i + 1 }))
+  emit('update', { setConfigurations: newConfigs })
 }
 
 const handleUpdateRest = (value: number | null) => {
@@ -178,50 +209,73 @@ const handleUpdateRest = (value: number | null) => {
     </div>
 
     <!-- Exercise parameters (only shown if exercise is matched) -->
-    <div v-if="exercise.matchedExercise" class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div>
-        <BaseInput
-          :model-value="exercise.sets"
-          label="Sets"
-          type="number"
-          min="1"
-          max="50"
-          required
-          @update:model-value="handleUpdateSets(Number($event))"
-        />
+    <div v-if="exercise.matchedExercise" class="space-y-3">
+      <!-- Summary -->
+      <div class="flex items-center justify-between">
+        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ repsDisplay }}</p>
+        <BaseButton type="button" variant="outline" size="sm" @click="handleAddSet">
+          + Add Set
+        </BaseButton>
       </div>
-      <div>
-        <BaseInput
-          :model-value="exercise.repsMin"
-          label="Min Reps"
-          type="number"
-          min="1"
-          max="200"
-          required
-          @update:model-value="handleUpdateRepsMin(Number($event))"
-        />
-      </div>
-      <div>
-        <BaseInput
-          :model-value="exercise.repsMax"
-          label="Max Reps"
-          type="number"
-          min="1"
-          max="200"
-          required
-          @update:model-value="handleUpdateRepsMax(Number($event))"
-        />
-      </div>
-      <div>
-        <BaseInput
-          :model-value="exercise.restSeconds ?? ''"
-          label="Rest (sec)"
-          type="number"
-          min="0"
-          max="3600"
-          placeholder="60"
-          @update:model-value="handleUpdateRest($event ? Number($event) : null)"
-        />
+
+      <!-- Per-set configuration -->
+      <div class="space-y-2">
+        <div
+          v-for="(setConfig, index) in exercise.setConfigurations"
+          :key="index"
+          class="grid grid-cols-[auto_1fr_1fr_auto] md:grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 items-end"
+        >
+          <span class="text-sm font-medium text-gray-600 dark:text-gray-400 pb-2">
+            Set {{ index + 1 }}
+          </span>
+          <BaseInput
+            :model-value="setConfig.reps_min"
+            label="Min Reps"
+            type="number"
+            min="1"
+            max="200"
+            required
+            @update:model-value="handleUpdateSet(index, 'reps_min', Number($event))"
+          />
+          <BaseInput
+            :model-value="setConfig.reps_max"
+            label="Max Reps"
+            type="number"
+            min="1"
+            max="200"
+            required
+            @update:model-value="handleUpdateSet(index, 'reps_max', Number($event))"
+          />
+          <BaseInput
+            v-if="index === 0"
+            :model-value="exercise.restSeconds ?? ''"
+            label="Rest (sec)"
+            type="number"
+            min="0"
+            max="3600"
+            placeholder="60"
+            @update:model-value="handleUpdateRest($event ? Number($event) : null)"
+          />
+          <div v-else class="pb-2"></div>
+          <BaseButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            :disabled="exercise.setConfigurations.length <= 1"
+            class="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/50 mb-2"
+            title="Remove set"
+            @click="handleRemoveSet(index)"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </BaseButton>
+        </div>
       </div>
     </div>
 

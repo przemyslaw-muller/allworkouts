@@ -8,12 +8,12 @@ import BaseCard from '@/components/common/BaseCard.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import ConfidenceBadge from './ConfidenceBadge.vue'
-import type { ParsedExerciseViewModel } from '@/types'
+import type { ParsedExerciseViewModel, ParsedWorkoutViewModel } from '@/types'
 
 interface Props {
   planName: string
   planDescription: string | null
-  exercises: ParsedExerciseViewModel[]
+  workouts: ParsedWorkoutViewModel[]
   isCreating: boolean
   createError: string | null
 }
@@ -25,13 +25,21 @@ const emit = defineEmits<{
   (e: 'back'): void
 }>()
 
+const allExercises = computed(() => {
+  return props.workouts.flatMap(w => w.exercises)
+})
+
+const totalExercises = computed(() => {
+  return allExercises.value.length
+})
+
 const totalSets = computed(() => {
-  return props.exercises.reduce((sum, ex) => sum + ex.sets, 0)
+  return allExercises.value.reduce((sum, ex) => sum + ex.setConfigurations.length, 0)
 })
 
 const muscleGroupsSummary = computed(() => {
   const groups = new Set<string>()
-  props.exercises.forEach((ex) => {
+  allExercises.value.forEach((ex) => {
     if (ex.matchedExercise) {
       ex.matchedExercise.primary_muscle_groups.forEach((mg) => groups.add(mg))
     }
@@ -43,12 +51,33 @@ const muscleGroupsSummary = computed(() => {
 })
 
 const allExercisesMatched = computed(() => {
-  return props.exercises.every((ex) => ex.matchedExercise !== null)
+  return allExercises.value.every((ex) => ex.matchedExercise !== null)
 })
 
-const formatReps = (min: number, max: number) => {
-  if (min === max) return `${min}`
-  return `${min}-${max}`
+const formatSetsReps = (exercise: ParsedExerciseViewModel) => {
+  const configs = exercise.setConfigurations
+  if (configs.length === 0) return '0 sets'
+  
+  // Check if all sets have the same rep range
+  const firstSet = configs[0]
+  const allSame = configs.every(
+    (s) => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max
+  )
+  
+  if (allSame) {
+    const reps = firstSet.reps_min === firstSet.reps_max 
+      ? `${firstSet.reps_min}`
+      : `${firstSet.reps_min}-${firstSet.reps_max}`
+    return `${configs.length} × ${reps}`
+  }
+  
+  // Show individual set details
+  return configs
+    .map((s, i) => {
+      const reps = s.reps_min === s.reps_max ? `${s.reps_min}` : `${s.reps_min}-${s.reps_max}`
+      return `S${i + 1}: ${reps}`
+    })
+    .join(', ')
 }
 </script>
 
@@ -86,17 +115,25 @@ const formatReps = (min: number, max: number) => {
         >
           <div>
             <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {{ exercises.length }}
+              {{ workouts.length }}
             </p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Exercise{{ exercises.length !== 1 ? 's' : '' }}
+              Workout{{ workouts.length !== 1 ? 's' : '' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+              {{ totalExercises }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Exercise{{ totalExercises !== 1 ? 's' : '' }}
             </p>
           </div>
           <div>
             <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ totalSets }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">Total Sets</p>
           </div>
-          <div class="col-span-2">
+          <div>
             <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Muscle Groups</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ muscleGroupsSummary || 'None' }}
@@ -106,51 +143,58 @@ const formatReps = (min: number, max: number) => {
       </div>
     </BaseCard>
 
-    <!-- Exercise Preview List -->
-    <BaseCard>
-      <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Exercise Summary</h4>
+    <!-- Workout Summary List -->
+    <div class="space-y-4">
+      <BaseCard v-for="workout in workouts" :key="workout.id">
+        <div class="mb-4">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {{ workout.name }}
+          </h4>
+          <p v-if="workout.dayNumber" class="text-sm text-gray-500 dark:text-gray-400">
+            Day {{ workout.dayNumber }}
+          </p>
+        </div>
 
-      <div class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div
-          v-for="(exercise, index) in exercises"
-          :key="exercise.id"
-          class="py-3 first:pt-0 last:pb-0"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex items-start gap-3">
-              <span
-                class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400"
-              >
-                {{ index + 1 }}
-              </span>
-              <div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-medium text-gray-900 dark:text-gray-100">
-                    {{ exercise.matchedExercise?.exercise_name || 'Unknown Exercise' }}
-                  </span>
-                  <ConfidenceBadge :level="exercise.confidenceLevel" :show-label="false" />
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="(exercise, index) in workout.exercises"
+            :key="exercise.id"
+            class="py-3 first:pt-0 last:pb-0"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <span
+                  class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400"
+                >
+                  {{ index + 1 }}
+                </span>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-medium text-gray-900 dark:text-gray-100">
+                      {{ exercise.matchedExercise?.exercise_name || 'Unknown Exercise' }}
+                    </span>
+                    <ConfidenceBadge :level="exercise.confidenceLevel" :show-label="false" />
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    {{
+                      exercise.matchedExercise?.primary_muscle_groups
+                        .map((mg) => mg.charAt(0).toUpperCase() + mg.slice(1))
+                        .join(', ')
+                    }}
+                  </p>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                  {{
-                    exercise.matchedExercise?.primary_muscle_groups
-                      .map((mg) => mg.charAt(0).toUpperCase() + mg.slice(1))
-                      .join(', ')
-                  }}
-                </p>
               </div>
-            </div>
-            <div class="text-right text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
-              <span class="font-medium"
-                >{{ exercise.sets }} x {{ formatReps(exercise.repsMin, exercise.repsMax) }}</span
-              >
-              <span v-if="exercise.restSeconds" class="block text-xs text-gray-400">
-                {{ exercise.restSeconds }}s rest
-              </span>
+              <div class="text-right text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
+                <span class="font-medium">{{ formatSetsReps(exercise) }}</span>
+                <span v-if="exercise.restSeconds" class="block text-xs text-gray-400">
+                  {{ exercise.restSeconds }}s rest
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </BaseCard>
+      </BaseCard>
+    </div>
 
     <!-- Action Buttons -->
     <div class="flex justify-between items-center pt-4">

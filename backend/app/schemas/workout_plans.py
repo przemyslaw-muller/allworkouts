@@ -84,14 +84,34 @@ class WorkoutBrief(BaseModel):
 # =============================================================================
 
 
+class SetConfig(BaseModel):
+    """Configuration for a single set"""
+
+    set_number: int
+    reps_min: int
+    reps_max: int
+
+    @field_validator('set_number')
+    @classmethod
+    def validate_set_number(cls, v: int) -> int:
+        if v < 1 or v > 50:
+            raise ValueError('Set number must be between 1 and 50')
+        return v
+
+    @field_validator('reps_min', 'reps_max')
+    @classmethod
+    def validate_reps(cls, v: int) -> int:
+        if v < 1 or v > 200:
+            raise ValueError('Reps must be between 1 and 200')
+        return v
+
+
 class WorkoutExerciseBase(BaseModel):
     """Base workout exercise schema"""
 
     exercise_id: UUID
     sequence: int
-    sets: int
-    reps_min: int
-    reps_max: int
+    set_configurations: list[SetConfig]
     rest_time_seconds: Optional[int] = None
     confidence_level: ConfidenceLevelEnum = ConfidenceLevelEnum.MEDIUM
 
@@ -120,9 +140,7 @@ class WorkoutExerciseDetail(BaseModel):
     id: UUID
     exercise: ExerciseBrief
     sequence: int
-    sets: int
-    reps_min: int
-    reps_max: int
+    set_configurations: list[SetConfig]
     rest_time_seconds: Optional[int] = None
     confidence_level: ConfidenceLevelEnum
 
@@ -135,24 +153,19 @@ class WorkoutExerciseCreateItem(BaseModel):
 
     exercise_id: UUID
     sequence: int
-    sets: int
-    reps_min: int
-    reps_max: int
+    set_configurations: list[SetConfig]
     rest_time_seconds: Optional[int] = None
     confidence_level: ConfidenceLevelEnum = ConfidenceLevelEnum.MEDIUM
 
-    @field_validator("sets")
+    @field_validator('set_configurations')
     @classmethod
-    def validate_sets(cls, v: int) -> int:
-        if v < 1 or v > 50:
-            raise ValueError("Sets must be between 1 and 50")
-        return v
-
-    @field_validator("reps_min", "reps_max")
-    @classmethod
-    def validate_reps(cls, v: int) -> int:
-        if v < 1 or v > 200:
-            raise ValueError("Reps must be between 1 and 200")
+    def validate_set_configurations(cls, v: list[SetConfig]) -> list[SetConfig]:
+        if len(v) < 1 or len(v) > 50:
+            raise ValueError('Must have between 1 and 50 sets')
+        # Validate set numbers are sequential
+        for i, config in enumerate(v, start=1):
+            if config.set_number != i:
+                raise ValueError(f'Set numbers must be sequential starting from 1')
         return v
 
     @field_validator("rest_time_seconds")
@@ -371,9 +384,7 @@ class ParsedExerciseItem(BaseModel):
 
     matched_exercise: Optional[ParsedExerciseMatch] = None
     original_text: str
-    sets: int
-    reps_min: int
-    reps_max: int
+    set_configurations: list[SetConfig]
     rest_seconds: Optional[int] = None
     notes: Optional[str] = None
     sequence: int

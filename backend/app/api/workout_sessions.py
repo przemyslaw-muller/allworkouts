@@ -267,9 +267,10 @@ async def get_current_workout_session(
                     primary_muscle_groups=exercise.primary_muscle_groups,
                     secondary_muscle_groups=exercise.secondary_muscle_groups or [],
                 ),
-                planned_sets=we.sets,
-                planned_reps_min=we.reps_min,
-                planned_reps_max=we.reps_max,
+                planned_sets=len(we.set_configurations) if we.set_configurations else 0,
+                planned_reps_min=we.set_configurations[0].get("reps_min", 8) if we.set_configurations else 8,
+                planned_reps_max=we.set_configurations[0].get("reps_max", 12) if we.set_configurations else 12,
+                set_configurations=we.set_configurations or [],
                 rest_seconds=we.rest_time_seconds,
                 context=ExerciseContextInfo(
                     personal_record=pr_brief,
@@ -420,24 +421,60 @@ async def start_workout_session(
 
     Creates a session with status=in_progress and returns
     exercise context (PRs and recent sessions).
+    
+    Accepts either workout_id or workout_plan_id.
+    If workout_plan_id is provided, starts the first workout in the plan.
     """
-    # Verify workout exists and belongs to user
-    workout = (
-        db.query(Workout)
-        .join(WorkoutPlan)
-        .filter(
-            Workout.id == request.workout_id,
-            WorkoutPlan.user_id == user_id,
-            WorkoutPlan.deleted_at.is_(None),
-        )
-        .first()
-    )
-
-    if not workout:
+    # Validate request
+    if not request.workout_id and not request.workout_plan_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Workout not found",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either workout_id or workout_plan_id must be provided",
         )
+    
+    if request.workout_id and request.workout_plan_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only one of workout_id or workout_plan_id should be provided",
+        )
+    
+    # If workout_plan_id is provided, find the first workout
+    if request.workout_plan_id:
+        workout = (
+            db.query(Workout)
+            .join(WorkoutPlan)
+            .filter(
+                Workout.workout_plan_id == request.workout_plan_id,
+                WorkoutPlan.user_id == user_id,
+                WorkoutPlan.deleted_at.is_(None),
+            )
+            .order_by(Workout.order_index)
+            .first()
+        )
+        
+        if not workout:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Workout plan not found or has no workouts",
+            )
+    else:
+        # Verify workout exists and belongs to user
+        workout = (
+            db.query(Workout)
+            .join(WorkoutPlan)
+            .filter(
+                Workout.id == request.workout_id,
+                WorkoutPlan.user_id == user_id,
+                WorkoutPlan.deleted_at.is_(None),
+            )
+            .first()
+        )
+
+        if not workout:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Workout not found",
+            )
 
     workout_plan = workout.workout_plan
 
@@ -527,9 +564,10 @@ async def start_workout_session(
                     primary_muscle_groups=exercise.primary_muscle_groups,
                     secondary_muscle_groups=exercise.secondary_muscle_groups or [],
                 ),
-                planned_sets=we.sets,
-                planned_reps_min=we.reps_min,
-                planned_reps_max=we.reps_max,
+                planned_sets=len(we.set_configurations) if we.set_configurations else 0,
+                planned_reps_min=we.set_configurations[0].get("reps_min", 8) if we.set_configurations else 8,
+                planned_reps_max=we.set_configurations[0].get("reps_max", 12) if we.set_configurations else 12,
+                set_configurations=we.set_configurations or [],
                 rest_seconds=we.rest_time_seconds,
                 context=ExerciseContextInfo(
                     personal_record=pr_brief,

@@ -11,12 +11,12 @@ import BaseButton from '@/components/common/BaseButton.vue'
 import BaseAlert from '@/components/common/BaseAlert.vue'
 import AddExerciseModal from '@/components/common/AddExerciseModal.vue'
 import ParsedExerciseCard from './ParsedExerciseCard.vue'
-import type { ParsedExerciseViewModel, ParseStats, ExerciseListItem } from '@/types'
+import type { ParsedExerciseViewModel, ParsedWorkoutViewModel, ParseStats, ExerciseListItem } from '@/types'
 
 interface Props {
   planName: string
   planDescription: string | null
-  exercises: ParsedExerciseViewModel[]
+  workouts: ParsedWorkoutViewModel[]
   parseStats: ParseStats | null
 }
 
@@ -30,28 +30,36 @@ const emit = defineEmits<{
   (e: 'replaceExercise', exerciseId: string, newExercise: ExerciseListItem): void
   (e: 'removeExercise', exerciseId: string): void
   (e: 'addExercise', exercise: ExerciseListItem): void
-  (e: 'reorderExercises', fromIndex: number, toIndex: number): void
+  (e: 'reorderExercises', workoutId: string, fromIndex: number, toIndex: number): void
 }>()
 
 const showAddModal = ref(false)
 const exerciseToReplace = ref<string | null>(null)
 
+const allExercises = computed(() => {
+  return props.workouts.flatMap(w => w.exercises)
+})
+
 const hasWarnings = computed(() => {
-  return props.exercises.some((ex) => !ex.matchedExercise || ex.confidenceLevel === 'low')
+  return allExercises.value.some((ex) => !ex.matchedExercise || ex.confidenceLevel === 'low')
 })
 
 const unmatchedCount = computed(() => {
-  return props.exercises.filter((ex) => !ex.matchedExercise).length
+  return allExercises.value.filter((ex) => !ex.matchedExercise).length
 })
 
 const lowConfidenceCount = computed(() => {
-  return props.exercises.filter((ex) => ex.matchedExercise && ex.confidenceLevel === 'low').length
+  return allExercises.value.filter((ex) => ex.matchedExercise && ex.confidenceLevel === 'low').length
 })
 
 const existingExerciseIds = computed(() => {
-  return props.exercises
+  return allExercises.value
     .filter((ex) => ex.matchedExercise)
     .map((ex) => ex.matchedExercise!.exercise_id)
+})
+
+const totalExerciseCount = computed(() => {
+  return allExercises.value.length
 })
 
 const handleUpdateExercise = (exerciseId: string, updates: Partial<ParsedExerciseViewModel>) => {
@@ -71,15 +79,15 @@ const handleRemoveExercise = (exerciseId: string) => {
   emit('removeExercise', exerciseId)
 }
 
-const handleMoveUp = (index: number) => {
+const handleMoveUp = (workoutId: string, index: number) => {
   if (index > 0) {
-    emit('reorderExercises', index, index - 1)
+    emit('reorderExercises', workoutId, index, index - 1)
   }
 }
 
-const handleMoveDown = (index: number) => {
-  if (index < props.exercises.length - 1) {
-    emit('reorderExercises', index, index + 1)
+const handleMoveDown = (workoutId: string, index: number, maxIndex: number) => {
+  if (index < maxIndex) {
+    emit('reorderExercises', workoutId, index, index + 1)
   }
 }
 
@@ -166,11 +174,11 @@ const handleSelectExercise = (exercise: ExerciseListItem) => {
       </div>
     </BaseCard>
 
-    <!-- Exercise List -->
-    <div class="space-y-4">
+    <!-- Workouts List -->
+    <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-          Exercises ({{ exercises.length }})
+          Workouts ({{ workouts.length }}) - {{ totalExerciseCount }} total exercises
         </h3>
         <BaseButton type="button" variant="outline" size="sm" @click="handleAddExercise">
           + Add Exercise
@@ -179,30 +187,61 @@ const handleSelectExercise = (exercise: ExerciseListItem) => {
 
       <!-- Empty state -->
       <div
-        v-if="exercises.length === 0"
+        v-if="workouts.length === 0"
         class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600"
       >
         <p class="text-gray-500 dark:text-gray-400">
-          No exercises parsed. Add exercises manually using the button above.
+          No workouts parsed. Add exercises manually using the button above.
         </p>
       </div>
 
-      <!-- Exercise cards -->
-      <TransitionGroup v-else name="list" tag="div" class="space-y-4">
-        <ParsedExerciseCard
-          v-for="(exercise, index) in exercises"
-          :key="exercise.id"
-          :exercise="exercise"
-          :index="index"
-          :can-remove="exercises.length > 1"
-          @update="handleUpdateExercise(exercise.id, $event)"
-          @fix-match="handleFixMatch(exercise.id)"
-          @select-alternative="handleSelectAlternative(exercise.id, $event)"
-          @remove="handleRemoveExercise(exercise.id)"
-          @move-up="handleMoveUp(index)"
-          @move-down="handleMoveDown(index)"
-        />
-      </TransitionGroup>
+      <!-- Workout sections -->
+      <div v-else class="space-y-6">
+        <BaseCard v-for="workout in workouts" :key="workout.id" class="!p-0">
+          <div class="p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {{ workout.name }}
+                </h4>
+                <p v-if="workout.dayNumber" class="text-sm text-gray-500 dark:text-gray-400">
+                  Day {{ workout.dayNumber }}
+                </p>
+              </div>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ workout.exercises.length }} exercise{{ workout.exercises.length !== 1 ? 's' : '' }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="p-4">
+            <!-- Empty workout state -->
+            <div
+              v-if="workout.exercises.length === 0"
+              class="text-center py-8 text-gray-500 dark:text-gray-400"
+            >
+              No exercises in this workout
+            </div>
+
+            <!-- Exercise cards -->
+            <TransitionGroup v-else name="list" tag="div" class="space-y-4">
+              <ParsedExerciseCard
+                v-for="(exercise, index) in workout.exercises"
+                :key="exercise.id"
+                :exercise="exercise"
+                :index="index"
+                :can-remove="workout.exercises.length > 1"
+                @update="handleUpdateExercise(exercise.id, $event)"
+                @fix-match="handleFixMatch(exercise.id)"
+                @select-alternative="handleSelectAlternative(exercise.id, $event)"
+                @remove="handleRemoveExercise(exercise.id)"
+                @move-up="handleMoveUp(workout.id, index)"
+                @move-down="handleMoveDown(workout.id, index, workout.exercises.length - 1)"
+              />
+            </TransitionGroup>
+          </div>
+        </BaseCard>
+      </div>
     </div>
 
     <!-- Add Exercise Modal -->

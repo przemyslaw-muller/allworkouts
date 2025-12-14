@@ -28,12 +28,13 @@ const {
   createError,
   planName,
   planDescription,
-  exercises,
+  workouts,
   parseStats,
 
   // Computed
   hasData,
   canParse,
+  allExercises,
   isStep2Valid,
 
   // Methods
@@ -127,8 +128,8 @@ const handleAddExercise = (exercise: ExerciseListItem) => {
   addExercise(exercise)
 }
 
-const handleReorderExercises = (fromIndex: number, toIndex: number) => {
-  reorderExercises(fromIndex, toIndex)
+const handleReorderExercises = (workoutId: string, fromIndex: number, toIndex: number) => {
+  reorderExercises(workoutId, fromIndex, toIndex)
 }
 
 // Computed for navigation
@@ -194,7 +195,7 @@ const stepTitle = computed(() => {
         v-else-if="currentStep === 2"
         :plan-name="planName"
         :plan-description="planDescription"
-        :exercises="exercises"
+        :workouts="workouts"
         :parse-stats="parseStats"
         @update:plan-name="updatePlanName"
         @update:plan-description="updatePlanDescription"
@@ -211,7 +212,7 @@ const stepTitle = computed(() => {
         v-else-if="currentStep === 3"
         :plan-name="planName"
         :plan-description="planDescription"
-        :exercises="exercises"
+        :workouts="workouts"
         :is-creating="isCreating"
         :create-error="createError"
         @create="handleCreate"

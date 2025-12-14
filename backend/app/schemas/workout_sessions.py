@@ -179,8 +179,9 @@ class PlannedExerciseWithContext(BaseModel):
     planned_exercise_id: UUID
     exercise: ExerciseBrief
     planned_sets: int
-    planned_reps_min: int
-    planned_reps_max: int
+    planned_reps_min: int  # For backward compatibility, same as first set config
+    planned_reps_max: int  # For backward compatibility, same as first set config
+    set_configurations: list  # Full set configurations with individual rep ranges
     rest_seconds: Optional[int] = None
     context: ExerciseContextInfo
 
@@ -191,7 +192,8 @@ class PlannedExerciseWithContext(BaseModel):
 class WorkoutSessionStartRequest(BaseModel):
     """Request for starting a workout session"""
 
-    workout_id: UUID
+    workout_id: Optional[UUID] = None
+    workout_plan_id: Optional[UUID] = None
 
 
 class WorkoutSessionStartResponse(BaseModel):

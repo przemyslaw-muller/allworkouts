@@ -234,13 +234,17 @@ export interface WorkoutPlanBrief {
   name: string
 }
 
+export interface SetConfig {
+  set_number: number
+  reps_min: number
+  reps_max: number
+}
+
 export interface WorkoutExerciseDetail {
   id: string
   exercise: ExerciseBrief
   sequence: number
-  sets: number
-  reps_min: number
-  reps_max: number
+  set_configurations: SetConfig[]
   rest_time_seconds: number | null
   confidence_level: ConfidenceLevel
 }
@@ -291,9 +295,7 @@ export interface WorkoutPlanDetailResponse {
 export interface WorkoutExerciseCreateItem {
   exercise_id: string
   sequence: number
-  sets: number
-  reps_min: number
-  reps_max: number
+  set_configurations: SetConfig[]
   rest_time_seconds?: number | null
   confidence_level?: ConfidenceLevel
 }
@@ -361,14 +363,16 @@ export interface PlannedExerciseWithContext {
   planned_exercise_id: string
   exercise: ExerciseBrief
   planned_sets: number
-  planned_reps_min: number
-  planned_reps_max: number
+  planned_reps_min: number  // For backward compatibility, same as first set config
+  planned_reps_max: number  // For backward compatibility, same as first set config
+  set_configurations: SetConfig[]  // Full set configurations with individual rep ranges
   rest_seconds: number | null
   context: ExerciseContextInfo
 }
 
 export interface WorkoutSessionStartRequest {
-  workout_id: string
+  workout_id?: string
+  workout_plan_id?: string
 }
 
 export interface WorkoutSessionStartResponse {
@@ -427,11 +431,9 @@ export interface WorkoutSessionListItem {
   workout_plan: WorkoutPlanBrief
   workout: WorkoutBrief
   status: SessionStatus
-  started_at: string
-  completed_at: string | null
-  duration_seconds: number | null
   exercise_count: number
-  notes: string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface WorkoutSessionListResponse {
@@ -678,9 +680,7 @@ export interface ParsedExerciseMatch {
 export interface ParsedExerciseItem {
   matched_exercise: ParsedExerciseMatch | null
   original_text: string
-  sets: number
-  reps_min: number
-  reps_max: number
+  set_configurations: SetConfig[]
   rest_seconds: number | null
   notes: string | null
   sequence: number
@@ -748,9 +748,7 @@ export interface ParsedExerciseViewModel {
   originalText: string
   matchedExercise: ParsedExerciseMatch | null
   alternativeMatches: ParsedExerciseMatch[]
-  sets: number
-  repsMin: number
-  repsMax: number
+  setConfigurations: SetConfig[]
   restSeconds: number | null
   notes: string | null
   confidenceLevel: ConfidenceLevel | null

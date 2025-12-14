@@ -167,13 +167,27 @@ class ParserService:
         else:
             stats["unmatched"] += 1
 
+        # Build set configurations from LLM response
+        sets_data = ex_data.get("sets", [])
+        if not sets_data:
+            # Fallback if LLM didn't return sets array
+            sets_data = [{"reps_min": 8, "reps_max": 12}] * 3
+        
+        from app.schemas.workout_plans import SetConfig
+        set_configurations = [
+            SetConfig(
+                set_number=i + 1,
+                reps_min=set_data.get("reps_min", 8),
+                reps_max=set_data.get("reps_max", 12)
+            )
+            for i, set_data in enumerate(sets_data)
+        ]
+
         # Build ParsedExerciseItem (no alternatives since LLM does the matching)
         return ParsedExerciseItem(
             matched_exercise=matched_exercise,
             original_text=original_text,
-            sets=ex_data.get("sets", 3),
-            reps_min=ex_data.get("reps_min", 8),
-            reps_max=ex_data.get("reps_max", 12),
+            set_configurations=set_configurations,
             rest_seconds=ex_data.get("rest_seconds"),
             notes=ex_data.get("notes"),
             sequence=ex_data.get("sequence", 0),

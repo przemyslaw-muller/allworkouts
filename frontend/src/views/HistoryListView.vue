@@ -37,7 +37,7 @@ const groupedSessions = computed(() => {
   const dateMap = new Map<string, WorkoutSessionListItem[]>()
 
   for (const session of sessions.value) {
-    const dateKey = session.started_at.split('T')[0] // YYYY-MM-DD
+    const dateKey = session.created_at.split('T')[0] // YYYY-MM-DD
     if (!dateMap.has(dateKey)) {
       dateMap.set(dateKey, [])
     }
@@ -338,9 +338,7 @@ onMounted(() => {
                 <div
                   class="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
                 >
-                  <span>{{ formatTime(session.started_at) }}</span>
-                  <span>·</span>
-                  <span>{{ formatDuration(session.duration_seconds) }}</span>
+                  <span>{{ formatTime(session.created_at) }}</span>
                   <span>·</span>
                   <span>{{ session.exercise_count }} exercises</span>
                 </div>

@@ -62,11 +62,11 @@ const formattedElapsedTime = computed(() => {
 })
 
 // Get exercise status
-function getExerciseStatus(exerciseId: string): 'completed' | 'current' | 'pending' {
-  if (workoutStore.isExerciseCompleted(exerciseId)) {
+function getExerciseStatus(plannedExerciseId: string): 'completed' | 'current' | 'pending' {
+  if (workoutStore.isExerciseCompleted(plannedExerciseId)) {
     return 'completed'
   }
-  if (currentExercise.value?.exercise.id === exerciseId) {
+  if (currentExercise.value?.planned_exercise_id === plannedExerciseId) {
     return 'current'
   }
   return 'pending'
@@ -77,7 +77,7 @@ function initializeSetInputs() {
   if (!currentExercise.value) return
 
   const plannedSets = currentExercise.value.planned_sets
-  const logged = loggedSets.value.get(currentExercise.value.exercise.id) || []
+  const logged = loggedSets.value.get(currentExercise.value.planned_exercise_id) || []
 
   // Pre-fill from previous session or defaults
   currentExerciseSetInputs.value = Array.from({ length: plannedSets }, (_, i) => {
@@ -93,9 +93,13 @@ function initializeSetInputs() {
     const recentSession = currentExercise.value?.context.recent_sessions[0]
     const recentSet = recentSession?.sets[i]
 
+    // Use set-specific rep range if available
+    const setConfig = currentExercise.value?.set_configurations?.[i]
+    const defaultReps = setConfig?.reps_min?.toString() || currentExercise.value?.planned_reps_min.toString() || ''
+
     return {
       weight: recentSet?.weight?.toString() || '',
-      reps: recentSet?.reps?.toString() || currentExercise.value?.planned_reps_min.toString() || '',
+      reps: recentSet?.reps?.toString() || defaultReps,
     }
   })
 }
@@ -122,15 +126,15 @@ async function logSet(setIndex: number) {
     }
 
     // Add to logged sets
-    const exerciseId = currentExercise.value.exercise.id
-    const current = loggedSets.value.get(exerciseId) || []
+    const plannedExerciseId = currentExercise.value.planned_exercise_id
+    const current = loggedSets.value.get(plannedExerciseId) || []
     current.push({
       set_number: setIndex + 1,
       reps,
       weight,
       rest_time_seconds: currentExercise.value.rest_seconds,
     })
-    loggedSets.value.set(exerciseId, current)
+    loggedSets.value.set(plannedExerciseId, current)
 
     // Save to localStorage
     saveViewStateToLocalStorage()
@@ -157,8 +161,8 @@ async function logSet(setIndex: number) {
 async function completeCurrentExercise() {
   if (!currentExercise.value) return
 
-  const exerciseId = currentExercise.value.exercise.id
-  const sets = loggedSets.value.get(exerciseId)
+  const plannedExerciseId = currentExercise.value.planned_exercise_id
+  const sets = loggedSets.value.get(plannedExerciseId)
 
   if (!sets || sets.length === 0) {
     uiStore.showToast('Please log at least one set', 'error')
@@ -168,7 +172,7 @@ async function completeCurrentExercise() {
   isSubmitting.value = true
 
   try {
-    const result = await workoutStore.logExercise(exerciseId, sets)
+    const result = await workoutStore.logExercise(plannedExerciseId, sets)
 
     if (result.success) {
       uiStore.showToast(`${currentExercise.value.exercise.name} completed!`, 'success')
@@ -389,14 +393,14 @@ onUnmounted(() => {
     <div v-else class="pt-20 max-w-2xl mx-auto px-4 py-4 space-y-4">
       <!-- Exercise List -->
       <div class="space-y-3">
-        <div v-for="(exercise, index) in exercises" :key="exercise.exercise.id" class="relative">
+        <div v-for="(exercise, index) in exercises" :key="exercise.planned_exercise_id" class="relative">
           <!-- Exercise Card -->
           <BaseCard
             :class="[
               'transition-all cursor-pointer',
-              getExerciseStatus(exercise.exercise.id) === 'completed'
+              getExerciseStatus(exercise.planned_exercise_id) === 'completed'
                 ? '!bg-gray-800 !border-green-500/30 opacity-75'
-                : getExerciseStatus(exercise.exercise.id) === 'current'
+                : getExerciseStatus(exercise.planned_exercise_id) === 'current'
                   ? '!bg-gray-800 !border-primary-500'
                   : '!bg-gray-800 !border-gray-700 opacity-60',
             ]"
@@ -407,7 +411,7 @@ onUnmounted(() => {
                 <div class="flex items-center gap-2 mb-1">
                   <!-- Status Icon -->
                   <span
-                    v-if="getExerciseStatus(exercise.exercise.id) === 'completed'"
+                    v-if="getExerciseStatus(exercise.planned_exercise_id) === 'completed'"
                     class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center"
                   >
                     <svg
@@ -425,7 +429,7 @@ onUnmounted(() => {
                     </svg>
                   </span>
                   <span
-                    v-else-if="getExerciseStatus(exercise.exercise.id) === 'current'"
+                    v-else-if="getExerciseStatus(exercise.planned_exercise_id) === 'current'"
                     class="w-6 h-6 rounded-full bg-primary-500 animate-pulse"
                   />
                   <span v-else class="w-6 h-6 rounded-full bg-gray-600" />
@@ -469,7 +473,7 @@ onUnmounted(() => {
                 <!-- Context info for current exercise -->
                 <div
                   v-if="
-                    getExerciseStatus(exercise.exercise.id) === 'current' &&
+                    getExerciseStatus(exercise.planned_exercise_id) === 'current' &&
                     exercise.context.recent_sessions.length > 0
                   "
                   class="mt-2 text-xs text-gray-500"
@@ -483,7 +487,7 @@ onUnmounted(() => {
 
             <!-- Set Logging (only for current exercise) -->
             <div
-              v-if="getExerciseStatus(exercise.exercise.id) === 'current'"
+              v-if="getExerciseStatus(exercise.planned_exercise_id) === 'current'"
               class="mt-4 space-y-3"
             >
               <div
@@ -491,7 +495,15 @@ onUnmounted(() => {
                 :key="setIndex"
                 class="flex items-center gap-3"
               >
-                <span class="text-sm text-gray-400 w-12">Set {{ setIndex + 1 }}</span>
+                <div class="flex flex-col items-end">
+                  <span class="text-sm text-gray-400 w-12">Set {{ setIndex + 1 }}</span>
+                  <span
+                    v-if="exercise.set_configurations?.[setIndex]"
+                    class="text-xs text-gray-500 w-12"
+                  >
+                    {{ exercise.set_configurations[setIndex].reps_min }}-{{ exercise.set_configurations[setIndex].reps_max }}
+                  </span>
+                </div>
 
                 <!-- Weight Input -->
                 <div class="flex-1">
@@ -501,7 +513,7 @@ onUnmounted(() => {
                     step="0.5"
                     placeholder="Weight"
                     class="text-center"
-                    :disabled="setIndex < (loggedSets.get(exercise.exercise.id)?.length || 0)"
+                    :disabled="setIndex < (loggedSets.get(exercise.planned_exercise_id)?.length || 0)"
                   />
                 </div>
 
@@ -510,15 +522,15 @@ onUnmounted(() => {
                   <BaseInput
                     v-model="setInput.reps"
                     type="number"
-                    placeholder="Reps"
+                    :placeholder="exercise.set_configurations?.[setIndex] ? `${exercise.set_configurations[setIndex].reps_min}-${exercise.set_configurations[setIndex].reps_max}` : 'Reps'"
                     class="text-center"
-                    :disabled="setIndex < (loggedSets.get(exercise.exercise.id)?.length || 0)"
+                    :disabled="setIndex < (loggedSets.get(exercise.planned_exercise_id)?.length || 0)"
                   />
                 </div>
 
                 <!-- Log Button -->
                 <BaseButton
-                  v-if="setIndex >= (loggedSets.get(exercise.exercise.id)?.length || 0)"
+                  v-if="setIndex >= (loggedSets.get(exercise.planned_exercise_id)?.length || 0)"
                   variant="primary"
                   size="sm"
                   :disabled="isSubmitting"
@@ -531,7 +543,7 @@ onUnmounted(() => {
 
               <!-- Complete Exercise Button -->
               <BaseButton
-                v-if="(loggedSets.get(exercise.exercise.id)?.length || 0) >= exercise.planned_sets"
+                v-if="(loggedSets.get(exercise.planned_exercise_id)?.length || 0) >= exercise.planned_sets"
                 variant="primary"
                 class="w-full"
                 :disabled="isSubmitting"

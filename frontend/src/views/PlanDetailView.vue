@@ -46,11 +46,12 @@ const estimatedDurationMinutes = computed(() => {
   let totalSeconds = 0
   for (const workout of plan.value.workouts) {
     for (const exercise of workout.exercises) {
+      const setCount = exercise.set_configurations?.length || 0
       // Assume ~45 seconds per set for actual lifting
-      totalSeconds += exercise.sets * 45
+      totalSeconds += setCount * 45
       // Add rest time between sets
       const restTime = exercise.rest_time_seconds || 60
-      totalSeconds += (exercise.sets - 1) * restTime
+      totalSeconds += (setCount - 1) * restTime
     }
   }
 
@@ -161,10 +162,25 @@ const confirmDelete = async (): Promise<void> => {
 }
 
 const formatReps = (exercise: WorkoutExerciseDetail): string => {
-  if (exercise.reps_min === exercise.reps_max) {
-    return `${exercise.reps_min} reps`
+  if (!exercise.set_configurations || exercise.set_configurations.length === 0) {
+    return 'No sets'
   }
-  return `${exercise.reps_min}-${exercise.reps_max} reps`
+  
+  // Check if all sets have the same rep range
+  const firstSet = exercise.set_configurations[0]
+  const allSame = exercise.set_configurations.every(
+    s => s.reps_min === firstSet.reps_min && s.reps_max === firstSet.reps_max
+  )
+  
+  if (allSame) {
+    if (firstSet.reps_min === firstSet.reps_max) {
+      return `${firstSet.reps_min} reps`
+    }
+    return `${firstSet.reps_min}-${firstSet.reps_max} reps`
+  }
+  
+  // Variable rep ranges across sets
+  return 'Varied reps'
 }
 
 const formatRestTime = (seconds: number | null): string => {
@@ -492,9 +508,9 @@ onMounted(() => {
                       </svg>
                       <span class="text-gray-600 dark:text-gray-400">
                         <span class="font-semibold text-gray-900 dark:text-gray-100">{{
-                          exercise.sets
+                          exercise.set_configurations?.length || 0
                         }}</span>
-                        {{ exercise.sets === 1 ? 'set' : 'sets' }}
+                        {{ (exercise.set_configurations?.length || 0) === 1 ? 'set' : 'sets' }}
                       </span>
                     </div>
 

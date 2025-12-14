@@ -9,6 +9,7 @@ import type {
   WizardStep,
   ParsedWorkoutPlan,
   ParsedExerciseViewModel,
+  ParsedWorkoutViewModel,
   ParseStats,
   WorkoutExerciseCreateItem,
   WorkoutCreateItem,
@@ -33,11 +34,11 @@ export function useImportWizard() {
   const importLogId = ref<string | null>(null)
   const planName = ref('')
   const planDescription = ref<string | null>(null)
-  const exercises = ref<ParsedExerciseViewModel[]>([])
+  const workouts = ref<ParsedWorkoutViewModel[]>([])
   const parseStats = ref<ParseStats | null>(null)
 
   // Computed
-  const hasData = computed(() => inputText.value.length > 0 || exercises.value.length > 0)
+  const hasData = computed(() => inputText.value.length > 0 || workouts.value.length > 0)
 
   const inputCharCount = computed(() => inputText.value.length)
 
@@ -45,16 +46,20 @@ export function useImportWizard() {
     return inputText.value.trim().length >= 10 && !isParsing.value
   })
 
+  const allExercises = computed(() => {
+    return workouts.value.flatMap(w => w.exercises)
+  })
+
   const hasLowConfidenceExercises = computed(() => {
-    return exercises.value.some((ex) => ex.confidenceLevel === 'low' || !ex.matchedExercise)
+    return allExercises.value.some((ex) => ex.confidenceLevel === 'low' || !ex.matchedExercise)
   })
 
   const hasUnmatchedExercises = computed(() => {
-    return exercises.value.some((ex) => !ex.matchedExercise)
+    return allExercises.value.some((ex) => !ex.matchedExercise)
   })
 
   const validExercises = computed(() => {
-    return exercises.value.filter((ex) => ex.matchedExercise !== null)
+    return allExercises.value.filter((ex) => ex.matchedExercise !== null)
   })
 
   const canProceedToStep2 = computed(() => {
@@ -63,22 +68,22 @@ export function useImportWizard() {
 
   const canProceedToStep3 = computed(() => {
     return (
-      exercises.value.length > 0 &&
-      exercises.value.every((ex) => ex.matchedExercise !== null) &&
+      workouts.value.length > 0 &&
+      allExercises.value.every((ex) => ex.matchedExercise !== null) &&
       planName.value.trim().length > 0
     )
   })
 
   const isStep2Valid = computed(() => {
     return (
-      exercises.value.length > 0 && planName.value.trim().length > 0 && planName.value.length <= 200
+      workouts.value.length > 0 && planName.value.trim().length > 0 && planName.value.length <= 200
     )
   })
 
   const isStep3Valid = computed(() => {
     return (
-      exercises.value.length > 0 &&
-      exercises.value.every((ex) => ex.matchedExercise !== null) &&
+      workouts.value.length > 0 &&
+      allExercises.value.every((ex) => ex.matchedExercise !== null) &&
       planName.value.trim().length > 0 &&
       planName.value.length <= 200
     )
@@ -87,33 +92,27 @@ export function useImportWizard() {
   // Methods
   const mapParsedResponseToViewModels = (
     parsedPlan: ParsedWorkoutPlan,
-  ): ParsedExerciseViewModel[] => {
-    // Flatten exercises from all workouts
-    const allExercises: ParsedExerciseViewModel[] = []
-    let globalIndex = 0
-
-    for (const workout of parsedPlan.workouts) {
-      for (const item of workout.exercises) {
-        allExercises.push({
-          id: `parsed-${globalIndex}-${Date.now()}`,
-          originalText: item.original_text,
-          matchedExercise: item.matched_exercise,
-          alternativeMatches: item.alternatives || [],
-          sets: item.sets,
-          repsMin: item.reps_min,
-          repsMax: item.reps_max,
-          restSeconds: item.rest_seconds,
-          notes: item.notes,
-          confidenceLevel: item.matched_exercise?.confidence_level || null,
-          sequence: globalIndex,
-          isManuallyAdded: false,
-          isModified: false,
-        })
-        globalIndex++
-      }
-    }
-
-    return allExercises
+  ): ParsedWorkoutViewModel[] => {
+    // Preserve workout structure
+    return parsedPlan.workouts.map((workout, workoutIndex) => ({
+      id: `workout-${workoutIndex}-${Date.now()}`,
+      name: workout.name,
+      dayNumber: workout.day_number,
+      orderIndex: workout.order_index,
+      exercises: workout.exercises.map((item, exIndex) => ({
+        id: `parsed-${workoutIndex}-${exIndex}-${Date.now()}`,
+        originalText: item.original_text,
+        matchedExercise: item.matched_exercise,
+        alternativeMatches: item.alternatives || [],
+        setConfigurations: item.set_configurations,
+        restSeconds: item.rest_seconds,
+        notes: item.notes,
+        confidenceLevel: item.matched_exercise?.confidence_level || null,
+        sequence: item.sequence,
+        isManuallyAdded: false,
+        isModified: false,
+      })),
+    }))
   }
 
   const parseWorkoutText = async (): Promise<void> => {
@@ -147,8 +146,8 @@ export function useImportWizard() {
         planName.value = response.parsed_plan.name
         planDescription.value = response.parsed_plan.description
 
-        // Map exercises to view models
-        exercises.value = mapParsedResponseToViewModels(response.parsed_plan)
+        // Map workouts to view models
+        workouts.value = mapParsedResponseToViewModels(response.parsed_plan)
 
         // Store stats
         parseStats.value = {
@@ -193,44 +192,56 @@ export function useImportWizard() {
   }
 
   const updateExercise = (exerciseId: string, updates: Partial<ParsedExerciseViewModel>): void => {
-    const index = exercises.value.findIndex((ex) => ex.id === exerciseId)
-    if (index !== -1) {
-      exercises.value[index] = {
-        ...exercises.value[index],
-        ...updates,
-        isModified: true,
+    for (const workout of workouts.value) {
+      const index = workout.exercises.findIndex((ex) => ex.id === exerciseId)
+      if (index !== -1) {
+        workout.exercises[index] = {
+          ...workout.exercises[index],
+          ...updates,
+          isModified: true,
+        }
+        break
       }
     }
   }
 
   const fixExerciseMatch = (exerciseId: string, newMatch: ParsedExerciseMatch): void => {
-    const index = exercises.value.findIndex((ex) => ex.id === exerciseId)
-    if (index !== -1) {
-      exercises.value[index] = {
-        ...exercises.value[index],
-        matchedExercise: newMatch,
-        confidenceLevel: 'high' as ConfidenceLevel, // User confirmed, so high confidence
-        isModified: true,
+    for (const workout of workouts.value) {
+      const index = workout.exercises.findIndex((ex) => ex.id === exerciseId)
+      if (index !== -1) {
+        workout.exercises[index] = {
+          ...workout.exercises[index],
+          matchedExercise: newMatch,
+          confidenceLevel: 'high' as ConfidenceLevel, // User confirmed, so high confidence
+          isModified: true,
+        }
+        break
       }
     }
   }
 
   const selectAlternativeMatch = (exerciseId: string, alternativeIndex: number): void => {
-    const exercise = exercises.value.find((ex) => ex.id === exerciseId)
-    if (exercise && exercise.alternativeMatches[alternativeIndex]) {
-      const alternative = exercise.alternativeMatches[alternativeIndex]
-      fixExerciseMatch(exerciseId, alternative)
+    for (const workout of workouts.value) {
+      const exercise = workout.exercises.find((ex) => ex.id === exerciseId)
+      if (exercise && exercise.alternativeMatches[alternativeIndex]) {
+        const alternative = exercise.alternativeMatches[alternativeIndex]
+        fixExerciseMatch(exerciseId, alternative)
+        break
+      }
     }
   }
 
   const removeExercise = (exerciseId: string): void => {
-    const index = exercises.value.findIndex((ex) => ex.id === exerciseId)
-    if (index !== -1) {
-      exercises.value.splice(index, 1)
-      // Update sequences
-      exercises.value.forEach((ex, idx) => {
-        ex.sequence = idx
-      })
+    for (const workout of workouts.value) {
+      const index = workout.exercises.findIndex((ex) => ex.id === exerciseId)
+      if (index !== -1) {
+        workout.exercises.splice(index, 1)
+        // Update sequences
+        workout.exercises.forEach((ex, idx) => {
+          ex.sequence = idx
+        })
+        break
+      }
     }
   }
 
@@ -248,55 +259,98 @@ export function useImportWizard() {
         secondary_muscle_groups: exercise.secondary_muscle_groups,
       },
       alternativeMatches: [],
-      sets: 3,
-      repsMin: 8,
-      repsMax: 12,
+      setConfigurations: [
+        { set_number: 1, reps_min: 8, reps_max: 12 },
+        { set_number: 2, reps_min: 8, reps_max: 12 },
+        { set_number: 3, reps_min: 8, reps_max: 12 },
+      ],
       restSeconds: 60,
       notes: null,
       confidenceLevel: 'high',
-      sequence: exercises.value.length,
+      sequence: 0,
       isManuallyAdded: true,
       isModified: false,
     }
 
-    exercises.value.push(newExercise)
+    // Add to first workout or create one if none exist
+    if (workouts.value.length === 0) {
+      workouts.value.push({
+        id: `workout-0-${Date.now()}`,
+        name: planName.value || 'Workout 1',
+        dayNumber: null,
+        orderIndex: 0,
+        exercises: [],
+      })
+    }
+    newExercise.sequence = workouts.value[0].exercises.length
+    workouts.value[0].exercises.push(newExercise)
   }
 
-  const replaceExercise = (exerciseId: string, newExercise: ExerciseListItem): void => {
-    const index = exercises.value.findIndex((ex) => ex.id === exerciseId)
-    if (index !== -1) {
-      exercises.value[index] = {
-        ...exercises.value[index],
-        matchedExercise: {
-          exercise_id: newExercise.id,
-          exercise_name: newExercise.name,
-          original_text: exercises.value[index].originalText,
+  const manualMatchExercise = (exerciseId: string, exercise: ExerciseListItem): void => {
+    for (const workout of workouts.value) {
+      const index = workout.exercises.findIndex((ex) => ex.id === exerciseId)
+      if (index !== -1) {
+        workout.exercises[index] = {
+          ...workout.exercises[index],
+          matchedExercise: {
+            exercise_id: exercise.id,
+            exercise_name: exercise.name,
+            original_text: workout.exercises[index].originalText,
           confidence: 1.0,
           confidence_level: 'high',
-          primary_muscle_groups: newExercise.primary_muscle_groups,
-          secondary_muscle_groups: newExercise.secondary_muscle_groups,
+          primary_muscle_groups: exercise.primary_muscle_groups,
+          secondary_muscle_groups: exercise.secondary_muscle_groups,
         },
         confidenceLevel: 'high',
         isModified: true,
       }
+        break
+      }
     }
   }
 
-  const reorderExercises = (fromIndex: number, toIndex: number): void => {
+  const replaceExercise = (exerciseId: string, newExercise: ExerciseListItem): void => {
+    for (const workout of workouts.value) {
+      const index = workout.exercises.findIndex((ex) => ex.id === exerciseId)
+      if (index !== -1) {
+        // Replace the exercise completely with new matched exercise
+        workout.exercises[index] = {
+          ...workout.exercises[index],
+          matchedExercise: {
+            exercise_id: newExercise.id,
+            exercise_name: newExercise.name,
+            original_text: workout.exercises[index].originalText,
+            confidence: 1.0,
+            confidence_level: 'high',
+            primary_muscle_groups: newExercise.primary_muscle_groups,
+            secondary_muscle_groups: newExercise.secondary_muscle_groups,
+          },
+          confidenceLevel: 'high',
+          isModified: true,
+        }
+        break
+      }
+    }
+  }
+
+  const reorderExercises = (workoutId: string, fromIndex: number, toIndex: number): void => {
+    const workout = workouts.value.find(w => w.id === workoutId)
+    if (!workout) return
+
     if (
       fromIndex < 0 ||
-      fromIndex >= exercises.value.length ||
+      fromIndex >= workout.exercises.length ||
       toIndex < 0 ||
-      toIndex >= exercises.value.length
+      toIndex >= workout.exercises.length
     ) {
       return
     }
 
-    const [movedExercise] = exercises.value.splice(fromIndex, 1)
-    exercises.value.splice(toIndex, 0, movedExercise)
+    const [movedExercise] = workout.exercises.splice(fromIndex, 1)
+    workout.exercises.splice(toIndex, 0, movedExercise)
 
     // Update sequences
-    exercises.value.forEach((ex, idx) => {
+    workout.exercises.forEach((ex, idx) => {
       ex.sequence = idx
     })
   }
@@ -334,32 +388,27 @@ export function useImportWizard() {
     createError.value = null
 
     try {
-      // Map exercises to create request format (nested structure)
-      const exerciseItems: WorkoutExerciseCreateItem[] = exercises.value
-        .filter((ex) => ex.matchedExercise !== null)
-        .map((ex, index) => ({
-          exercise_id: ex.matchedExercise!.exercise_id,
-          sequence: index,
-          sets: ex.sets,
-          reps_min: ex.repsMin,
-          reps_max: ex.repsMax,
-          rest_time_seconds: ex.restSeconds,
-          confidence_level: ex.confidenceLevel || 'medium',
-        }))
-
-      // Create a single workout with all exercises
-      const workout: WorkoutCreateItem = {
-        name: planName.value.trim(),
-        day_number: null,
-        order_index: 0,
-        exercises: exerciseItems,
-      }
+      // Map workouts to create request format with nested exercises
+      const workoutItems: WorkoutCreateItem[] = workouts.value.map((workout) => ({
+        name: workout.name,
+        day_number: workout.dayNumber,
+        order_index: workout.orderIndex,
+        exercises: workout.exercises
+          .filter((ex) => ex.matchedExercise !== null)
+          .map((ex, index) => ({
+            exercise_id: ex.matchedExercise!.exercise_id,
+            sequence: index,
+            set_configurations: ex.setConfigurations,
+            rest_time_seconds: ex.restSeconds,
+            confidence_level: ex.confidenceLevel || 'medium',
+          })),
+      }))
 
       const response = await workoutPlanService.createFromParsed({
         import_log_id: importLogId.value,
         name: planName.value.trim(),
         description: planDescription.value?.trim() || null,
-        workouts: [workout],
+        workouts: workoutItems,
       })
 
       uiStore.success('Workout plan created successfully!')
@@ -394,7 +443,7 @@ export function useImportWizard() {
     importLogId.value = null
     planName.value = ''
     planDescription.value = null
-    exercises.value = []
+    workouts.value = []
     parseStats.value = null
   }
 
@@ -409,13 +458,14 @@ export function useImportWizard() {
     importLogId,
     planName,
     planDescription,
-    exercises,
+    workouts,
     parseStats,
 
     // Computed
     hasData,
     inputCharCount,
     canParse,
+    allExercises,
     hasLowConfidenceExercises,
     hasUnmatchedExercises,
     validExercises,

@@ -167,6 +167,7 @@ async def get_workout_plan(
         exercise_details = []
         for we in workout_exercises:
             exercise = we.exercise
+            from app.schemas.workout_plans import SetConfig
             exercise_details.append(
                 WorkoutExerciseDetail(
                     id=we.id,
@@ -177,9 +178,9 @@ async def get_workout_plan(
                         secondary_muscle_groups=exercise.secondary_muscle_groups or [],
                     ),
                     sequence=we.sequence,
-                    sets=we.sets,
-                    reps_min=we.reps_min,
-                    reps_max=we.reps_max,
+                    set_configurations=[
+                        SetConfig(**config) for config in we.set_configurations
+                    ],
                     rest_time_seconds=we.rest_time_seconds,
                     confidence_level=we.confidence_level,
                 )
@@ -274,9 +275,10 @@ async def create_workout_plan(
                 workout_id=workout.id,
                 exercise_id=ex.exercise_id,
                 sequence=ex.sequence,
-                sets=ex.sets,
-                reps_min=ex.reps_min,
-                reps_max=ex.reps_max,
+                set_configurations=[
+                    {"set_number": s.set_number, "reps_min": s.reps_min, "reps_max": s.reps_max}
+                    for s in ex.set_configurations
+                ],
                 rest_time_seconds=ex.rest_time_seconds,
                 confidence_level=ex.confidence_level,
             )
@@ -375,9 +377,10 @@ async def update_workout_plan(
                     workout_id=workout.id,
                     exercise_id=ex.exercise_id,
                     sequence=ex.sequence,
-                    sets=ex.sets,
-                    reps_min=ex.reps_min,
-                    reps_max=ex.reps_max,
+                    set_configurations=[
+                        {"set_number": s.set_number, "reps_min": s.reps_min, "reps_max": s.reps_max}
+                        for s in ex.set_configurations
+                    ],
                     rest_time_seconds=ex.rest_time_seconds,
                     confidence_level=ex.confidence_level,
                 )
@@ -707,9 +710,10 @@ async def create_workout_plan_from_parsed(
                 workout_id=workout.id,
                 exercise_id=ex.exercise_id,
                 sequence=ex.sequence,
-                sets=ex.sets,
-                reps_min=ex.reps_min,
-                reps_max=ex.reps_max,
+                set_configurations=[
+                    {"set_number": s.set_number, "reps_min": s.reps_min, "reps_max": s.reps_max}
+                    for s in ex.set_configurations
+                ],
                 rest_time_seconds=ex.rest_time_seconds,
                 confidence_level=ex.confidence_level,
             )

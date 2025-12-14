@@ -66,7 +66,7 @@ const groupedExercises = computed<GroupedExercise[]>(() => {
 const totalVolume = computed(() => {
   if (!session.value) return 0
 
-  return session.value.exercise_sessions.reduce((sum, es) => sum + es.weight * es.reps, 0)
+  return session.value.exercise_sessions.reduce((sum, es) => sum + Number(es.weight) * es.reps, 0)
 })
 
 const totalSets = computed(() => {
@@ -145,7 +145,7 @@ const getStatusLabel = (status: SessionStatus): string => {
 }
 
 const getExerciseTotalVolume = (sets: ExerciseSessionFlatDetail[]): number => {
-  return sets.reduce((sum, set) => sum + set.weight * set.reps, 0)
+  return sets.reduce((sum, set) => sum + Number(set.weight) * set.reps, 0)
 }
 
 const getExerciseTotalReps = (sets: ExerciseSessionFlatDetail[]): number => {
@@ -229,7 +229,7 @@ onMounted(() => {
           >
             <span class="font-medium text-gray-900 dark:text-gray-100">{{ pr.exercise_name }}</span>
             <span class="text-yellow-700 dark:text-yellow-300 font-bold">
-              {{ pr.value.toFixed(1) }} {{ pr.unit }} (est. 1RM)
+              {{ Number(pr.value).toFixed(1) }} {{ pr.unit }} (est. 1RM)
             </span>
           </div>
         </div>
@@ -386,7 +386,7 @@ onMounted(() => {
                     {{ set.reps }}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {{ (set.weight * set.reps).toFixed(0) }} {{ weightUnit }}
+                    {{ (Number(set.weight) * set.reps).toFixed(0) }} {{ weightUnit }}
                   </td>
                   <td class="px-4 py-3 whitespace-nowrap">
                     <span
