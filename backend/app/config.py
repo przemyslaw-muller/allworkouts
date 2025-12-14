@@ -1,5 +1,5 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
 
 # Load .env file before creating Settings instance
 load_dotenv()
@@ -33,9 +33,7 @@ class Settings(BaseSettings):
     exercise_match_high_threshold: float = 0.90
     exercise_match_low_threshold: float = 0.70
 
-    class Config:
-        env_file = '.env'
-        case_sensitive = False
+    model_config = SettingsConfigDict(env_file='.env', case_sensitive=False)
 
 
 settings = Settings()

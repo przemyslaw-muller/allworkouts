@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.enums import MuscleGroupEnum, RecordTypeEnum
 
@@ -51,8 +51,7 @@ class ExerciseResponse(ExerciseBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseListItem(BaseModel):
@@ -66,8 +65,7 @@ class ExerciseListItem(BaseModel):
     equipment: list[EquipmentBrief] = []
     is_custom: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseListResponse(BaseModel):
@@ -86,8 +84,7 @@ class PersonalRecordBrief(BaseModel):
     unit: Optional[str] = None
     achieved_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseDetailResponse(BaseModel):
@@ -108,8 +105,7 @@ class ExerciseDetailResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseSubstituteItem(BaseModel):
@@ -123,8 +119,7 @@ class ExerciseSubstituteItem(BaseModel):
     equipment: list[EquipmentBrief] = []
     match_score: float  # 0.0 to 1.0 based on muscle group overlap
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseBrief(BaseModel):
@@ -135,5 +130,4 @@ class ExerciseBrief(BaseModel):
     primary_muscle_groups: list[MuscleGroupEnum]
     secondary_muscle_groups: list[MuscleGroupEnum] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

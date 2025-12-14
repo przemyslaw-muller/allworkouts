@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.enums import RecordTypeEnum
 
@@ -29,8 +29,7 @@ class PersonalRecordResponse(PersonalRecordBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PersonalRecordExerciseInfo(BaseModel):
@@ -39,8 +38,7 @@ class PersonalRecordExerciseInfo(BaseModel):
     id: UUID
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PersonalRecordListItem(BaseModel):
@@ -54,8 +52,7 @@ class PersonalRecordListItem(BaseModel):
     achieved_at: datetime
     exercise_session_id: Optional[UUID] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PersonalRecordListResponse(BaseModel):

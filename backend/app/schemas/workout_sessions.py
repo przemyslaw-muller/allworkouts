@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.enums import RecordTypeEnum, SessionStatusEnum
 
@@ -35,8 +35,7 @@ class WorkoutSessionResponse(WorkoutSessionBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseSessionBase(BaseModel):
@@ -63,8 +62,7 @@ class ExerciseSessionResponse(ExerciseSessionBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutSessionListItem(BaseModel):
@@ -78,8 +76,7 @@ class WorkoutSessionListItem(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutSessionListResponse(BaseModel):
@@ -99,8 +96,7 @@ class ExerciseSessionSetDetail(BaseModel):
     rest_time_seconds: Optional[int] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseSessionDetail(BaseModel):
@@ -115,8 +111,7 @@ class ExerciseSessionDetail(BaseModel):
     is_pr: bool = False
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PersonalRecordSummary(BaseModel):
@@ -139,8 +134,7 @@ class WorkoutSessionDetailResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RecentSetInfo(BaseModel):
@@ -149,8 +143,7 @@ class RecentSetInfo(BaseModel):
     reps: int
     weight: Decimal
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RecentSessionInfo(BaseModel):
@@ -159,8 +152,7 @@ class RecentSessionInfo(BaseModel):
     date: datetime
     sets: list[RecentSetInfo]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseContextInfo(BaseModel):
@@ -169,8 +161,7 @@ class ExerciseContextInfo(BaseModel):
     personal_record: Optional[PersonalRecordBrief] = None
     recent_sessions: list[RecentSessionInfo] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PlannedExerciseWithContext(BaseModel):
@@ -185,8 +176,7 @@ class PlannedExerciseWithContext(BaseModel):
     rest_seconds: Optional[int] = None
     context: ExerciseContextInfo
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutSessionStartRequest(BaseModel):

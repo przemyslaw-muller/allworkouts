@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Generic, Optional, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 # Generic type for API response data
 T = TypeVar('T')
@@ -38,8 +38,7 @@ class TimestampSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginationInfo(BaseModel):

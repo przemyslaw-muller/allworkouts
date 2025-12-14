@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.enums import ConfidenceLevelEnum, MuscleGroupEnum
 
@@ -33,8 +33,7 @@ class WorkoutPlanResponse(WorkoutPlanBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # =============================================================================
@@ -64,8 +63,7 @@ class WorkoutResponse(WorkoutBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutBrief(BaseModel):
@@ -75,8 +73,7 @@ class WorkoutBrief(BaseModel):
     name: str
     day_number: Optional[int] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # =============================================================================
@@ -130,8 +127,7 @@ class WorkoutExerciseResponse(WorkoutExerciseBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutExerciseDetail(BaseModel):
@@ -144,8 +140,7 @@ class WorkoutExerciseDetail(BaseModel):
     rest_time_seconds: Optional[int] = None
     confidence_level: ConfidenceLevelEnum
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutExerciseCreateItem(BaseModel):
@@ -199,8 +194,7 @@ class WorkoutDetail(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutCreateItem(BaseModel):
@@ -243,8 +237,7 @@ class WorkoutPlanListItem(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutPlanListResponse(BaseModel):
@@ -265,8 +258,7 @@ class WorkoutPlanDetailResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # =============================================================================
@@ -341,8 +333,7 @@ class WorkoutPlanBrief(BaseModel):
     id: UUID
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WorkoutPlanToggleActiveRequest(BaseModel):
@@ -375,8 +366,7 @@ class ParsedExerciseMatch(BaseModel):
     primary_muscle_groups: list[MuscleGroupEnum]
     secondary_muscle_groups: list[MuscleGroupEnum]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ParsedExerciseItem(BaseModel):

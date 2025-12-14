@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class EquipmentBase(BaseModel):
@@ -24,8 +24,7 @@ class EquipmentResponse(EquipmentBase):
     id: UUID
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EquipmentListItem(BaseModel):
@@ -36,8 +35,7 @@ class EquipmentListItem(BaseModel):
     description: Optional[str] = None
     is_user_owned: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EquipmentOwnershipRequest(BaseModel):
@@ -60,5 +58,4 @@ class EquipmentBrief(BaseModel):
     name: str
     description: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
