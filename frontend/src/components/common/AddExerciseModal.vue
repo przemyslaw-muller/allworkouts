@@ -9,7 +9,7 @@ import BaseButton from './BaseButton.vue'
 import BaseSelect from './BaseSelect.vue'
 import BaseSpinner from './BaseSpinner.vue'
 import CustomExerciseModal from './CustomExerciseModal.vue'
-import { exerciseService } from '@/services/exerciseService'
+import { useExerciseStore } from '@/stores/exercise'
 import { useUiStore } from '@/stores/ui'
 import type { ExerciseListItem, ExerciseDetailResponse, MuscleGroup } from '@/types'
 
@@ -27,6 +27,7 @@ const emit = defineEmits<{
 
 const showCustomExerciseModal = ref(false)
 const editingExercise = ref<ExerciseDetailResponse | null>(null)
+const exerciseStore = useExerciseStore()
 const uiStore = useUiStore()
 
 const searchQuery = ref('')
@@ -58,20 +59,35 @@ const searchExercises = async () => {
   isLoading.value = true
   error.value = null
 
-  try {
-    const params: any = {
-      limit: 50,
+  tr// Use cached store for faster lookups
+    let results: ExerciseListItem[]
+
+    if (!searchQuery.value.trim() && !muscleGroupFilter.value) {
+      // No filters - get all cached exercises
+      const { items } = await exerciseStore.getAllExercises()
+      results = items
+    } else if (searchQuery.value.trim() && !muscleGroupFilter.value) {
+      // Search by name only - use cached search
+      results = await exerciseStore.searchExercises(searchQuery.value.trim())
+    } else {
+      // Has filters - use regular API call with caching
+      const params: any = {
+        page_size: 50,
+      }
+
+      if (searchQuery.value.trim()) {
+        params.search = searchQuery.value.trim()
+      }
+
+      if (muscleGroupFilter.value) {
+        params.muscle_group = muscleGroupFilter.value
+      }
+
+      const response = await exerciseStore.getExercises(params)
+      results = response.items
     }
 
-    if (searchQuery.value.trim()) {
-      params.search = searchQuery.value.trim()
-    }
-
-    if (muscleGroupFilter.value) {
-      params.muscle_group = muscleGroupFilter.value
-    }
-
-    const response = await exerciseService.getAll(params)
+    exercises.value = resultice.getAll(params)
     exercises.value = response.exercises
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load exercises'

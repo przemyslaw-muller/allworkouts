@@ -11,3 +11,4 @@ export {
   type ModalState,
   type ConfirmationState,
 } from './ui'
+export { useExerciseStore } from './exercise'

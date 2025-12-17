@@ -7,7 +7,7 @@ import BaseModal from './BaseModal.vue'
 import BaseInput from './BaseInput.vue'
 import BaseButton from './BaseButton.vue'
 import BaseSpinner from './BaseSpinner.vue'
-import { exerciseService } from '@/services/exerciseService'
+import { useExerciseStore } from '@/stores/exercise'
 import type { EditableExercise, ExerciseListItem, ExerciseSubstituteItem } from '@/types'
 
 interface Props {
@@ -22,6 +22,7 @@ const emit = defineEmits<{
   'on-select': [exercise: ExerciseListItem]
 }>()
 
+const exerciseStore = useExerciseStore()
 const searchQuery = ref('')
 const substitutes = ref<ExerciseSubstituteItem[]>([])
 const searchResults = ref<ExerciseListItem[]>([])
@@ -44,7 +45,7 @@ const loadSubstitutes = async () => {
   error.value = null
 
   try {
-    substitutes.value = await exerciseService.getSubstitutes(props.currentExercise.exerciseId)
+    substitutes.value = await exerciseStore.getSubstitutes(props.currentExercise.exerciseId)
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load substitutes'
     substitutes.value = []
@@ -58,16 +59,13 @@ const searchAllExercises = async () => {
   error.value = null
 
   try {
-    const params: any = {
-      limit: 50,
-    }
-
+    // Use cached search for better performance
     if (searchQuery.value.trim()) {
-      params.search = searchQuery.value.trim()
+      searchResults.value = await exerciseStore.searchExercises(searchQuery.value.trim())
+    } else {
+      const { items } = await exerciseStore.getAllExercises()
+      searchResults.value = items.slice(0, 50)
     }
-
-    const response = await exerciseService.getAll(params)
-    searchResults.value = response.exercises
     showAllExercises.value = true
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to search exercises'

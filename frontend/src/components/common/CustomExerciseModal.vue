@@ -10,6 +10,7 @@ import BaseTextarea from './BaseTextarea.vue'
 import BaseSpinner from './BaseSpinner.vue'
 import { exerciseService } from '@/services/exerciseService'
 import { equipmentService } from '@/services/equipmentService'
+import { useExerciseStore } from '@/stores/exercise'
 import type {
   ExerciseCreateRequest,
   ExerciseUpdateRequest,
@@ -138,6 +139,7 @@ const populateFromExercise = (exercise: ExerciseDetailResponse) => {
 const handleSubmit = async () => {
   if (!canSubmit.value) return
 
+  const exerciseStore = useExerciseStore()
   isSaving.value = true
   error.value = null
 
@@ -153,6 +155,11 @@ const handleSubmit = async () => {
       }
 
       const updated = await exerciseService.update(props.exercise.id, updateData)
+      
+      // Invalidate caches after update
+      exerciseStore.invalidateExercise(props.exercise.id)
+      exerciseStore.invalidateListCache()
+      
       emit('on-updated', updated)
     } else {
       // Create new exercise
@@ -165,6 +172,9 @@ const handleSubmit = async () => {
       }
 
       const response = await exerciseService.create(createData)
+
+      // Invalidate list cache after creating new exercise
+      exerciseStore.invalidateListCache()
 
       // Construct ExerciseListItem from response for parent component
       const newExercise: ExerciseListItem = {

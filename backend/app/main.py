@@ -35,17 +35,6 @@ async def health_check():
     return HealthResponse(status='ok', timestamp=datetime.utcnow())
 
 
-@app.get('/', tags=['Root'])
-async def root():
-    '''Root endpoint'''
-    return {
-        'message': 'AllWorkouts API',
-        'version': '0.1.0',
-        'docs': '/docs',
-        'health': '/health',
-    }
-
-
 # Include API routes
 app.include_router(api_router)
 

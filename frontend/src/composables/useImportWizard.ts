@@ -388,6 +388,7 @@ export function useImportWizard() {
       })
 
       uiStore.success('Workout plan created successfully!')
+      reset() // Clear wizard state before navigation
       router.push({ name: 'plan-detail', params: { id: response.id } })
     } catch (err: any) {
       const errorCode = err.response?.data?.error?.code
