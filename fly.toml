@@ -8,6 +8,8 @@ primary_region = 'iad'
 
 [build]
   dockerfile = 'Dockerfile'
+  build-target = ''
+  ignorefile = '.dockerignore'
 
 [http_service]
   internal_port = 8000
