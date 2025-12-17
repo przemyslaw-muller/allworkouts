@@ -2,6 +2,9 @@
 
 A web application for strength training enthusiasts to import, manage, and track workout programs with AI-powered parsing and performance analytics.
 
+## Demo:
+<https://allworkouts.fly.dev/login>
+
 **Status**: MVP Development
 **License**: MIT
 
