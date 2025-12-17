@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load .env file before creating Settings instance
@@ -10,6 +11,14 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = 'postgresql://user:pass@db:5432/allworkouts'
+
+    @field_validator('database_url')
+    @classmethod
+    def fix_postgres_url(cls, v: str) -> str:
+        '''Convert postgres:// to postgresql:// for SQLAlchemy compatibility'''
+        if v.startswith('postgres://'):
+            return v.replace('postgres://', 'postgresql://', 1)
+        return v
 
     # JWT
     jwt_secret_key: str = 'your-secret-key-change-in-production'
