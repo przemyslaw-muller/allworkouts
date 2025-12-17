@@ -64,7 +64,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
     <div v-if="completionResult" class="max-w-md w-full space-y-6">
       <!-- Success Header -->
       <div class="text-center">
@@ -80,31 +80,31 @@ onMounted(() => {
             </svg>
           </div>
         </div>
-        <h1 class="text-3xl font-bold text-white mb-2">Workout Complete!</h1>
-        <p class="text-gray-400">Great job on finishing your workout</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Workout Complete!</h1>
+        <p class="text-gray-600 dark:text-gray-400">Great job on finishing your workout</p>
       </div>
 
       <!-- Stats Summary -->
-      <BaseCard class="!bg-gray-800 !border-gray-700">
+      <BaseCard>
         <div class="grid grid-cols-2 gap-4">
           <!-- Duration -->
           <div class="text-center">
-            <div class="text-3xl font-bold text-white mb-1">{{ formattedDuration }}</div>
-            <div class="text-sm text-gray-400">Duration</div>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">{{ formattedDuration }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Duration</div>
           </div>
 
           <!-- Exercises -->
           <div class="text-center">
-            <div class="text-3xl font-bold text-white mb-1">
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">
               {{ completionResult.new_personal_records.length }}
             </div>
-            <div class="text-sm text-gray-400">New PRs</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">New PRs</div>
           </div>
         </div>
       </BaseCard>
 
       <!-- Personal Records -->
-      <BaseCard v-if="hasNewPRs" class="!bg-gray-800 !border-primary-500">
+      <BaseCard v-if="hasNewPRs" class="border-primary-500">
         <div class="flex items-center gap-2 mb-4">
           <svg
             class="w-6 h-6 text-primary-500"
@@ -119,20 +119,20 @@ onMounted(() => {
               d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
             />
           </svg>
-          <h2 class="text-xl font-bold text-white">New Personal Records!</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">New Personal Records!</h2>
         </div>
 
         <div class="space-y-3">
           <div
             v-for="(pr, index) in completionResult.new_personal_records"
             :key="index"
-            class="bg-gray-700/50 rounded-lg p-3"
+            class="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3"
           >
             <div class="flex items-start justify-between mb-1">
-              <h3 class="font-semibold text-white">{{ pr.exercise_name }}</h3>
+              <h3 class="font-semibold text-gray-900 dark:text-white">{{ pr.exercise_name }}</h3>
               <BaseBadge variant="success">{{ recordTypeLabel(pr.record_type) }}</BaseBadge>
             </div>
-            <p class="text-2xl font-bold text-primary-500">
+            <p class="text-2xl font-bold text-primary-600 dark:text-primary-500">
               {{ pr.value }}{{ pr.unit ? ` ${pr.unit}` : '' }}
             </p>
           </div>
@@ -140,10 +140,10 @@ onMounted(() => {
       </BaseCard>
 
       <!-- No PRs message -->
-      <BaseCard v-else class="!bg-gray-800 !border-gray-700">
+      <BaseCard v-else>
         <div class="text-center py-4">
-          <p class="text-gray-400">No new personal records this time</p>
-          <p class="text-sm text-gray-500 mt-1">Keep pushing to beat your best!</p>
+          <p class="text-gray-600 dark:text-gray-400">No new personal records this time</p>
+          <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">Keep pushing to beat your best!</p>
         </div>
       </BaseCard>
 

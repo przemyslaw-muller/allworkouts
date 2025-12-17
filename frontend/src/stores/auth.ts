@@ -6,6 +6,7 @@ import { ref, computed } from 'vue'
 import type { User, LoginRequest, RegisterRequest } from '@/types'
 import { authService } from '@/services'
 import { tokenStorage, getErrorMessage } from '@/services/api'
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -79,6 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
   function logout() {
     authService.logout()
     user.value = null
+    router.push('/login')
   }
 
   async function refreshUser() {

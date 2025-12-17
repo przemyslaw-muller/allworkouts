@@ -175,10 +175,10 @@ onMounted(async () => {
   <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
     <!-- Header -->
     <div>
-      <h1 class="text-3xl font-bold text-white mb-2">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
         Welcome back{{ user?.email ? `, ${user.email.split('@')[0]}` : '' }}!
       </h1>
-      <p class="text-gray-400">Ready to crush your workout?</p>
+      <p class="text-gray-600 dark:text-gray-400">Ready to crush your workout?</p>
     </div>
 
     <!-- Active Session Recovery Banner -->
@@ -213,11 +213,11 @@ onMounted(async () => {
       <!-- Left Column: Active Plan & Quick Stats -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Active Plan Card -->
-        <BaseCard v-if="hasPlans && activePlan" class="!bg-gray-800 !border-gray-700">
+        <BaseCard v-if="hasPlans && activePlan">
           <div class="flex items-start justify-between mb-4">
             <div>
-              <h2 class="text-xl font-bold text-white mb-1">{{ activePlan.name }}</h2>
-              <p class="text-gray-400 text-sm">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">{{ activePlan.name }}</h2>
+              <p class="text-gray-600 dark:text-gray-400 text-sm">
                 {{ activePlan.description || 'Your active workout plan' }}
               </p>
             </div>
@@ -228,7 +228,7 @@ onMounted(async () => {
             </span>
           </div>
 
-          <div class="flex items-center gap-2 text-gray-400 text-sm mb-4">
+          <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm mb-4">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -238,7 +238,7 @@ onMounted(async () => {
               />
             </svg>
             <span>{{ activePlan.workout_count }} workouts</span>
-            <span class="text-gray-600">•</span>
+            <span class="text-gray-400 dark:text-gray-600">•</span>
             <span>{{ activePlan.exercise_count }} exercises</span>
           </div>
 
@@ -247,21 +247,21 @@ onMounted(async () => {
             <BaseSpinner size="sm" />
           </div>
           <div v-else-if="activeWorkouts.length > 0" class="mb-4 space-y-2">
-            <p class="text-sm text-gray-400 mb-2">Select a workout to start:</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Select a workout to start:</p>
             <div
               v-for="workout in activeWorkouts"
               :key="workout.id"
-              class="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer group"
+              class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer group"
               @click="() => startWorkout(workout.id)"
             >
               <div class="flex-1">
-                <h4 class="text-white font-medium text-sm">{{ workout.name }}</h4>
-                <p class="text-gray-400 text-xs">
+                <h4 class="text-gray-900 dark:text-white font-medium text-sm">{{ workout.name }}</h4>
+                <p class="text-gray-600 dark:text-gray-400 text-xs">
                   {{ workout.exercises.length }} exercise{{ workout.exercises.length !== 1 ? 's' : '' }}
                 </p>
               </div>
               <svg
-                class="w-5 h-5 text-gray-400 group-hover:text-primary-400 transition-colors"
+                class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -290,12 +290,12 @@ onMounted(async () => {
         </BaseCard>
 
         <!-- Empty State: No Plans -->
-        <BaseCard v-else class="!bg-gray-800 !border-gray-700 text-center py-12">
+        <BaseCard v-else class="text-center py-12">
           <div class="max-w-sm mx-auto">
             <div class="mb-4 flex justify-center">
-              <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
+              <div class="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
                 <svg
-                  class="w-8 h-8 text-gray-500"
+                  class="w-8 h-8 text-gray-400 dark:text-gray-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -309,8 +309,8 @@ onMounted(async () => {
                 </svg>
               </div>
             </div>
-            <h3 class="text-xl font-semibold text-white mb-2">No Workout Plans Yet</h3>
-            <p class="text-gray-400 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Workout Plans Yet</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
               Import your first workout plan to get started with your training journey
             </p>
             <BaseButton variant="primary" @click="goToImport"> Import Workout Plan </BaseButton>
@@ -320,41 +320,41 @@ onMounted(async () => {
         <!-- Quick Stats Cards -->
         <div class="grid grid-cols-3 gap-4">
           <!-- Workouts This Month -->
-          <BaseCard class="!bg-gray-800 !border-gray-700 text-center">
+          <BaseCard class="text-center">
             <div v-if="isLoadingStats" class="flex justify-center py-4">
               <BaseSpinner />
             </div>
             <div v-else>
-              <p class="text-3xl font-bold text-primary-400 mb-1">
+              <p class="text-3xl font-bold text-primary-500 dark:text-primary-400 mb-1">
                 {{ currentMonthWorkouts }}
               </p>
-              <p class="text-xs text-gray-400">This Month</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">This Month</p>
             </div>
           </BaseCard>
 
           <!-- Current Streak -->
-          <BaseCard class="!bg-gray-800 !border-gray-700 text-center">
+          <BaseCard class="text-center">
             <div v-if="isLoadingStats" class="flex justify-center py-4">
               <BaseSpinner />
             </div>
             <div v-else>
-              <p class="text-3xl font-bold text-orange-400 mb-1">
+              <p class="text-3xl font-bold text-orange-500 dark:text-orange-400 mb-1">
                 {{ stats?.current_streak_days || 0 }}
               </p>
-              <p class="text-xs text-gray-400">Day Streak</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Day Streak</p>
             </div>
           </BaseCard>
 
           <!-- Personal Records -->
-          <BaseCard class="!bg-gray-800 !border-gray-700 text-center">
+          <BaseCard class="text-center">
             <div v-if="isLoadingStats" class="flex justify-center py-4">
               <BaseSpinner />
             </div>
             <div v-else>
-              <p class="text-3xl font-bold text-green-400 mb-1">
+              <p class="text-3xl font-bold text-green-500 dark:text-green-400 mb-1">
                 {{ stats?.personal_records_count || 0 }}
               </p>
-              <p class="text-xs text-gray-400">Total PRs</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Total PRs</p>
             </div>
           </BaseCard>
         </div>
@@ -368,19 +368,19 @@ onMounted(async () => {
       <!-- Right Column: Quick Actions -->
       <div class="space-y-6">
         <!-- Quick Actions Card -->
-        <BaseCard class="!bg-gray-800 !border-gray-700">
-          <h2 class="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+        <BaseCard>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
           <div class="space-y-3">
             <button
               type="button"
-              class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-left"
+              class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-left"
               @click="() => router.push('/plans')"
             >
               <div
-                class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
+                class="w-10 h-10 bg-primary-100 dark:bg-primary-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
               >
                 <svg
-                  class="w-5 h-5 text-primary-400"
+                  class="w-5 h-5 text-primary-600 dark:text-primary-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -394,11 +394,11 @@ onMounted(async () => {
                 </svg>
               </div>
               <div class="flex-1">
-                <h3 class="font-medium text-white">View Plans</h3>
-                <p class="text-xs text-gray-400">Manage workout plans</p>
+                <h3 class="font-medium text-gray-900 dark:text-white">View Plans</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Manage workout plans</p>
               </div>
               <svg
-                class="w-5 h-5 text-gray-400"
+                class="w-5 h-5 text-gray-500 dark:text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -418,10 +418,10 @@ onMounted(async () => {
               @click="() => router.push('/history')"
             >
               <div
-                class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
+                class="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
               >
                 <svg
-                  class="w-5 h-5 text-blue-400"
+                  class="w-5 h-5 text-blue-600 dark:text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -435,11 +435,11 @@ onMounted(async () => {
                 </svg>
               </div>
               <div class="flex-1">
-                <h3 class="font-medium text-white">View History</h3>
-                <p class="text-xs text-gray-400">Past workouts</p>
+                <h3 class="font-medium text-gray-900 dark:text-white">View History</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Past workouts</p>
               </div>
               <svg
-                class="w-5 h-5 text-gray-400"
+                class="w-5 h-5 text-gray-500 dark:text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -455,14 +455,14 @@ onMounted(async () => {
 
             <button
               type="button"
-              class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-left"
+              class="w-full flex items-center gap-3 p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-left"
               @click="() => router.push('/stats')"
             >
               <div
-                class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
+                class="w-10 h-10 bg-green-100 dark:bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0"
               >
                 <svg
-                  class="w-5 h-5 text-green-400"
+                  class="w-5 h-5 text-green-600 dark:text-green-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -476,11 +476,11 @@ onMounted(async () => {
                 </svg>
               </div>
               <div class="flex-1">
-                <h3 class="font-medium text-white">View Stats</h3>
-                <p class="text-xs text-gray-400">Progress analytics</p>
+                <h3 class="font-medium text-gray-900 dark:text-white">View Stats</h3>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Progress analytics</p>
               </div>
               <svg
-                class="w-5 h-5 text-gray-400"
+                class="w-5 h-5 text-gray-500 dark:text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -510,22 +510,22 @@ onMounted(async () => {
         </BaseButton>
 
         <!-- Total Stats -->
-        <BaseCard v-if="stats && !isLoadingStats" class="!bg-gray-800 !border-gray-700">
-          <h2 class="text-lg font-semibold text-white mb-4">Overall Stats</h2>
+        <BaseCard v-if="stats && !isLoadingStats">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Overall Stats</h2>
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400 text-sm">Total Workouts</span>
-              <span class="text-white font-semibold">{{ stats.total_workouts }}</span>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">Total Workouts</span>
+              <span class="text-gray-900 dark:text-white font-semibold">{{ stats.total_workouts }}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400 text-sm">Total Time</span>
-              <span class="text-white font-semibold">{{
+              <span class="text-gray-600 dark:text-gray-400 text-sm">Total Time</span>
+              <span class="text-gray-900 dark:text-white font-semibold">{{
                 formatDuration(stats.total_duration_seconds)
               }}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400 text-sm">Total Volume</span>
-              <span class="text-white font-semibold">
+              <span class="text-gray-600 dark:text-gray-400 text-sm">Total Volume</span>
+              <span class="text-gray-900 dark:text-white font-semibold">
                 {{ Math.round(stats.total_volume_kg).toLocaleString() }} kg
               </span>
             </div>

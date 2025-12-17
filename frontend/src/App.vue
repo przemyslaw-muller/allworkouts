@@ -9,6 +9,7 @@ import WorkoutLayout from '@/components/common/WorkoutLayout.vue'
 import NotificationContainer from '@/components/common/NotificationContainer.vue'
 import LoadingOverlay from '@/components/common/LoadingOverlay.vue'
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue'
+import CommitHash from '@/components/common/CommitHash.vue'
 
 const route = useRoute()
 const uiStore = useUiStore()
@@ -63,6 +64,9 @@ const showInitLoading = computed(() => {
 
     <!-- Confirmation dialog -->
     <ConfirmationDialog />
+
+    <!-- Commit hash -->
+    <CommitHash />
   </div>
 </template>
 

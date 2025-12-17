@@ -51,6 +51,11 @@ if static_dir.exists():
         if full_path.startswith('api/') or full_path in ['health', 'docs', 'redoc', 'openapi.json']:
             return None
 
+        # Try to serve static files from dist root (e.g., logo, favicon)
+        file_path = static_dir / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+
         # Serve index.html for all other routes
         index_file = static_dir / 'index.html'
         if index_file.exists():

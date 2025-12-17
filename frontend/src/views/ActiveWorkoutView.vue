@@ -372,13 +372,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-900 pb-32">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
     <!-- Fixed Header -->
-    <div class="fixed top-0 left-0 right-0 z-40 bg-gray-800 border-b border-gray-700 shadow-lg">
+    <div class="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-lg">
       <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
         <div>
-          <h1 class="text-lg font-bold text-white">{{ session?.workout.name }}</h1>
-          <p class="text-sm text-gray-400">{{ session?.workout_plan.name }} - {{ formattedElapsedTime }}</p>
+          <h1 class="text-lg font-bold text-gray-900 dark:text-white">{{ session?.workout.name }}</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400">{{ session?.workout_plan.name }} - {{ formattedElapsedTime }}</p>
         </div>
         <BaseButton variant="outline" size="sm" @click="exitWorkout"> Exit </BaseButton>
       </div>
@@ -399,10 +399,10 @@ onUnmounted(() => {
             :class="[
               'transition-all cursor-pointer',
               getExerciseStatus(exercise.planned_exercise_id) === 'completed'
-                ? '!bg-gray-800 !border-green-500/30 opacity-75'
+                ? 'border-green-500/30 opacity-75'
                 : getExerciseStatus(exercise.planned_exercise_id) === 'current'
-                  ? '!bg-gray-800 !border-primary-500'
-                  : '!bg-gray-800 !border-gray-700 opacity-60',
+                  ? 'border-primary-500'
+                  : 'opacity-60',
             ]"
             @click="goToExercise(index)"
           >
@@ -432,14 +432,14 @@ onUnmounted(() => {
                     v-else-if="getExerciseStatus(exercise.planned_exercise_id) === 'current'"
                     class="w-6 h-6 rounded-full bg-primary-500 animate-pulse"
                   />
-                  <span v-else class="w-6 h-6 rounded-full bg-gray-600" />
+                  <span v-else class="w-6 h-6 rounded-full bg-gray-400 dark:bg-gray-600" />
 
-                  <h3 class="text-base font-semibold text-white">{{ exercise.exercise.name }}</h3>
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ exercise.exercise.name }}</h3>
 
                   <!-- Info Button -->
                   <button
                     type="button"
-                    class="text-gray-400 hover:text-white transition-colors"
+                    class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                     aria-label="Exercise info"
                     @click.stop="showExerciseInfo(exercise)"
                   >
@@ -454,7 +454,7 @@ onUnmounted(() => {
                   </button>
                 </div>
 
-                <p class="text-sm text-gray-400">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
                   {{ exercise.planned_sets }} sets × {{ exercise.planned_reps_min
                   }}{{
                     exercise.planned_reps_max !== exercise.planned_reps_min
@@ -496,10 +496,10 @@ onUnmounted(() => {
                 class="flex items-center gap-3"
               >
                 <div class="flex flex-col items-end">
-                  <span class="text-sm text-gray-400 w-12">Set {{ setIndex + 1 }}</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-400 w-12">Set {{ setIndex + 1 }}</span>
                   <span
                     v-if="exercise.set_configurations?.[setIndex]"
-                    class="text-xs text-gray-500 w-12"
+                    class="text-xs text-gray-500 dark:text-gray-500 w-12"
                   >
                     {{ exercise.set_configurations[setIndex].reps_min }}-{{ exercise.set_configurations[setIndex].reps_max }}
                   </span>
