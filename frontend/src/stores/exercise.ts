@@ -198,7 +198,7 @@ export const useExerciseStore = defineStore('exercise', () => {
     return items.filter(
       (ex) =>
         ex.name.toLowerCase().includes(lowerQuery) ||
-        ex.target_muscle?.toLowerCase().includes(lowerQuery),
+        ex.description?.toLowerCase().includes(lowerQuery),
     )
   }
 

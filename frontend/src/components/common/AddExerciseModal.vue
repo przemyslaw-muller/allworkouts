@@ -11,6 +11,7 @@ import BaseSpinner from './BaseSpinner.vue'
 import CustomExerciseModal from './CustomExerciseModal.vue'
 import { useExerciseStore } from '@/stores/exercise'
 import { useUiStore } from '@/stores/ui'
+import { exerciseService } from '@/services/exerciseService'
 import type { ExerciseListItem, ExerciseDetailResponse, MuscleGroup } from '@/types'
 
 interface Props {

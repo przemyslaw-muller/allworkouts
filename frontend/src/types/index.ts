@@ -159,6 +159,8 @@ export interface ExerciseListItem {
 export interface ExerciseListResponse {
   exercises: ExerciseListItem[]
   pagination: PaginationInfo
+  items: ExerciseListItem[]
+  total: number
 }
 
 export interface PersonalRecordBrief {
@@ -603,6 +605,8 @@ export interface ExerciseListParams extends PaginationParams {
   equipment_id?: string
   search?: string
   user_equipment_only?: boolean
+  page_size?: number
+  sort_by?: string
 }
 
 export interface WorkoutPlanListParams extends PaginationParams {
