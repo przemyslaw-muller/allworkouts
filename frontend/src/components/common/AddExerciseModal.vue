@@ -59,7 +59,8 @@ const searchExercises = async () => {
   isLoading.value = true
   error.value = null
 
-  tr// Use cached store for faster lookups
+  try {
+    // Use cached store for faster lookups
     let results: ExerciseListItem[]
 
     if (!searchQuery.value.trim() && !muscleGroupFilter.value) {
@@ -87,8 +88,7 @@ const searchExercises = async () => {
       results = response.items
     }
 
-    exercises.value = resultice.getAll(params)
-    exercises.value = response.exercises
+    exercises.value = results
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load exercises'
     exercises.value = []

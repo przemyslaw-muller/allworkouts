@@ -11,6 +11,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
+  id: undefined,
+  name: undefined,
   label: '',
 })
 

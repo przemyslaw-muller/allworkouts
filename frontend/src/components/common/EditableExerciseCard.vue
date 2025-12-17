@@ -16,6 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  errors: undefined,
   canReorder: true,
 })
 

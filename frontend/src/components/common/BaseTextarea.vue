@@ -20,7 +20,11 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   readonly: false,
   error: '',
+  id: undefined,
+  name: undefined,
   rows: 3,
+  maxlength: undefined,
+  label: undefined,
   required: false,
 })
 

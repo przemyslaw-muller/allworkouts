@@ -24,6 +24,13 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   readonly: false,
   error: '',
+  id: undefined,
+  name: undefined,
+  autocomplete: undefined,
+  min: undefined,
+  max: undefined,
+  step: undefined,
+  label: undefined,
   required: false,
 })
 
