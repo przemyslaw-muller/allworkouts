@@ -69,16 +69,17 @@ function handleChange(event: Event) {
         :class="selectClasses"
         @change="handleChange"
       >
-      <option value="" disabled>{{ placeholder }}</option>
-      <option
-        v-for="option in options"
-        :key="option.value"
-        :value="option.value"
-        :disabled="option.disabled"
-      >
-        {{ option.label }}
-      </option>
-    </select>
+        <option value="" disabled>{{ placeholder }}</option>
+        <option
+          v-for="option in options"
+          :key="option.value"
+          :value="option.value"
+          :disabled="option.disabled"
+        >
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
     <!-- Chevron icon -->
     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
       <svg
